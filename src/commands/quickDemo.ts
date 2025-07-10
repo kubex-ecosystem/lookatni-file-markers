@@ -1,0 +1,318 @@
+import * as vscode from 'vscode';
+import * as fs from 'fs';
+import * as path from 'path';
+import { Logger } from '../utils/logger';
+import { MarkerGenerator } from '../utils/markerGenerator';
+import { MarkerParser } from '../utils/markerParser';
+
+export class QuickDemoCommand {
+    public readonly commandId = 'lookatni.quickDemo';
+    
+    constructor(
+        private context: vscode.ExtensionContext,
+        private logger: Logger,
+        private outputChannel: vscode.OutputChannel
+    ) {}
+    
+    async execute(): Promise<void> {
+        this.logger.info('🚀 Starting LookAtni Quick Demo...');
+        
+        try {
+            // Show demo introduction
+            const proceed = await this.showDemoIntroduction();
+            if (!proceed) {
+                return;
+            }
+            
+            // Create demo workspace
+            const demoPath = await this.createDemoWorkspace();
+            if (!demoPath) {
+                return;
+            }
+            
+            // Generate markers
+            const markedFile = await this.generateDemoMarkers(demoPath);
+            
+            // Extract files
+            await this.extractDemoFiles(markedFile, demoPath);
+            
+            // Show completion
+            this.showDemoCompletion(demoPath, markedFile);
+            
+        } catch (error) {
+            this.logger.error('Error during demo:', error);
+            vscode.window.showErrorMessage(`Demo failed: ${error}`);
+        }
+    }
+    
+    private async showDemoIntroduction(): Promise<boolean> {
+        const message = `🎯 Welcome to LookAtni Revolution Quick Demo!
+        
+This demo will:
+• Create sample files with different extensions
+• Generate a marked file using //m/ markers
+• Extract files back from the marked content
+• Show validation and statistics
+
+The demo creates a temporary folder and won't affect your current workspace.
+
+Ready to see LookAtni in action?`;
+        
+        const choice = await vscode.window.showInformationMessage(
+            message,
+            { modal: true },
+            'Start Demo',
+            'Cancel'
+        );
+        
+        return choice === 'Start Demo';
+    }
+    
+    private async createDemoWorkspace(): Promise<string | undefined> {
+        // Get demo location
+        const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+        const demoParent = workspaceRoot || require('os').homedir();
+        
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const demoPath = path.join(demoParent, `lookatni-demo-${timestamp}`);
+        
+        try {
+            // Create demo directory
+            fs.mkdirSync(demoPath, { recursive: true });
+            
+            // Create sample files
+            await this.createSampleFiles(demoPath);
+            
+            this.logger.success(`Created demo workspace: ${demoPath}`);
+            return demoPath;
+            
+        } catch (error) {
+            this.logger.error('Failed to create demo workspace:', error);
+            vscode.window.showErrorMessage('Failed to create demo workspace');
+            return undefined;
+        }
+    }
+    
+    private async createSampleFiles(demoPath: string): Promise<void> {
+        const samples = {
+            'README.md': `# LookAtni Demo Project
+
+This is a sample project to demonstrate the LookAtni Revolution system.
+
+## Features
+- File marker system with //m/ syntax
+- CLI tools for extraction and generation
+- VS Code extension for seamless integration
+
+Generated on: ${new Date().toISOString()}
+`,
+            'package.json': JSON.stringify({
+                name: 'lookatni-demo',
+                version: '1.0.0',
+                description: 'Demo project for LookAtni Revolution',
+                main: 'index.js',
+                scripts: {
+                    start: 'node index.js',
+                    test: 'echo "No tests yet"'
+                },
+                keywords: ['lookatni', 'demo', 'markers'],
+                author: 'LookAtni Revolution',
+                license: 'MIT'
+            }, null, 2),
+            
+            'src/index.js': `// LookAtni Demo - Main File
+console.log('🚀 Welcome to LookAtni Revolution!');
+
+function demonstrateMarkers() {
+    console.log('This file will be marked with //m/ syntax');
+    console.log('Each file gets unique markers for easy extraction');
+    
+    const features = [
+        'Unique file markers',
+        'CLI tools',
+        'VS Code extension',
+        'Validation system'
+    ];
+    
+    features.forEach((feature, index) => {
+        console.log(\`\${index + 1}. \${feature}\`);
+    });
+}
+
+demonstrateMarkers();
+`,
+            
+            'src/utils.js': `// Utility functions for LookAtni Demo
+
+export function formatBytes(bytes) {
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    if (bytes === 0) return '0 B';
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+export function validateFilename(filename) {
+    const invalidChars = /[<>:"|?*]/;
+    return !invalidChars.test(filename);
+}
+
+export function createMarker(filename) {
+    return \`//m/ \${filename} /m//\`;
+}
+`,
+            
+            'config/settings.json': JSON.stringify({
+                demo: true,
+                version: '1.0.0',
+                features: {
+                    markers: true,
+                    validation: true,
+                    extraction: true
+                },
+                created: new Date().toISOString()
+            }, null, 2),
+            
+            'docs/guide.md': `# LookAtni Usage Guide
+
+## What are markers?
+
+Markers use the syntax: \`//m/ filename /m//\`
+
+## Example:
+
+\`\`\`
+//m/ src/example.js /m//
+console.log('This content belongs to src/example.js');
+const demo = true;
+
+//m/ README.md /m//
+# Another File
+This content belongs to README.md
+\`\`\`
+
+## Benefits:
+- Easy file identification
+- Preserves directory structure  
+- Supports validation
+- Works with any text format
+`
+        };
+        
+        // Create files
+        for (const [filePath, content] of Object.entries(samples)) {
+            const fullPath = path.join(demoPath, filePath);
+            const dir = path.dirname(fullPath);
+            
+            // Create directory if needed
+            if (!fs.existsSync(dir)) {
+                fs.mkdirSync(dir, { recursive: true });
+            }
+            
+            fs.writeFileSync(fullPath, content, 'utf-8');
+        }
+    }
+    
+    private async generateDemoMarkers(demoPath: string): Promise<string> {
+        const generator = new MarkerGenerator(this.logger);
+        const outputFile = path.join(demoPath, 'demo-marked.txt');
+        
+        const options = {
+            maxFileSize: 1000, // 1MB limit
+            excludePatterns: ['node_modules', '.git', '*.log']
+        };
+        
+        this.outputChannel.appendLine('\n=== GENERATING MARKERS ===');
+        
+        const results = await vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: 'Generating demo markers...',
+            cancellable: false
+        }, async (progress) => {
+            return generator.generateMarkers(demoPath, outputFile, options, (current, total) => {
+                progress.report({
+                    increment: (100 / total),
+                    message: `Processing ${current}/${total} files...`
+                });
+            });
+        });
+        
+        this.outputChannel.appendLine(`✅ Generated markers for ${results.totalFiles} files`);
+        this.outputChannel.appendLine(`📊 Total size: ${this.formatBytes(results.totalBytes)}`);
+        this.outputChannel.appendLine(`📄 Output: ${outputFile}`);
+        
+        return outputFile;
+    }
+    
+    private async extractDemoFiles(markedFile: string, demoPath: string): Promise<void> {
+        const parser = new MarkerParser(this.logger);
+        const extractPath = path.join(demoPath, 'extracted');
+        
+        this.outputChannel.appendLine('\n=== EXTRACTING FILES ===');
+        
+        const results = await vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: 'Extracting demo files...',
+            cancellable: false
+        }, async () => {
+            return parser.extractFiles(markedFile, extractPath, {
+                overwrite: true,
+                createDirs: true,
+                dryRun: false
+            });
+        });
+        
+        this.outputChannel.appendLine(`✅ Extracted ${results.extractedFiles.length} files`);
+        this.outputChannel.appendLine(`📁 Output directory: ${extractPath}`);
+        
+        if (results.errors.length > 0) {
+            this.outputChannel.appendLine('⚠️ Errors:');
+            results.errors.forEach(error => {
+                this.outputChannel.appendLine(`  • ${error}`);
+            });
+        }
+    }
+    
+    private async showDemoCompletion(demoPath: string, markedFile: string): Promise<void> {
+        this.outputChannel.appendLine('\n=== DEMO COMPLETED ===');
+        this.outputChannel.appendLine(`📁 Demo workspace: ${demoPath}`);
+        this.outputChannel.appendLine(`📄 Marked file: ${markedFile}`);
+        this.outputChannel.appendLine(`📂 Extracted files: ${path.join(demoPath, 'extracted')}`);
+        this.outputChannel.appendLine('');
+        this.outputChannel.appendLine('🎯 Demo completed successfully!');
+        this.outputChannel.appendLine('You can now explore the generated files and see how LookAtni works.');
+        
+        this.outputChannel.show();
+        
+        const choice = await vscode.window.showInformationMessage(
+            '🎉 Demo completed! What would you like to do?',
+            'Open Demo Folder',
+            'View Marked File',
+            'Open Extracted Files',
+            'Close'
+        );
+        
+        switch (choice) {
+            case 'Open Demo Folder':
+                vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(demoPath));
+                break;
+            case 'View Marked File':
+                const document = await vscode.workspace.openTextDocument(markedFile);
+                vscode.window.showTextDocument(document);
+                break;
+            case 'Open Extracted Files':
+                const extractedPath = path.join(demoPath, 'extracted');
+                vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(extractedPath));
+                break;
+        }
+    }
+    
+    private formatBytes(bytes: number): string {
+        if (bytes === 0) {
+            return '0 B';
+        }
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+}
