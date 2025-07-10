@@ -1,71 +1,119 @@
-# lookatni-revolution README
+# LookAtni Revolution
 
-This is the README for your extension "lookatni-revolution". After writing up a brief description, we recommend including the following sections.
+🚀 **Revolutionary file marker system for automatic code extraction and generation**
 
-## Features
+Transform how you deliver and organize code with unique markers that never conflict with existing syntax.
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+## 🎯 What is LookAtni Revolution?
 
-For example if there is an image subfolder under your extension project workspace:
+LookAtni Revolution introduces a groundbreaking approach to file organization and code delivery using unique markers:
 
-\!\[feature X\]\(images/feature-x.png\)
+```
+//m/ src/example.js /m//
+console.log('This content belongs to src/example.js');
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+//m/ README.md /m//
+# Another File
+This content belongs to README.md
+```
 
-## Requirements
+## ✨ Features
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+### 🔄 **File Extraction**
+- Extract complete project structures from marked content
+- Preserves directory hierarchy automatically
+- Interactive conflict resolution
+- Dry-run mode for safe testing
 
-## Extension Settings
+### 🏷️ **Marker Generation**
+- Generate marked files from existing projects
+- Smart binary file detection and exclusion
+- Configurable file size limits
+- Flexible exclusion patterns
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+### ✔️ **Validation & Analysis**
+- Comprehensive marker validation
+- Duplicate filename detection
+- Invalid character checking
+- Detailed statistics and reporting
 
-For example:
+### 🎯 **Interactive Demo**
+- Built-in demonstration system
+- Sample project generation
+- Step-by-step walkthrough
+- Real-time feedback
 
-This extension contributes the following settings:
+### 📊 **Statistics & Reporting**
+- File type distribution analysis
+- Size optimization metrics
+- Performance benchmarks
+- Comprehensive logging
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+### 🔧 **CLI Integration**
+- Standalone command-line tools
+- Batch processing capabilities
+- CI/CD pipeline integration
+- Cross-platform compatibility
 
-## Known Issues
+## 🚀 Quick Start
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+### Installation
+1. Install from VS Code Marketplace: `LookAtni Revolution`
+2. Press `Ctrl+Shift+P` and search for "LookAtni"
+3. Try `LookAtni: Quick Demo` to see it in action!
 
-## Release Notes
+### Basic Usage
 
-Users appreciate release notes as you update your extension.
+1. **Generate markers from a project:**
+   - Right-click on a folder → `LookAtni: Generate Markers`
+   - Choose output file and options
+   - Get a marked file with your entire project
 
-### 1.0.0
+2. **Extract files from marked content:**
+   - Open a marked file (`.txt` with `//m/` markers)
+   - Right-click → `LookAtni: Extract Files`
+   - Choose destination and watch your project rebuild
 
-Initial release of ...
+3. **Validate marked files:**
+   - Use `LookAtni: Validate Markers` to check integrity
+   - Get detailed reports on any issues
 
-### 1.0.1
+## 🏷️ Marker Format
 
-Fixed issue #.
+LookAtni uses a **unique, conflict-free** marker syntax:
 
-### 1.1.0
+```
+//m/ relative/path/to/file.ext /m//
+```
 
-Added features X, Y, and Z.
+**Why this format?**
+- ✅ **Unique**: Extremely unlikely to appear in real code
+- ✅ **Readable**: Easy to identify and understand  
+- ✅ **Parseable**: Simple regex pattern
+- ✅ **Universal**: Works with any programming language
+
+## 📋 Commands
+
+| Command | Shortcut | Description |
+|---------|----------|-------------|
+| `LookAtni: Extract Files` | `Ctrl+Shift+L E` | Extract files from marked content |
+| `LookAtni: Generate Markers` | `Ctrl+Shift+L G` | Create marked file from project |
+| `LookAtni: Validate Markers` | - | Validate marked file structure |
+| `LookAtni: Quick Demo` | `Ctrl+Shift+L D` | Run interactive demonstration |
+| `LookAtni: Show Statistics` | - | Display file statistics |
+| `LookAtni: Open CLI Tools` | - | Access command-line tools |
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## 🔗 Links
+
+- **Repository**: [GitHub](https://github.com/your-username/lookatni-revolution)
+- **Issues**: [Report Issues](https://github.com/your-username/lookatni-revolution/issues)
 
 ---
 
-## Following extension guidelines
+**Made with ❤️ for the developer community**
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+*Transform your code workflow with LookAtni Revolution!*

@@ -1,23 +1,171 @@
 {
   "name": "lookatni-revolution",
   "displayName": "LookAtni Revolution",
-  "description": "Revolutionary file marker system for automatic code extraction and generation. Transform how you deliver and organize code with unique markers.",
+  "description": "Revolutionary marked file system for seamless code sharing and project reconstruction. Extract files from marked content, generate markers from projects, validate integrity, and more!",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.102.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "Development",
+    "Productivity"
   ],
+  "icon": "resources/icon.png",
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
+  },
   "activationEvents": [],
   "main": "./dist/extension.js",
+  "publisher": "rafa-mori",
+  "author": {
+    "name": "RAFA-MORI",
+    "email": "contact@example.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RAFA-MORI/lookatni-revolution.git"
+  },
+  "homepage": "https://github.com/RAFA-MORI/lookatni-revolution#readme",
+  "bugs": {
+    "url": "https://github.com/RAFA-MORI/lookatni-revolution/issues"
+  },
+  "keywords": [
+    "file-markers",
+    "code-sharing",
+    "project-reconstruction",
+    "development-tools",
+    "cli-integration",
+    "marker-system",
+    "file-extraction",
+    "productivity",
+    "lookatni",
+    "marked-files",
+    "vscode-extension"
+  ],
+  "qna": "marketplace",
+  "preview": false,
   "contributes": {
     "commands": [
       {
-        "command": "lookatni-revolution.helloWorld",
-        "title": "Hello World"
+        "command": "lookatni.extractFiles",
+        "title": "LookAtni: Extract Files",
+        "category": "LookAtni"
+      },
+      {
+        "command": "lookatni.generateMarkers",
+        "title": "LookAtni: Generate Markers",
+        "category": "LookAtni"
+      },
+      {
+        "command": "lookatni.validateMarkers",
+        "title": "LookAtni: Validate Markers",
+        "category": "LookAtni"
+      },
+      {
+        "command": "lookatni.quickDemo",
+        "title": "LookAtni: Quick Demo",
+        "category": "LookAtni"
+      },
+      {
+        "command": "lookatni.showStatistics",
+        "title": "LookAtni: Show Statistics",
+        "category": "LookAtni"
+      },
+      {
+        "command": "lookatni.openCLI",
+        "title": "LookAtni: Open CLI Tools",
+        "category": "LookAtni"
       }
-    ]
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "lookatni.extractFiles",
+          "when": "resourceExtname == .txt",
+          "group": "lookatni"
+        },
+        {
+          "command": "lookatni.generateMarkers",
+          "when": "explorerResourceIsFolder",
+          "group": "lookatni"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "lookatni.extractFiles",
+          "when": "true"
+        },
+        {
+          "command": "lookatni.generateMarkers",
+          "when": "true"
+        },
+        {
+          "command": "lookatni.validateMarkers",
+          "when": "true"
+        },
+        {
+          "command": "lookatni.quickDemo",
+          "when": "true"
+        },
+        {
+          "command": "lookatni.showStatistics",
+          "when": "true"
+        },
+        {
+          "command": "lookatni.openCLI",
+          "when": "true"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "lookatni.extractFiles",
+        "key": "ctrl+shift+l e",
+        "mac": "cmd+shift+l e"
+      },
+      {
+        "command": "lookatni.generateMarkers",
+        "key": "ctrl+shift+l g",
+        "mac": "cmd+shift+l g"
+      },
+      {
+        "command": "lookatni.quickDemo",
+        "key": "ctrl+shift+l d",
+        "mac": "cmd+shift+l d"
+      }
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "lookatniExplorer",
+          "name": "LookAtni Files",
+          "when": "workspaceFolderCount > 0"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "LookAtni Revolution",
+      "properties": {
+        "lookatni.defaultMaxFileSize": {
+          "type": "number",
+          "default": 1000,
+          "description": "Default maximum file size in KB for generation"
+        },
+        "lookatni.showStatistics": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show statistics after operations"
+        },
+        "lookatni.autoValidate": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically validate files after generation"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
