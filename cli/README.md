@@ -1,4 +1,21 @@
-# LookAtni Revolution - CLI Tools
+# ![LookAtni Revolution - CLI Tools](https://raw.githubusercontent.com/rafa-mori/lookatni-revolution/main/assets/top_banner.png)
+
+---
+
+![![GitHub Release](https://img.shields.io/github/release/rafa-mori/lookatni-revolution.svg)](https://github.com/rafa-mori/lookatni-revolution/releases)
+![![GitHub Issues](https://img.shields.io/github/issues/rafa-mori/lookatni-revolution.svg)](https://github.com/rafa-mori/lookatni-revolution/issues)
+![![GitHub License](https://img.shields.io/github/license/rafa-mori/lookatni-revolution.svg)](https://github.com/rafa-mori/lookatni-revolution/blob/main/LICENSE)
+![![GitHub Stars](https://img.shields.io/github/stars/rafa-mori/lookatni-revolution.svg)](https://github.com/rafa-mori/lookatni-revolution/stargazers)
+![![GitHub Forks](https://img.shields.io/github/forks/rafa-mori/lookatni-revolution.svg)](https://github.com/rafa-mori/lookatni-revolution/network/members)
+![![GitHub Contributors](https://img.shields.io/github/contributors/rafa-mori/lookatni-revolution.svg)](https://github.com/rafa-mori/lookatni-revolution/graphs/contributors)
+
+---
+
+## LookAtni Revolution - CLI Tools
+
+🚀 **Revolutionary file marker system for automatic code extraction and generation**
+
+---
 
 🔧 **Command-line tools for the LookAtni Revolution system**
 
@@ -7,6 +24,7 @@ This directory contains the standalone CLI scripts that work independently of th
 ## 🚀 Available Tools
 
 ### 📤 `extract-files.sh`
+
 Extract files from marked content using the LookAtni marker system.
 
 ```bash
@@ -24,6 +42,7 @@ Extract files from marked content using the LookAtni marker system.
 ```
 
 **Features:**
+
 - ✅ Preserves directory structure
 - ✅ Interactive file conflict resolution
 - ✅ Dry-run mode for safe testing
@@ -33,6 +52,7 @@ Extract files from marked content using the LookAtni marker system.
 ---
 
 ### 📥 `generate-markers.sh`
+
 Generate marked files from existing project directories.
 
 ```bash
@@ -50,6 +70,7 @@ Generate marked files from existing project directories.
 ```
 
 **Features:**
+
 - ✅ Smart binary file detection
 - ✅ Configurable file size limits
 - ✅ Flexible exclusion patterns
@@ -59,6 +80,7 @@ Generate marked files from existing project directories.
 ---
 
 ### 🧪 `test-lookatni.sh`
+
 Comprehensive test suite for the LookAtni system.
 
 ```bash
@@ -75,6 +97,7 @@ Comprehensive test suite for the LookAtni system.
 ```
 
 **Test Categories:**
+
 - 🔍 **Basic functionality** - Core extract/generate operations
 - ⚡ **Performance tests** - Large file handling
 - 🎯 **Edge cases** - Special characters, empty files, etc.
@@ -84,6 +107,7 @@ Comprehensive test suite for the LookAtni system.
 ---
 
 ### 🎯 `demo.sh`
+
 Interactive demonstration of LookAtni capabilities.
 
 ```bash
@@ -102,11 +126,13 @@ Interactive demonstration of LookAtni capabilities.
 ## 📋 Installation & Setup
 
 ### Prerequisites
+
 - **Bash 4.0+** (Linux/macOS/WSL)
 - **awk** (GNU awk recommended)
 - **Standard Unix tools** (grep, sed, find, etc.)
 
 ### Quick Setup
+
 ```bash
 # Clone the repository
 git clone https://github.com/your-repo/lookatni-revolution.git
@@ -120,7 +146,9 @@ chmod +x *.sh
 ```
 
 ### Integration with VS Code Extension
+
 The CLI tools are automatically detected by the VS Code extension when placed in:
+
 - `<extension-path>/cli/`
 - `<workspace>/cli/`
 - `~/.lookatni/`
@@ -131,7 +159,7 @@ The CLI tools are automatically detected by the VS Code extension when placed in
 
 LookAtni uses a unique marker syntax that never conflicts with existing code:
 
-```
+```typescript
 //m/ relative/path/to/file.ext /m//
 file content here...
 
@@ -140,6 +168,7 @@ console.log('Another file content');
 ```
 
 **Why this format?**
+
 - ✅ **Unique** - Extremely unlikely to appear in real code
 - ✅ **Readable** - Easy to identify and understand
 - ✅ **Parseable** - Simple regex: `/^\/\/m\/ (.+?) \/m\/\/$/`
@@ -150,18 +179,21 @@ console.log('Another file content');
 ## 📊 Usage Examples
 
 ### Extract a complete project
+
 ```bash
 # From marked file to new directory
 ./extract-files.sh project-backup.txt ./restored-project/
 ```
 
 ### Create project backup
+
 ```bash
 # Generate marked file from project
 ./generate-markers.sh ./my-project project-backup.txt
 ```
 
 ### Validate and analyze
+
 ```bash
 # Test the round-trip process
 ./generate-markers.sh ./original project.txt
@@ -174,6 +206,7 @@ diff -r ./original ./restored
 ## 🔧 Advanced Usage
 
 ### Custom Exclusions
+
 ```bash
 # Exclude multiple patterns
 ./generate-markers.sh \
@@ -182,6 +215,7 @@ diff -r ./original ./restored
 ```
 
 ### Large Project Handling
+
 ```bash
 # Limit file size and show progress
 ./generate-markers.sh \
@@ -191,6 +225,7 @@ diff -r ./original ./restored
 ```
 
 ### Batch Processing
+
 ```bash
 # Process multiple projects
 for dir in ./projects/*/; do
@@ -204,19 +239,23 @@ done
 
 ### Common Issues
 
-**"No markers found"**
+- **"No markers found"**
+
 - Check that the file contains `//m/ filename /m//` markers
 - Verify file encoding (UTF-8 recommended)
 
-**"Permission denied"**
+- **"Permission denied"**
+
 - Make scripts executable: `chmod +x *.sh`
 - Check output directory permissions
 
-**"Binary file detected"**
+- **"Binary file detected"**
+
 - Binary files are automatically skipped
 - Use `--include-binary` flag if needed (not recommended)
 
 ### Debug Mode
+
 ```bash
 # Enable verbose logging
 DEBUG=1 ./extract-files.sh marked-file.txt output/
@@ -227,12 +266,15 @@ DEBUG=1 ./extract-files.sh marked-file.txt output/
 ## 🤝 Integration
 
 ### With VS Code Extension
+
 The CLI tools integrate seamlessly with the VS Code extension, providing:
+
 - **Command palette access** - Run CLI tools from VS Code
 - **File context menus** - Right-click integration
 - **Status bar integration** - Progress and status updates
 
 ### With Git Workflows
+
 ```bash
 # Pre-commit hook example
 ./generate-markers.sh . .lookatni-backup.txt
@@ -240,6 +282,7 @@ git add .lookatni-backup.txt
 ```
 
 ### With CI/CD
+
 ```bash
 # In your build pipeline
 ./test-lookatni.sh
@@ -252,6 +295,7 @@ git add .lookatni-backup.txt
 ## 📈 Performance
 
 **Benchmarks** (tested on average development machine):
+
 - **Small projects** (< 100 files): ~1 second
 - **Medium projects** (< 1000 files): ~5-10 seconds  
 - **Large projects** (< 10000 files): ~30-60 seconds
@@ -276,4 +320,4 @@ MIT License - see LICENSE file for details.
 ---
 
 *Created with ❤️ for the developer community*
-*Part of the LookAtni Revolution project*
+***Part of the LookAtni Revolution project***

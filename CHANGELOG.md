@@ -2,7 +2,7 @@
 
 All notable changes to the "LookAtni Revolution" extension will be documented in this file.
 
-## [0.0.1] - 2025-07-10
+## [1.0.0] - 2025-07-10
 
 ### Added
 - 🚀 Initial release of LookAtni Revolution
