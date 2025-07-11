@@ -2,14 +2,15 @@
   "name": "lookatni-revolution",
   "displayName": "LookAtni Revolution",
   "description": "Revolutionary marked file system for seamless code sharing and project reconstruction. Extract files from marked content, generate markers from projects, validate integrity, and more!",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "engines": {
     "vscode": "^1.102.0"
   },
   "categories": [
     "Other",
-    "Development",
-    "Productivity"
+    "Linters",
+    "Formatters",
+    "Debuggers"
   ],
   "icon": "resources/icon.png",
   "galleryBanner": {
@@ -20,17 +21,17 @@
   "main": "./dist/extension.js",
   "publisher": "rafa-mori",
   "author": {
-    "name": "RAFA-MORI",
-    "email": "contact@example.com"
+    "name": "Mori",
+    "email": "faelmori@gmail.com"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/RAFA-MORI/lookatni-revolution.git"
+    "url": "https://github.com/rafa-mori/lookatni-revolution.git"
   },
-  "homepage": "https://github.com/RAFA-MORI/lookatni-revolution#readme",
+  "homepage": "https://github.com/rafa-mori/lookatni-revolution#readme",
   "bugs": {
-    "url": "https://github.com/RAFA-MORI/lookatni-revolution/issues"
+    "url": "https://github.com/rafa-mori/lookatni-revolution/issues"
   },
   "keywords": [
     "file-markers",
@@ -46,7 +47,6 @@
     "vscode-extension"
   ],
   "qna": "marketplace",
-  "preview": false,
   "contributes": {
     "commands": [
       {
@@ -142,7 +142,13 @@
         {
           "id": "lookatniExplorer",
           "name": "LookAtni Files",
-          "when": "workspaceFolderCount > 0"
+          "when": "workspaceFolderCount > 0",
+          "icon": "resources/icon.svg",
+          "type": "tree",
+          "contextualTitle": "LookAtni Explorer",
+          "visibility": "visible",
+          "initialSize": 0.3,
+          "accessibilityHelpContent": "Use the LookAtni Explorer to manage your marked files and operations. You can extract files, generate markers, and validate them directly from this view."
         }
       ]
     },

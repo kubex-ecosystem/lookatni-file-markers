@@ -1,0 +1,52 @@
+# Azure DevOps Pipeline para publicar extensão VS Code
+# Triggers: push para branch main/master
+trigger:
+- main
+- master
+
+# Pool de agentes
+pool:
+  vmImage: 'ubuntu-latest'
+
+# Variáveis
+variables:
+  nodeVersion: '18.x'
+
+steps:
+# Instalar Node.js
+- task: NodeTool@0
+  inputs:
+    versionSpec: '$(nodeVersion)'
+  displayName: 'Install Node.js'
+
+# Instalar dependências
+- script: |
+    npm ci
+  displayName: 'Install dependencies'
+
+# Build da extensão
+- script: |
+    npm run package
+  displayName: 'Build extension'
+
+# Instalar vsce globalmente
+- script: |
+    npm install -g vsce
+  displayName: 'Install vsce'
+
+# Criar pacote VSIX
+- script: |
+    vsce package
+  displayName: 'Package extension'
+
+# Publicar no marketplace (só na branch main)
+- script: |
+    if [ "$(Build.SourceBranch)" = "refs/heads/main" ]; then
+      echo "Publishing to marketplace..."
+      vsce publish --pat $(VSCE_PAT)
+    else
+      echo "Skipping publish - not main branch"
+    fi
+  displayName: 'Publish to VS Code Marketplace'
+  env:
+    VSCE_PAT: $(VSCE_PAT)

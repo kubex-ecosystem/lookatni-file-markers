@@ -8,7 +8,7 @@ Transform how you deliver and organize code with unique markers that never confl
 
 LookAtni Revolution introduces a groundbreaking approach to file organization and code delivery using unique markers:
 
-```
+```typescript
 //m/ src/example.js /m//
 console.log('This content belongs to src/example.js');
 
@@ -20,36 +20,42 @@ This content belongs to README.md
 ## ✨ Features
 
 ### 🔄 **File Extraction**
+
 - Extract complete project structures from marked content
 - Preserves directory hierarchy automatically
 - Interactive conflict resolution
 - Dry-run mode for safe testing
 
 ### 🏷️ **Marker Generation**
+
 - Generate marked files from existing projects
 - Smart binary file detection and exclusion
 - Configurable file size limits
 - Flexible exclusion patterns
 
 ### ✔️ **Validation & Analysis**
+
 - Comprehensive marker validation
 - Duplicate filename detection
 - Invalid character checking
 - Detailed statistics and reporting
 
 ### 🎯 **Interactive Demo**
+
 - Built-in demonstration system
 - Sample project generation
 - Step-by-step walkthrough
 - Real-time feedback
 
 ### 📊 **Statistics & Reporting**
+
 - File type distribution analysis
 - Size optimization metrics
 - Performance benchmarks
 - Comprehensive logging
 
 ### 🔧 **CLI Integration**
+
 - Standalone command-line tools
 - Batch processing capabilities
 - CI/CD pipeline integration
@@ -58,6 +64,7 @@ This content belongs to README.md
 ## 🚀 Quick Start
 
 ### Installation
+
 1. Install from VS Code Marketplace: `LookAtni Revolution`
 2. Press `Ctrl+Shift+P` and search for "LookAtni"
 3. Try `LookAtni: Quick Demo` to see it in action!
@@ -82,11 +89,12 @@ This content belongs to README.md
 
 LookAtni uses a **unique, conflict-free** marker syntax:
 
-```
+```typescript
 //m/ relative/path/to/file.ext /m//
 ```
 
 **Why this format?**
+
 - ✅ **Unique**: Extremely unlikely to appear in real code
 - ✅ **Readable**: Easy to identify and understand  
 - ✅ **Parseable**: Simple regex pattern
@@ -105,15 +113,15 @@ LookAtni uses a **unique, conflict-free** marker syntax:
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+MIT License - see LICENSE file for details.
 
 ## 🔗 Links
 
-- **Repository**: [GitHub](https://github.com/your-username/lookatni-revolution)
-- **Issues**: [Report Issues](https://github.com/your-username/lookatni-revolution/issues)
+- **Repository**: [GitHub](https://github.com/rafa-mori/lookatni-revolution)
+- **Issues**: [Report Issues](https://github.com/rafa-mori/lookatni-revolution/issues)
 
 ---
 
-**Made with ❤️ for the developer community**
+***Made with ❤️ for the developer community***
 
 *Transform your code workflow with LookAtni Revolution!*
