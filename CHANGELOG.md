@@ -5,6 +5,7 @@ All notable changes to the "LookAtni Revolution" extension will be documented in
 ## [1.0.0] - 2025-07-10
 
 ### Added
+
 - 🚀 Initial release of LookAtni Revolution
 - 📤 File extraction from marked content
 - 🏷️ Marker generation from project directories
@@ -19,6 +20,7 @@ All notable changes to the "LookAtni Revolution" extension will be documented in
 - ⚙️ Configurable settings
 
 ### Features
+
 - **Extract Files**: Convert marked content back to project structure
 - **Generate Markers**: Create marked files from existing projects
 - **Validate Markers**: Check integrity and detect issues
@@ -27,6 +29,7 @@ All notable changes to the "LookAtni Revolution" extension will be documented in
 - **CLI Integration**: Access to standalone command-line tools
 
 ### Technical Details
+
 - Built with TypeScript and modern VS Code API
 - Comprehensive error handling and logging
 - Performance optimized for large projects
@@ -34,6 +37,7 @@ All notable changes to the "LookAtni Revolution" extension will be documented in
 - Extensible architecture for future enhancements
 
 ### Documentation
+
 - Complete README with usage examples
 - CLI tools documentation
 - Comprehensive inline code documentation
@@ -47,6 +51,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Types of Changes
+
 - **Added** for new features
 - **Changed** for changes in existing functionality
 - **Deprecated** for soon-to-be removed features

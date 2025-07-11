@@ -1,29 +1,81 @@
 {
   "name": "lookatni-revolution",
-  "displayName": "LookAtni Revolution",
+  "displayName": "LookAtBi Revolution",
   "description": "Revolutionary marked file system for seamless code sharing and project reconstruction. Extract files from marked content, generate markers from projects, validate integrity, and more!",
   "version": "1.0.0",
   "engines": {
     "vscode": "^1.102.0"
   },
+  "ebtrypoint": "./dist/extension.js",
   "categories": [
     "Other",
     "Linters",
     "Formatters",
     "Debuggers"
   ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "LookAtni Revolution supports untrusted workspaces with limited functionality. Some features may be restricted for security reasons."
+    }
+  },
+  "extensionKind": [
+    "ui"
+  ],
+  "api": "none",
+  "maintainers": [
+    {
+      "name": "Rafael Mori",
+      "email": "faelmori@gmail.com"
+    }
+  ],
+  "workspaces": [],
+  "publishConfig": {
+    "access": "public"
+  },
+  "config": {
+    "lookatni.defaultMaxFileSize": {
+      "type": "number",
+      "default": 1000,
+      "description": "Default maximum file size in KB for generation"
+    },
+    "lookatni.showStatistics": {
+      "type": "boolean",
+      "default": true,
+      "description": "Show statistics after operations"
+    },
+    "lookatni.autoValidate": {
+      "type": "boolean",
+      "default": false,
+      "description": "Automatically validate files after generation"
+    }
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/extension.js",
+      "default": "./dist/extension.js"
+    },
+    "./package.json": "./package.json",
+    "./resources/icon.png": "./resources/icon.png",
+    "./resources/icon.svg": "./resources/icon.svg"
+  },
+  "readme": "README.md",
+  "markdown": "github",
   "icon": "resources/icon.png",
   "galleryBanner": {
     "color": "#1e1e1e",
     "theme": "dark"
   },
-  "activationEvents": [],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./dist/extension.js",
   "publisher": "rafa-mori",
   "author": {
-    "name": "Mori",
+    "name": "Rafael Mori",
     "email": "faelmori@gmail.com"
   },
+  "outcome": "success",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -39,43 +91,46 @@
     "project-reconstruction",
     "development-tools",
     "cli-integration",
-    "marker-system",
-    "file-extraction",
     "productivity",
     "lookatni",
-    "marked-files",
     "vscode-extension"
   ],
   "qna": "marketplace",
   "contributes": {
     "commands": [
       {
-        "command": "lookatni.extractFiles",
+        "id": "lookatni-revolution.extractFiles",
+        "command": "lookatni-revolution.extractFiles",
         "title": "LookAtni: Extract Files",
         "category": "LookAtni"
       },
       {
-        "command": "lookatni.generateMarkers",
+        "id": "lookatni-revolution.generateMarkers",
+        "command": "lookatni-revolution.generateMarkers",
         "title": "LookAtni: Generate Markers",
         "category": "LookAtni"
       },
       {
-        "command": "lookatni.validateMarkers",
+        "id": "lookatni-revolution.validateMarkers",
+        "command": "lookatni-revolution.validateMarkers",
         "title": "LookAtni: Validate Markers",
         "category": "LookAtni"
       },
       {
-        "command": "lookatni.quickDemo",
+        "id": "lookatni-revolution.quickDemo",
+        "command": "lookatni-revolution.quickDemo",
         "title": "LookAtni: Quick Demo",
         "category": "LookAtni"
       },
       {
-        "command": "lookatni.showStatistics",
+        "id": "lookatni-revolution.showStatistics",
+        "command": "lookatni-revolution.showStatistics",
         "title": "LookAtni: Show Statistics",
         "category": "LookAtni"
       },
       {
-        "command": "lookatni.openCLI",
+        "id": "lookatni-revolution.openCLI",
+        "command": "lookatni-revolution.openCLI",
         "title": "LookAtni: Open CLI Tools",
         "category": "LookAtni"
       }
@@ -83,56 +138,56 @@
     "menus": {
       "explorer/context": [
         {
-          "command": "lookatni.extractFiles",
+          "command": "lookatni-revolution.extractFiles",
           "when": "resourceExtname == .txt",
           "group": "lookatni"
         },
         {
-          "command": "lookatni.generateMarkers",
+          "command": "lookatni-revolution.generateMarkers",
           "when": "explorerResourceIsFolder",
           "group": "lookatni"
         }
       ],
       "commandPalette": [
         {
-          "command": "lookatni.extractFiles",
+          "command": "lookatni-revolution.extractFiles",
           "when": "true"
         },
         {
-          "command": "lookatni.generateMarkers",
+          "command": "lookatni-revolution.generateMarkers",
           "when": "true"
         },
         {
-          "command": "lookatni.validateMarkers",
+          "command": "lookatni-revolution.validateMarkers",
           "when": "true"
         },
         {
-          "command": "lookatni.quickDemo",
+          "command": "lookatni-revolution.quickDemo",
           "when": "true"
         },
         {
-          "command": "lookatni.showStatistics",
+          "command": "lookatni-revolution.showStatistics",
           "when": "true"
         },
         {
-          "command": "lookatni.openCLI",
+          "command": "lookatni-revolution.openCLI",
           "when": "true"
         }
       ]
     },
     "keybindings": [
       {
-        "command": "lookatni.extractFiles",
+        "command": "lookatni-revolution.extractFiles",
         "key": "ctrl+shift+l e",
         "mac": "cmd+shift+l e"
       },
       {
-        "command": "lookatni.generateMarkers",
+        "command": "lookatni-revolution.generateMarkers",
         "key": "ctrl+shift+l g",
         "mac": "cmd+shift+l g"
       },
       {
-        "command": "lookatni.quickDemo",
+        "command": "lookatni-revolution.quickDemo",
         "key": "ctrl+shift+l d",
         "mac": "cmd+shift+l d"
       }
