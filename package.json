@@ -6,7 +6,6 @@
   "engines": {
     "vscode": "^1.102.0"
   },
-  "ebtrypoint": "./dist/extension.js",
   "categories": [
     "Other",
     "Linters",
@@ -23,13 +22,6 @@
     "ui"
   ],
   "api": "none",
-  "maintainers": [
-    {
-      "name": "Rafael Mori",
-      "email": "faelmori@gmail.com"
-    }
-  ],
-  "workspaces": [],
   "publishConfig": {
     "access": "public"
   },
@@ -75,7 +67,6 @@
     "name": "Rafael Mori",
     "email": "faelmori@gmail.com"
   },
-  "outcome": "success",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -101,38 +92,32 @@
       {
         "id": "lookatni-revolution.extractFiles",
         "command": "lookatni-revolution.extractFiles",
-        "title": "LookAtni: Extract Files",
-        "category": "LookAtni"
+        "title": "LookAtni: Extract Files"
       },
       {
         "id": "lookatni-revolution.generateMarkers",
         "command": "lookatni-revolution.generateMarkers",
-        "title": "LookAtni: Generate Markers",
-        "category": "LookAtni"
+        "title": "LookAtni: Generate Markers"
       },
       {
         "id": "lookatni-revolution.validateMarkers",
         "command": "lookatni-revolution.validateMarkers",
-        "title": "LookAtni: Validate Markers",
-        "category": "LookAtni"
+        "title": "LookAtni: Validate Markers"
       },
       {
         "id": "lookatni-revolution.quickDemo",
         "command": "lookatni-revolution.quickDemo",
-        "title": "LookAtni: Quick Demo",
-        "category": "LookAtni"
+        "title": "LookAtni: Quick Demo"
       },
       {
         "id": "lookatni-revolution.showStatistics",
         "command": "lookatni-revolution.showStatistics",
-        "title": "LookAtni: Show Statistics",
-        "category": "LookAtni"
+        "title": "LookAtni: Show Statistics"
       },
       {
         "id": "lookatni-revolution.openCLI",
         "command": "lookatni-revolution.openCLI",
-        "title": "LookAtni: Open CLI Tools",
-        "category": "LookAtni"
+        "title": "LookAtni: Open CLI Tools"
       }
     ],
     "menus": {
