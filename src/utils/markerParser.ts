@@ -18,7 +18,9 @@ export interface ParseResults {
 }
 
 export class MarkerParser {
-    private readonly markerRegex = /^\/\/m\/ (.+?) \/m\/\/$/;
+    // ASCII 28 (File Separator) character for invisible markers
+    private readonly FS_CHAR = String.fromCharCode(28);
+    private readonly markerRegex = new RegExp(`^\\/\\/${this.FS_CHAR.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\/ (.+?) \\/${this.FS_CHAR.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\/\\/$`);
     
     constructor(private logger: Logger) {}
     

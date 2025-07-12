@@ -7,10 +7,12 @@ import { ShowStatisticsCommand } from './commands/showStatistics';
 import { OpenCLICommand } from './commands/openCLI';
 import { VisualMarkersCommand } from './commands/visualMarkers';
 import { QuickMarkersCommands } from './commands/quickMarkers';
+import { ConfigurationCommand } from './commands/configurationCommand';
 import { LookAtniExplorerProvider } from './views/explorerProvider';
 import { LookAtniStatusBar } from './utils/statusBar';
 import { Logger } from './utils/logger';
 import { VisualMarkersManager } from './utils/visualMarkers';
+import { ConfigurationManager } from './utils/configManager';
 
 export function activate(context: vscode.ExtensionContext) {
     // Initialize logger
@@ -33,6 +35,9 @@ export function activate(context: vscode.ExtensionContext) {
     // Initialize quick markers commands
     const quickMarkers = new QuickMarkersCommands(context, logger, visualMarkersManager);
     
+    // Initialize configuration command
+    const configCommand = new ConfigurationCommand(context, logger, outputChannel);
+    
     // Register commands
     const commands = [
         new ExtractFilesCommand(context, logger, outputChannel),
@@ -41,7 +46,8 @@ export function activate(context: vscode.ExtensionContext) {
         new QuickDemoCommand(context, logger, outputChannel),
         new ShowStatisticsCommand(context, logger, outputChannel),
         new OpenCLICommand(context, logger, outputChannel),
-        new VisualMarkersCommand(context, logger, outputChannel, visualMarkersManager)
+        new VisualMarkersCommand(context, logger, outputChannel, visualMarkersManager),
+        configCommand
     ];
     
     // Register all commands
@@ -87,6 +93,9 @@ export function activate(context: vscode.ExtensionContext) {
     
     // Show welcome message
     showWelcomeMessage(context);
+    
+    // Validate configuration on startup
+    configCommand.validateConfigurationOnStartup();
     
     logger.info('🎉 LookAtni File Markers activated successfully!');
     statusBar.show('Ready', 3000);

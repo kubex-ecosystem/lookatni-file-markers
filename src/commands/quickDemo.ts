@@ -8,6 +8,9 @@ import { MarkerParser } from '../utils/markerParser';
 export class QuickDemoCommand {
     public readonly commandId = 'lookatni.quickDemo';
     
+    // ASCII 28 (File Separator) character for invisible markers
+    private readonly FS_CHAR = String.fromCharCode(28);
+    
     constructor(
         private context: vscode.ExtensionContext,
         private logger: Logger,
@@ -50,7 +53,7 @@ export class QuickDemoCommand {
         
 This demo will:
 • Create sample files with different extensions
-• Generate a marked file using //m/ markers
+• Generate a marked file using invisible Unicode markers
 • Extract files back from the marked content
 • Show validation and statistics
 
@@ -100,7 +103,7 @@ Ready to see LookAtni in action?`;
 This is a sample project to demonstrate the LookAtni Revolution system.
 
 ## Features
-- File marker system with //m/ syntax
+- File marker system with invisible Unicode characters
 - CLI tools for extraction and generation
 - VS Code extension for seamless integration
 
@@ -124,7 +127,7 @@ Generated on: ${new Date().toISOString()}
 console.log('🚀 Welcome to LookAtni Revolution!');
 
 function demonstrateMarkers() {
-    console.log('This file will be marked with //m/ syntax');
+    console.log('This file will be marked with invisible Unicode characters');
     console.log('Each file gets unique markers for easy extraction');
     
     const features = [
@@ -157,7 +160,8 @@ export function validateFilename(filename) {
 }
 
 export function createMarker(filename) {
-    return \`//m/ \${filename} /m//\`;
+    const FS_CHAR = String.fromCharCode(28);
+    return \`//\${FS_CHAR}/ \${filename} /\${FS_CHAR}//\`;
 }
 `,
             
@@ -176,16 +180,18 @@ export function createMarker(filename) {
 
 ## What are markers?
 
-Markers use the syntax: \`//m/ filename /m//\`
+Markers use invisible Unicode characters (ASCII 28 File Separator).
+They are completely invisible but allow for perfect file organization.
 
 ## Example:
 
 \`\`\`
-//m/ src/example.js /m//
+// Markers are invisible - shown as ␜ for demonstration only
+//␜/ src/example.js /␜//
 console.log('This content belongs to src/example.js');
 const demo = true;
 
-//m/ README.md /m//
+//␜/ README.md /␜//
 # Another File
 This content belongs to README.md
 \`\`\`

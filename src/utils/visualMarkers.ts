@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import { ConfigurationManager } from './configManager';
 
 export interface VisualMarker {
     uri: vscode.Uri;
@@ -15,10 +16,12 @@ export class VisualMarkersManager {
     private markers: Map<string, VisualMarker> = new Map();
     private decorationType: vscode.FileDecorationProvider;
     private storageUri: vscode.Uri;
+    private configManager: ConfigurationManager;
 
     constructor(private context: vscode.ExtensionContext) {
         this.storageUri = vscode.Uri.joinPath(context.globalStorageUri, 'visual-markers.json');
-        this.decorationType = new FileMarkersDecoratorProvider(this);
+        this.configManager = ConfigurationManager.getInstance();
+        this.decorationType = new FileMarkersDecoratorProvider(this, this.configManager);
         this.loadMarkers();
         
         // Register as decoration provider
@@ -147,7 +150,10 @@ class FileMarkersDecoratorProvider implements vscode.FileDecorationProvider {
     private _onDidChangeFileDecorations = new vscode.EventEmitter<vscode.Uri | vscode.Uri[] | undefined>();
     readonly onDidChangeFileDecorations = this._onDidChangeFileDecorations.event;
 
-    constructor(private markersManager: VisualMarkersManager) {}
+    constructor(
+        private markersManager: VisualMarkersManager,
+        private configManager: ConfigurationManager
+    ) {}
 
     provideFileDecoration(uri: vscode.Uri): vscode.FileDecoration | undefined {
         const marker = this.markersManager.getMarker(uri);
@@ -155,7 +161,7 @@ class FileMarkersDecoratorProvider implements vscode.FileDecorationProvider {
             return undefined;
         }
 
-        const config = vscode.workspace.getConfiguration('lookatni.visualMarkers');
+        const config = this.configManager.getVisualMarkersConfig();
         
         let badge: string;
         let color: vscode.ThemeColor;
@@ -163,32 +169,32 @@ class FileMarkersDecoratorProvider implements vscode.FileDecorationProvider {
 
         switch (marker.type) {
             case 'read':
-                badge = config.get('readIcon', '✓');
+                badge = config.readIcon;
                 color = new vscode.ThemeColor('charts.green');
                 tooltip = 'Marked as read';
                 break;
             case 'unread':
-                badge = config.get('unreadIcon', '●');
+                badge = config.unreadIcon;
                 color = new vscode.ThemeColor('charts.blue');
                 tooltip = 'Marked as unread';
                 break;
             case 'important':
-                badge = config.get('importantIcon', '!');
+                badge = config.importantIcon;
                 color = new vscode.ThemeColor('charts.red');
                 tooltip = 'Marked as important';
                 break;
             case 'favorite':
-                badge = config.get('favoriteIcon', '★');
+                badge = config.favoriteIcon;
                 color = new vscode.ThemeColor('charts.yellow');
                 tooltip = 'Marked as favorite';
                 break;
             case 'todo':
-                badge = config.get('todoIcon', '○');
+                badge = config.todoIcon;
                 color = new vscode.ThemeColor('charts.orange');
                 tooltip = 'Marked as todo';
                 break;
             case 'custom':
-                badge = marker.icon || config.get('customIcon', '◆');
+                badge = marker.icon || config.customIcon;
                 color = marker.color ? new vscode.ThemeColor(marker.color) : new vscode.ThemeColor('charts.purple');
                 tooltip = marker.notes || 'Custom marker';
                 break;

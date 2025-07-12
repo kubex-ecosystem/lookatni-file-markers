@@ -6,6 +6,9 @@ import { Logger } from '../utils/logger';
 export class OpenCLICommand {
     public readonly commandId = 'lookatni.openCLI';
     
+    // ASCII 28 (File Separator) character for invisible markers
+    private readonly FS_CHAR = String.fromCharCode(28);
+    
     constructor(
         private context: vscode.ExtensionContext,
         private logger: Logger,
@@ -207,12 +210,13 @@ export class OpenCLICommand {
         this.outputChannel.appendLine('');
         
         this.outputChannel.appendLine('=== MARKER FORMAT ===');
-        this.outputChannel.appendLine('LookAtni uses unique markers to separate files:');
+        this.outputChannel.appendLine('LookAtni uses invisible Unicode markers to separate files:');
         this.outputChannel.appendLine('');
-        this.outputChannel.appendLine('//m/ filename.ext /m//');
+        this.outputChannel.appendLine('// Markers are invisible - shown as ␜ for demonstration only');
+        this.outputChannel.appendLine('//␜/ filename.ext /␜//');
         this.outputChannel.appendLine('file content here...');
         this.outputChannel.appendLine('');
-        this.outputChannel.appendLine('//m/ another/file.txt /m//');
+        this.outputChannel.appendLine('//␜/ another/file.txt /␜//');
         this.outputChannel.appendLine('more content...');
         this.outputChannel.appendLine('');
         

@@ -2,15 +2,15 @@
   "name": "lookatni-file-markers",
   "displayName": "LookAtni File Markers",
   "description": "Advanced file organization system with unique markers for code sharing and project management. Extract files from marked content, generate markers, and validate project integrity.",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "engines": {
     "vscode": "^1.102.0"
   },
   "categories": [
     "Other",
-    "Linters",
+    "Extension Packs",
     "Formatters",
-    "Debuggers"
+    "Linters"
   ],
   "capabilities": {
     "untrustedWorkspaces": {
@@ -87,7 +87,14 @@
     "lookatni",
     "vscode-extension",
     "code-sharing",
-    "file-system"
+    "file-system",
+    "ai-code-extraction",
+    "chatgpt",
+    "claude-ai",
+    "artificial-intelligence",
+    "project-generator",
+    "invisible-markers",
+    "unicode-markers"
   ],
   "qna": "marketplace",
   "contributes": {
@@ -166,6 +173,12 @@
         "id": "lookatni.importMarkers",
         "command": "lookatni.importMarkers",
         "title": "LookAtni: Import Markers"
+      },
+      {
+        "id": "lookatni.configuration",
+        "command": "lookatni.configuration",
+        "title": "LookAtni: Configuration",
+        "icon": "$(gear)"
       }
     ],
     "menus": {
@@ -256,6 +269,10 @@
         },
         {
           "command": "lookatni.importMarkers",
+          "when": "true"
+        },
+        {
+          "command": "lookatni.configuration",
           "when": "true"
         }
       ]

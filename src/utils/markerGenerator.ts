@@ -16,6 +16,9 @@ export interface GenerationResults {
 }
 
 export class MarkerGenerator {
+    // ASCII 28 (File Separator) character for invisible markers
+    private readonly FS_CHAR = String.fromCharCode(28);
+    
     constructor(private logger: Logger) {}
     
     async generateMarkers(
@@ -73,7 +76,7 @@ export class MarkerGenerator {
         this.logger.info(`Processing ${filesToProcess.length} files after filtering`);
         
         // Create output content
-        let output = `//m/ PROJECT_INFO /m//\n`;
+        let output = `//${this.FS_CHAR}/ PROJECT_INFO /${this.FS_CHAR}//\n`;
         output += `Project: ${path.basename(sourceFolder)}\n`;
         output += `Generated: ${new Date().toISOString()}\n`;
         output += `Total Files: ${filesToProcess.length}\n`;
@@ -100,7 +103,7 @@ export class MarkerGenerator {
                 results.fileTypes[ext] = (results.fileTypes[ext] || 0) + 1;
                 
                 // Add file marker and content
-                output += `//m/ ${relativePath} /m//\n`;
+                output += `//${this.FS_CHAR}/ ${relativePath} /${this.FS_CHAR}//\n`;
                 output += content;
                 
                 // Ensure content ends with newline
