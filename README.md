@@ -1,4 +1,4 @@
-# ![LookAtni File Markers](resources/top_banner.png)
+# ![LookAtni File Markers](https://raw.githubusercontent.com/rafa-mori/lookatni-file-markers/refs/heads/main/resources/top_banner.png)
 
 🚀 **Advanced file marker system for automatic code extraction and visual file organization**
 
