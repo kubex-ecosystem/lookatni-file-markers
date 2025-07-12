@@ -118,13 +118,13 @@ ${htmlMarker}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LookAtni Revolution Demo</title>
+    <title>LookAtni File Markers Demo</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header class="header">
-            <h1>🚀 LookAtni Revolution</h1>
+            <h1>🚀 LookAtni File Markers</h1>
             <p>Sistema revolucionário de marcadores invisíveis que permite 
             compartilhar projetos inteiros em um único arquivo!</p>
         </header>
@@ -159,9 +159,9 @@ ${htmlMarker}
 </html>
 
 ${readmeMarker}
-# 🚀 LookAtni Revolution Demo
+# 🚀 LookAtni File Markers Demo
 
-Este é um projeto de demonstração do **LookAtni Revolution**, o sistema mais avançado para compartilhamento e reconstrução de projetos.
+Este é um projeto de demonstração do **LookAtni File Markers**, o sistema mais avançado para compartilhamento e reconstrução de projetos.
 
 ## ✨ Características
 
@@ -176,7 +176,7 @@ Este é um projeto de demonstração do **LookAtni Revolution**, o sistema mais 
 
 ### 1. Instalar ferramentas
 \`\`\`bash
-npm install -g lookatni-revolution
+npm install -g lookatni-file-markers
 \`\`\`
 
 ### 2. Extrair projeto

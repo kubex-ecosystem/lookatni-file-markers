@@ -11,7 +11,7 @@ const FS = String.fromCharCode(28);
 
 // Demo simples
 const demo = () => {
-    console.log('🚀 LookAtni Revolution Demo v4.0');
+    console.log('🚀 LookAtni File Markers Demo v4.0');
     console.log('Creating demo with invisible markers...');
     
     const content = `# LookAtni Demo Code
@@ -46,7 +46,7 @@ body {
 </head>
 <body>
     <div class="container">
-        <h1>🚀 LookAtni Revolution</h1>
+        <h1>🚀 LookAtni File Markers</h1>
         <p>Marcadores invisíveis funcionando!</p>
     </div>
     <script src="hello.js"></script>

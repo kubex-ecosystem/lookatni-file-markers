@@ -217,4 +217,4 @@ npm run watch
 
 ---
 
-**LookAtni Revolution** - Transformando scripts shell em código TypeScript moderno! 🚀
+**LookAtni File Markers** - Transformando scripts shell em código TypeScript moderno! 🚀

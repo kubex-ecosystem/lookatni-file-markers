@@ -1,4 +1,4 @@
-# 🚀 LookAtni Revolution - Migração para TypeScript
+# 🚀 LookAtni File Markers - Migração para TypeScript
 
 ## 📋 Resumo da Migração
 
@@ -211,4 +211,4 @@ A migração para TypeScript resolve completamente o problema de publicação en
 - ✅ **Preserva** compatibilidade com versões anteriores
 - ✅ **Permite** publicação sem problemas
 
-**O LookAtni Revolution agora está pronto para ser publicado na marketplace!** 🚀
+**O LookAtni File Markers agora está pronto para ser publicado na marketplace!** 🚀

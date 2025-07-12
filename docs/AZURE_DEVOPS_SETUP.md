@@ -1,6 +1,6 @@
 # 🚀 Configuração Azure DevOps para Publicação Automática
 
-Este guia explica como configurar a publicação automática da extensão LookAtni Revolution através do Azure DevOps.
+Este guia explica como configurar a publicação automática da extensão LookAtni File Markers através do Azure DevOps.
 
 ## 📋 Pré-requisitos
 
@@ -28,7 +28,7 @@ Você já tem o PAT: `CAkiyONgDlrlDBekQGihp8dexGy9gEXtOi5E704ps0HuSeVIDVsdJQQJ99
 
 1. No Azure DevOps: **Pipelines** → **New Pipeline**
 2. Escolha **Azure Repos Git**
-3. Selecione seu repositório `lookatni-revolution`
+3. Selecione seu repositório `lookatni-file-markers`
 4. Escolha **Existing Azure Pipelines YAML file**
 5. Selecione `/azure-pipelines.yml`
 6. **Save and run**

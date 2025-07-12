@@ -229,7 +229,7 @@ Customize visual markers in your `settings.json`:
 **Love LookAtni File Markers?**
 
 - ⭐ **Rate us** on the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=rafa-mori.lookatni-file-markers)!
-- 💡 **Got ideas?** [Open an issue](https://github.com/rafa-mori/lookatni-revolution/issues) or submit a PR 😉
+- 💡 **Got ideas?** [Open an issue](https://github.com/rafa-mori/lookatni-file-markers/issues) or submit a PR 😉
 - 🐛 **Found a bug?** Let us know and we'll fix it fast!
 - 💬 **Share your workflow** - we'd love to see how you use LookAtni!
 
@@ -239,8 +239,8 @@ MIT License - see LICENSE file for details.
 
 ## 🔗 Links
 
-- **Repository**: [GitHub](https://github.com/rafa-mori/lookatni-revolution)
-- **Issues**: [Report Issues](https://github.com/rafa-mori/lookatni-revolution/issues)
+- **Repository**: [GitHub](https://github.com/rafa-mori/lookatni-file-markers)
+- **Issues**: [Report Issues](https://github.com/rafa-mori/lookatni-file-markers/issues)
 
 ---
 

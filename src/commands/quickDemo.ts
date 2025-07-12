@@ -49,7 +49,7 @@ export class QuickDemoCommand {
     }
     
     private async showDemoIntroduction(): Promise<boolean> {
-        const message = `🎯 Welcome to LookAtni Revolution Quick Demo!
+        const message = `🎯 Welcome to LookAtni File Markers Quick Demo!
         
 This demo will:
 • Create sample files with different extensions
@@ -100,7 +100,7 @@ Ready to see LookAtni in action?`;
         const samples = {
             'README.md': `# LookAtni Demo Project
 
-This is a sample project to demonstrate the LookAtni Revolution system.
+This is a sample project to demonstrate the LookAtni File Markers system.
 
 ## Features
 - File marker system with invisible Unicode characters
@@ -112,19 +112,19 @@ Generated on: ${new Date().toISOString()}
             'package.json': JSON.stringify({
                 name: 'lookatni-demo',
                 version: '1.0.0',
-                description: 'Demo project for LookAtni Revolution',
+                description: 'Demo project for LookAtni File Markers',
                 main: 'index.js',
                 scripts: {
                     start: 'node index.js',
                     test: 'echo "No tests yet"'
                 },
                 keywords: ['lookatni', 'demo', 'markers'],
-                author: 'LookAtni Revolution',
+                author: 'LookAtni File Markers',
                 license: 'MIT'
             }, null, 2),
             
             'src/index.js': `// LookAtni Demo - Main File
-console.log('🚀 Welcome to LookAtni Revolution!');
+console.log('🚀 Welcome to LookAtni File Markers!');
 
 function demonstrateMarkers() {
     console.log('This file will be marked with invisible Unicode characters');

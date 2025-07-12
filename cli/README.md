@@ -1,23 +1,23 @@
-# ![LookAtni Revolution - CLI Tools](https://raw.githubusercontent.com/rafa-mori/lookatni-revolution/main/assets/top_banner.png)
+# ![LookAtni File Markers - CLI Tools](https://raw.githubusercontent.com/rafa-mori/lookatni-file-markers/main/resources/top_banner.png)
 
 ---
 
-![![GitHub Release](https://img.shields.io/github/release/rafa-mori/lookatni-revolution.svg)](https://github.com/rafa-mori/lookatni-revolution/releases)
-![![GitHub Issues](https://img.shields.io/github/issues/rafa-mori/lookatni-revolution.svg)](https://github.com/rafa-mori/lookatni-revolution/issues)
-![![GitHub License](https://img.shields.io/github/license/rafa-mori/lookatni-revolution.svg)](https://github.com/rafa-mori/lookatni-revolution/blob/main/LICENSE)
-![![GitHub Stars](https://img.shields.io/github/stars/rafa-mori/lookatni-revolution.svg)](https://github.com/rafa-mori/lookatni-revolution/stargazers)
-![![GitHub Forks](https://img.shields.io/github/forks/rafa-mori/lookatni-revolution.svg)](https://github.com/rafa-mori/lookatni-revolution/network/members)
-![![GitHub Contributors](https://img.shields.io/github/contributors/rafa-mori/lookatni-revolution.svg)](https://github.com/rafa-mori/lookatni-revolution/graphs/contributors)
+![![GitHub Release](https://img.shields.io/github/release/rafa-mori/lookatni-file-markers.svg)](https://github.com/rafa-mori/lookatni-file-markers/releases)
+![![GitHub Issues](https://img.shields.io/github/issues/rafa-mori/lookatni-file-markers.svg)](https://github.com/rafa-mori/lookatni-file-markers/issues)
+![![GitHub License](https://img.shields.io/github/license/rafa-mori/lookatni-file-markers.svg)](https://github.com/rafa-mori/lookatni-file-markers/blob/main/LICENSE)
+![![GitHub Stars](https://img.shields.io/github/stars/rafa-mori/lookatni-file-markers.svg)](https://github.com/rafa-mori/lookatni-file-markers/stargazers)
+![![GitHub Forks](https://img.shields.io/github/forks/rafa-mori/lookatni-file-markers.svg)](https://github.com/rafa-mori/lookatni-file-markers/network/members)
+![![GitHub Contributors](https://img.shields.io/github/contributors/rafa-mori/lookatni-file-markers.svg)](https://github.com/rafa-mori/lookatni-file-markers/graphs/contributors)
 
 ---
 
-## LookAtni Revolution - CLI Tools
+## LookAtni File Markers - CLI Tools
 
 🚀 **Revolutionary file marker system for automatic code extraction and generation**
 
 ---
 
-🔧 **Command-line tools for the LookAtni Revolution system**
+🔧 **Command-line tools for the LookAtni File Markers system**
 
 This directory contains the standalone CLI scripts that work independently of the VS Code extension, providing powerful file marker functionality from the command line.
 
@@ -135,8 +135,8 @@ Interactive demonstration of LookAtni capabilities.
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-repo/lookatni-revolution.git
-cd lookatni-revolution/cli
+git clone https://github.com/rafa-mori/lookatni-file-markers.git
+cd lookatni-file-markers/cli
 
 # Make scripts executable
 chmod +x *.sh
@@ -306,7 +306,7 @@ git add .lookatni-backup.txt
 
 ## 🔗 Links
 
-- **Main Repository**: [LookAtni Revolution](https://github.com/your-repo/lookatni-revolution)
+- **Main Repository**: [LookAtni File Markers](https://github.com/rafa-mori/lookatni-file-markers)
 - **VS Code Extension**: Available in the marketplace
 - **Documentation**: Full docs in `/docs` directory
 - **Issues & Support**: GitHub Issues
@@ -320,4 +320,4 @@ MIT License - see LICENSE file for details.
 ---
 
 *Created with ❤️ for the developer community*
-***Part of the LookAtni Revolution project***
+***Part of the LookAtni File Markers project***

@@ -97,7 +97,6 @@ export class ConfigurationManager {
     private setupConfigurationWatcher(): void {
         vscode.workspace.onDidChangeConfiguration((event) => {
             if (event.affectsConfiguration('lookatni')) {
-                console.log('LookAtni configuration changed, reloading...');
                 this.config = this.loadConfiguration();
                 this.notifyConfigurationChange();
             }

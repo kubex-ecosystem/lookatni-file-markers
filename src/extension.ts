@@ -132,7 +132,7 @@ async function showWelcomeMessage(context: vscode.ExtensionContext) {
                 vscode.commands.executeCommand('lookatni.quickDemo');
                 break;
             case 'Open Documentation':
-                vscode.env.openExternal(vscode.Uri.parse('https://github.com/lookatni/revolution'));
+                vscode.env.openExternal(vscode.Uri.parse('https://github.com/rafa-mori/lookatni-file-markers'));
                 break;
         }
         

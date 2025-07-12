@@ -1,12 +1,12 @@
 # Change Log
 
-All notable changes to the "LookAtni Revolution" extension will be documented in this file.
+All notable changes to the "LookAtni File Markers" extension will be documented in this file.
 
 ## [1.0.0] - 2025-07-10
 
 ### Added
 
-- 🚀 Initial release of LookAtni Revolution
+- 🚀 Initial release of LookAtni File Markers
 - 📤 File extraction from marked content
 - 🏷️ Marker generation from project directories
 - ✔️ Comprehensive marker validation system

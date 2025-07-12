@@ -12,7 +12,7 @@ export class Logger {
     private readonly logLevel: LogLevel;
 
     constructor(
-        channelName: string = 'LookAtni Revolution',
+        channelName: string = 'LookAtni File Markers',
         logLevel: LogLevel = LogLevel.INFO
     ) {
         this.outputChannel = vscode.window.createOutputChannel(channelName);

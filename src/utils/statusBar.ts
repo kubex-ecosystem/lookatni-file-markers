@@ -11,7 +11,7 @@ export class LookAtniStatusBar {
         );
         
         this.statusBarItem.command = 'lookatni.quickDemo';
-        this.statusBarItem.tooltip = 'LookAtni Revolution - Click for Quick Demo';
+        this.statusBarItem.tooltip = 'LookAtni File Markers - Click for Quick Demo';
         this.statusBarItem.text = '$(file-code) LookAtni';
         
         // Show by default
@@ -29,7 +29,7 @@ export class LookAtniStatusBar {
             this.statusBarItem.tooltip = `LookAtni: ${message}`;
         } else {
             this.statusBarItem.text = '$(file-code) LookAtni';
-            this.statusBarItem.tooltip = 'LookAtni Revolution - Click for Quick Demo';
+            this.statusBarItem.tooltip = 'LookAtni File Markers - Click for Quick Demo';
         }
         
         this.statusBarItem.show();
@@ -52,7 +52,7 @@ export class LookAtniStatusBar {
     
     private reset(): void {
         this.statusBarItem.text = '$(file-code) LookAtni';
-        this.statusBarItem.tooltip = 'LookAtni Revolution - Click for Quick Demo';
+        this.statusBarItem.tooltip = 'LookAtni File Markers - Click for Quick Demo';
         this.statusBarItem.show();
     }
     

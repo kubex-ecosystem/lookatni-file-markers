@@ -50,11 +50,20 @@ export class OpenCLICommand {
         
         for (const possiblePath of possiblePaths) {
             if (possiblePath && fs.existsSync(possiblePath)) {
-                // Check if extract-files.sh exists
-                const extractScript = path.join(possiblePath, 'extract-files.sh');
-                if (fs.existsSync(extractScript)) {
-                    this.logger.info(`Found CLI tools at: ${possiblePath}`);
-                    return possiblePath;
+                // Check if package.json with npm scripts exists (for workspace)
+                const packageJsonPath = path.join(possiblePath, 'package.json');
+                if (fs.existsSync(packageJsonPath)) {
+                    try {
+                        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+                        if (packageJson.scripts && 
+                            packageJson.scripts['lookatni:extract'] && 
+                            packageJson.scripts['lookatni:generate']) {
+                            this.logger.info(`Found LookAtni npm scripts at: ${possiblePath}`);
+                            return possiblePath;
+                        }
+                    } catch (error) {
+                        // Continue checking other paths
+                    }
                 }
             }
         }
@@ -71,22 +80,22 @@ export class OpenCLICommand {
             },
             {
                 label: '⚡ Extract Files',
-                description: 'Run extract-files.sh in terminal',
+                description: 'Run npm script: lookatni:extract',
                 action: 'extract'
             },
             {
                 label: '🏷️ Generate Markers',
-                description: 'Run generate-markers.sh in terminal',
+                description: 'Run npm script: lookatni:generate',
                 action: 'generate'
             },
             {
                 label: '🧪 Run Tests',
-                description: 'Run test-lookatni.sh in terminal',
+                description: 'Run npm script: lookatni:test',
                 action: 'test'
             },
             {
                 label: '🎯 Quick Demo',
-                description: 'Run demo.sh in terminal',
+                description: 'Run npm script: lookatni:demo',
                 action: 'demo'
             },
             {
@@ -108,19 +117,19 @@ export class OpenCLICommand {
                 break;
                 
             case 'extract':
-                await this.runCLIScript(cliPath, 'extract-files.sh');
+                await this.runNpmScript('lookatni:extract');
                 break;
                 
             case 'generate':
-                await this.runCLIScript(cliPath, 'generate-markers.sh');
+                await this.runNpmScript('lookatni:generate');
                 break;
                 
             case 'test':
-                await this.runCLIScript(cliPath, 'test-lookatni.sh');
+                await this.runNpmScript('lookatni:test');
                 break;
                 
             case 'demo':
-                await this.runCLIScript(cliPath, 'demo.sh');
+                await this.runNpmScript('lookatni:demo');
                 break;
                 
             case 'help':
@@ -129,21 +138,25 @@ export class OpenCLICommand {
         }
     }
     
-    private async runCLIScript(cliPath: string, scriptName: string): Promise<void> {
-        const scriptPath = path.join(cliPath, scriptName);
+    private async runNpmScript(scriptName: string): Promise<void> {
+        // Get working directory - prefer workspace root
+        const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
         
-        if (!fs.existsSync(scriptPath)) {
-            vscode.window.showErrorMessage(`Script not found: ${scriptName}`);
+        if (!workspaceRoot) {
+            vscode.window.showErrorMessage('No workspace folder found. Please open a folder first.');
             return;
         }
         
-        // Get working directory - prefer workspace root
-        const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-        const workingDir = workspaceRoot || path.dirname(cliPath);
+        // Check if package.json exists
+        const packageJsonPath = path.join(workspaceRoot, 'package.json');
+        if (!fs.existsSync(packageJsonPath)) {
+            vscode.window.showErrorMessage('No package.json found in workspace root.');
+            return;
+        }
         
         // Ask for script arguments if needed
         let args = '';
-        if (scriptName === 'extract-files.sh' || scriptName === 'generate-markers.sh') {
+        if (scriptName === 'lookatni:extract' || scriptName === 'lookatni:generate') {
             const inputArgs = await vscode.window.showInputBox({
                 prompt: `Enter arguments for ${scriptName} (or leave empty for interactive mode)`,
                 placeHolder: 'e.g., input.txt output_folder'
@@ -156,26 +169,23 @@ export class OpenCLICommand {
             }
         }
         
-        // Create terminal and run script
+        // Create terminal and run npm script
         const terminal = vscode.window.createTerminal({
             name: `LookAtni CLI - ${scriptName}`,
-            cwd: workingDir
+            cwd: workspaceRoot
         });
         
-        // Make script executable (Unix systems)
-        if (process.platform !== 'win32') {
-            terminal.sendText(`chmod +x "${scriptPath}"`);
-        }
-        
-        // Run the script
-        const command = process.platform === 'win32' 
-            ? `bash "${scriptPath}" ${args}`.trim()
-            : `"${scriptPath}" ${args}`.trim();
-            
+        // Run the npm script
+        const command = `npm run ${scriptName} ${args}`.trim();
         terminal.sendText(command);
         terminal.show();
         
-        this.logger.info(`Executed CLI script: ${scriptName} with args: ${args}`);
+        this.outputChannel.appendLine(`✅ Started ${scriptName} in terminal`);
+        this.outputChannel.appendLine(`Working directory: ${workspaceRoot}`);
+        this.outputChannel.appendLine(`Command: ${command}`);
+        if (args) {
+            this.outputChannel.appendLine(`Arguments: ${args}`);
+        }
     }
     
     private showCLIHelp(cliPath: string): void {
@@ -187,26 +197,26 @@ export class OpenCLICommand {
         this.outputChannel.appendLine('=== AVAILABLE SCRIPTS ===');
         this.outputChannel.appendLine('');
         
-        this.outputChannel.appendLine('📤 extract-files.sh');
+        this.outputChannel.appendLine('📤 npm run lookatni:extract');
         this.outputChannel.appendLine('   Extract files from marked content');
-        this.outputChannel.appendLine('   Usage: ./extract-files.sh [marked_file] [output_dir]');
+        this.outputChannel.appendLine('   Usage: npm run lookatni:extract [marked_file] [output_dir]');
         this.outputChannel.appendLine('   Options: --dry-run, --interactive, --force');
         this.outputChannel.appendLine('');
         
-        this.outputChannel.appendLine('📥 generate-markers.sh');
+        this.outputChannel.appendLine('📥 npm run lookatni:generate');
         this.outputChannel.appendLine('   Generate marked file from source directory');
-        this.outputChannel.appendLine('   Usage: ./generate-markers.sh [source_dir] [output_file]');
+        this.outputChannel.appendLine('   Usage: npm run lookatni:generate [source_dir] [output_file]');
         this.outputChannel.appendLine('   Options: --max-size, --exclude');
         this.outputChannel.appendLine('');
         
-        this.outputChannel.appendLine('🧪 test-lookatni.sh');
+        this.outputChannel.appendLine('🧪 npm run lookatni:test');
         this.outputChannel.appendLine('   Run comprehensive tests of the LookAtni system');
-        this.outputChannel.appendLine('   Usage: ./test-lookatni.sh');
+        this.outputChannel.appendLine('   Usage: npm run lookatni:test');
         this.outputChannel.appendLine('');
         
-        this.outputChannel.appendLine('🎯 demo.sh');
+        this.outputChannel.appendLine('🎯 npm run lookatni:demo');
         this.outputChannel.appendLine('   Run interactive demonstration');
-        this.outputChannel.appendLine('   Usage: ./demo.sh');
+        this.outputChannel.appendLine('   Usage: npm run lookatni:demo');
         this.outputChannel.appendLine('');
         
         this.outputChannel.appendLine('=== MARKER FORMAT ===');
@@ -223,13 +233,13 @@ export class OpenCLICommand {
         this.outputChannel.appendLine('=== EXAMPLES ===');
         this.outputChannel.appendLine('');
         this.outputChannel.appendLine('# Extract files from marked content:');
-        this.outputChannel.appendLine('./extract-files.sh project-marked.txt ./extracted');
+        this.outputChannel.appendLine('npm run lookatni:extract project-marked.txt ./extracted');
         this.outputChannel.appendLine('');
         this.outputChannel.appendLine('# Generate markers from a project:');
-        this.outputChannel.appendLine('./generate-markers.sh ./my-project output.txt');
+        this.outputChannel.appendLine('npm run lookatni:generate ./my-project output.txt');
         this.outputChannel.appendLine('');
         this.outputChannel.appendLine('# Interactive mode:');
-        this.outputChannel.appendLine('./extract-files.sh --interactive');
+        this.outputChannel.appendLine('npm run lookatni:extract --interactive');
         this.outputChannel.appendLine('');
         
         this.outputChannel.appendLine('=== FEATURES ===');
@@ -282,7 +292,7 @@ export class OpenCLICommand {
         );
         
         if (choice === 'Open Repository') {
-            vscode.env.openExternal(vscode.Uri.parse('https://github.com/your-repo/lookatni-revolution'));
+            vscode.env.openExternal(vscode.Uri.parse('https://github.com/rafa-mori/lookatni-file-markers'));
         } else if (choice === 'Copy CLI Path') {
             const suggestedPath = path.join(this.context.extensionPath, 'cli');
             vscode.env.clipboard.writeText(suggestedPath);
@@ -295,18 +305,21 @@ export class OpenCLICommand {
         this.outputChannel.appendLine('=== LOOKATNI CLI SETUP INSTRUCTIONS ===');
         this.outputChannel.appendLine('');
         this.outputChannel.appendLine('1. Download the CLI tools:');
-        this.outputChannel.appendLine('   git clone https://github.com/your-repo/lookatni-file-markers.git');
+        this.outputChannel.appendLine('   git clone https://github.com/rafa-mori/lookatni-file-markers.git');
         this.outputChannel.appendLine('');
-        this.outputChannel.appendLine('2. Place CLI scripts in one of these locations:');
-        this.outputChannel.appendLine(`   • ${path.join(this.context.extensionPath, 'cli')}`);
-        this.outputChannel.appendLine(`   • ${path.join(require('os').homedir(), '.lookatni')}`);
-        this.outputChannel.appendLine('   • Your workspace folder/cli');
+        this.outputChannel.appendLine('1. Install Node.js and npm if not already installed');
         this.outputChannel.appendLine('');
-        this.outputChannel.appendLine('3. Make scripts executable (Unix/Linux/Mac):');
-        this.outputChannel.appendLine('   chmod +x *.sh');
+        this.outputChannel.appendLine('2. Ensure your workspace has package.json with LookAtni scripts:');
+        this.outputChannel.appendLine('   • lookatni:extract');
+        this.outputChannel.appendLine('   • lookatni:generate');
+        this.outputChannel.appendLine('   • lookatni:test');
+        this.outputChannel.appendLine('   • lookatni:demo');
+        this.outputChannel.appendLine('');
+        this.outputChannel.appendLine('3. Install TypeScript execution runtime:');
+        this.outputChannel.appendLine('   npm install -g tsx');
         this.outputChannel.appendLine('');
         this.outputChannel.appendLine('4. Test the installation:');
-        this.outputChannel.appendLine('   ./test-lookatni.sh');
+        this.outputChannel.appendLine('   npm run lookatni:test');
         this.outputChannel.appendLine('');
         this.outputChannel.appendLine('The extension will automatically detect the CLI tools once installed.');
         
