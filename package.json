@@ -179,6 +179,12 @@
         "command": "lookatni.configuration",
         "title": "LookAtni: Configuration",
         "icon": "$(gear)"
+      },
+      {
+        "id": "lookatni.automatedDemo",
+        "command": "lookatni.automatedDemo",
+        "title": "LookAtni: Automated Demo (Recording)",
+        "icon": "$(device-camera-video)"
       }
     ],
     "menus": {
@@ -273,6 +279,10 @@
         },
         {
           "command": "lookatni.configuration",
+          "when": "true"
+        },
+        {
+          "command": "lookatni.automatedDemo",
           "when": "true"
         }
       ]

@@ -13,6 +13,7 @@ import { LookAtniStatusBar } from './utils/statusBar';
 import { Logger } from './utils/logger';
 import { VisualMarkersManager } from './utils/visualMarkers';
 import { ConfigurationManager } from './utils/configManager';
+import { registerAutomatedDemoCommand } from './commands/automatedDemo';
 
 export function activate(context: vscode.ExtensionContext) {
     // Initialize logger
@@ -96,6 +97,9 @@ export function activate(context: vscode.ExtensionContext) {
     
     // Validate configuration on startup
     configCommand.validateConfigurationOnStartup();
+    
+    // Register automated demo command
+    registerAutomatedDemoCommand(context);
     
     logger.info('🎉 LookAtni File Markers activated successfully!');
     statusBar.show('Ready', 3000);

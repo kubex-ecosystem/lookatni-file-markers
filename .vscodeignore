@@ -18,6 +18,10 @@ test/**
 tests/**
 *.test.js
 *.spec.js
+**/*.sh
+**/*/*.sh
+*.sh
+docs/*.sh
 
 # Arquivos de demo e teste
 test-demo.txt
