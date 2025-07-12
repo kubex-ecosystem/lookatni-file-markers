@@ -14,6 +14,7 @@ import { Logger } from './utils/logger';
 import { VisualMarkersManager } from './utils/visualMarkers';
 import { ConfigurationManager } from './utils/configManager';
 import { registerAutomatedDemoCommand } from './commands/automatedDemo';
+import { DemoRecordingGuide } from './commands/recordingGuide';
 
 export function activate(context: vscode.ExtensionContext) {
     // Initialize logger
@@ -98,9 +99,14 @@ export function activate(context: vscode.ExtensionContext) {
     // Validate configuration on startup
     configCommand.validateConfigurationOnStartup();
     
-    // Register automated demo command
+    // Register automated demo and recording guide
     registerAutomatedDemoCommand(context);
     
+    const recordingGuideCommand = vscode.commands.registerCommand('lookatni.recordingGuide', 
+        DemoRecordingGuide.showRecordingGuide);
+    context.subscriptions.push(recordingGuideCommand);
+    logger.info('✅ Registered recording guide command');
+
     logger.info('🎉 LookAtni File Markers activated successfully!');
     statusBar.show('Ready', 3000);
 }
