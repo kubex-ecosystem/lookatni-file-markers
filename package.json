@@ -1,8 +1,8 @@
 {
-  "name": "lookatni-revolution",
-  "displayName": "LookAtBi Revolution",
-  "description": "Revolutionary marked file system for seamless code sharing and project reconstruction. Extract files from marked content, generate markers from projects, validate integrity, and more!",
-  "version": "1.0.0",
+  "name": "lookatni-file-markers",
+  "displayName": "LookAtni File Markers",
+  "description": "Advanced file organization system with unique markers for code sharing and project management. Extract files from marked content, generate markers, and validate project integrity.",
+  "version": "1.0.2",
   "engines": {
     "vscode": "^1.102.0"
   },
@@ -15,7 +15,7 @@
   "capabilities": {
     "untrustedWorkspaces": {
       "supported": "limited",
-      "description": "LookAtni Revolution supports untrusted workspaces with limited functionality. Some features may be restricted for security reasons."
+      "description": "LookAtni File Markers supports untrusted workspaces with limited functionality. Some features may be restricted for security reasons."
     }
   },
   "extensionKind": [
@@ -56,7 +56,8 @@
   "icon": "resources/icon.png",
   "galleryBanner": {
     "color": "#1e1e1e",
-    "theme": "dark"
+    "theme": "dark",
+    "image": "resources/top_banner.png"
   },
   "activationEvents": [
     "onStartupFinished"
@@ -70,109 +71,208 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rafa-mori/lookatni-revolution.git"
+    "url": "https://github.com/rafa-mori/lookatni-file-markers.git"
   },
-  "homepage": "https://github.com/rafa-mori/lookatni-revolution#readme",
+  "homepage": "https://github.com/rafa-mori/lookatni-file-markers#readme",
   "bugs": {
-    "url": "https://github.com/rafa-mori/lookatni-revolution/issues"
+    "url": "https://github.com/rafa-mori/lookatni-file-markers/issues"
   },
   "keywords": [
     "file-markers",
-    "code-sharing",
-    "project-reconstruction",
+    "code-organization",
+    "project-management",
     "development-tools",
-    "cli-integration",
+    "file-extraction",
     "productivity",
     "lookatni",
-    "vscode-extension"
+    "vscode-extension",
+    "code-sharing",
+    "file-system"
   ],
   "qna": "marketplace",
   "contributes": {
     "commands": [
       {
-        "id": "lookatni-revolution.extractFiles",
-        "command": "lookatni-revolution.extractFiles",
+        "id": "lookatni-file-markers.extractFiles",
+        "command": "lookatni-file-markers.extractFiles",
         "title": "LookAtni: Extract Files"
       },
       {
-        "id": "lookatni-revolution.generateMarkers",
-        "command": "lookatni-revolution.generateMarkers",
+        "id": "lookatni-file-markers.generateMarkers",
+        "command": "lookatni-file-markers.generateMarkers",
         "title": "LookAtni: Generate Markers"
       },
       {
-        "id": "lookatni-revolution.validateMarkers",
-        "command": "lookatni-revolution.validateMarkers",
+        "id": "lookatni-file-markers.validateMarkers",
+        "command": "lookatni-file-markers.validateMarkers",
         "title": "LookAtni: Validate Markers"
       },
       {
-        "id": "lookatni-revolution.quickDemo",
-        "command": "lookatni-revolution.quickDemo",
+        "id": "lookatni-file-markers.quickDemo",
+        "command": "lookatni-file-markers.quickDemo",
         "title": "LookAtni: Quick Demo"
       },
       {
-        "id": "lookatni-revolution.showStatistics",
-        "command": "lookatni-revolution.showStatistics",
+        "id": "lookatni-file-markers.showStatistics",
+        "command": "lookatni-file-markers.showStatistics",
         "title": "LookAtni: Show Statistics"
       },
       {
-        "id": "lookatni-revolution.openCLI",
-        "command": "lookatni-revolution.openCLI",
+        "id": "lookatni-file-markers.openCLI",
+        "command": "lookatni-file-markers.openCLI",
         "title": "LookAtni: Open CLI Tools"
+      },
+      {
+        "id": "lookatni.visualMarkers",
+        "command": "lookatni.visualMarkers",
+        "title": "LookAtni: Visual Markers",
+        "icon": "$(tag)"
+      },
+      {
+        "id": "lookatni.markAsRead",
+        "command": "lookatni.markAsRead",
+        "title": "LookAtni: Mark as Read",
+        "icon": "$(check)"
+      },
+      {
+        "id": "lookatni.markAsFavorite",
+        "command": "lookatni.markAsFavorite",
+        "title": "LookAtni: Mark as Favorite",
+        "icon": "$(star-full)"
+      },
+      {
+        "id": "lookatni.markAsImportant",
+        "command": "lookatni.markAsImportant",
+        "title": "LookAtni: Mark as Important",
+        "icon": "$(warning)"
+      },
+      {
+        "id": "lookatni.showMarkersOverview",
+        "command": "lookatni.showMarkersOverview",
+        "title": "LookAtni: Markers Overview",
+        "icon": "$(list-unordered)"
+      },
+      {
+        "id": "lookatni.clearAllMarkers",
+        "command": "lookatni.clearAllMarkers",
+        "title": "LookAtni: Clear All Markers"
+      },
+      {
+        "id": "lookatni.exportMarkers",
+        "command": "lookatni.exportMarkers",
+        "title": "LookAtni: Export Markers"
+      },
+      {
+        "id": "lookatni.importMarkers",
+        "command": "lookatni.importMarkers",
+        "title": "LookAtni: Import Markers"
       }
     ],
     "menus": {
       "explorer/context": [
         {
-          "command": "lookatni-revolution.extractFiles",
+          "command": "lookatni-file-markers.extractFiles",
           "when": "resourceExtname == .txt",
           "group": "lookatni"
         },
         {
-          "command": "lookatni-revolution.generateMarkers",
+          "command": "lookatni-file-markers.generateMarkers",
           "when": "explorerResourceIsFolder",
           "group": "lookatni"
+        },
+        {
+          "command": "lookatni.visualMarkers",
+          "when": "!explorerResourceIsFolder",
+          "group": "lookatni@1"
+        },
+        {
+          "command": "lookatni.markAsRead",
+          "when": "!explorerResourceIsFolder",
+          "group": "lookatni@2"
+        },
+        {
+          "command": "lookatni.markAsFavorite",
+          "when": "!explorerResourceIsFolder",
+          "group": "lookatni@3"
+        },
+        {
+          "command": "lookatni.markAsImportant",
+          "when": "!explorerResourceIsFolder",
+          "group": "lookatni@4"
         }
       ],
       "commandPalette": [
         {
-          "command": "lookatni-revolution.extractFiles",
+          "command": "lookatni-file-markers.extractFiles",
           "when": "true"
         },
         {
-          "command": "lookatni-revolution.generateMarkers",
+          "command": "lookatni-file-markers.generateMarkers",
           "when": "true"
         },
         {
-          "command": "lookatni-revolution.validateMarkers",
+          "command": "lookatni-file-markers.validateMarkers",
           "when": "true"
         },
         {
-          "command": "lookatni-revolution.quickDemo",
+          "command": "lookatni-file-markers.quickDemo",
           "when": "true"
         },
         {
-          "command": "lookatni-revolution.showStatistics",
+          "command": "lookatni-file-markers.showStatistics",
           "when": "true"
         },
         {
-          "command": "lookatni-revolution.openCLI",
+          "command": "lookatni-file-markers.openCLI",
+          "when": "true"
+        },
+        {
+          "command": "lookatni.visualMarkers",
+          "when": "true"
+        },
+        {
+          "command": "lookatni.markAsRead",
+          "when": "true"
+        },
+        {
+          "command": "lookatni.markAsFavorite",
+          "when": "true"
+        },
+        {
+          "command": "lookatni.markAsImportant",
+          "when": "true"
+        },
+        {
+          "command": "lookatni.showMarkersOverview",
+          "when": "true"
+        },
+        {
+          "command": "lookatni.clearAllMarkers",
+          "when": "true"
+        },
+        {
+          "command": "lookatni.exportMarkers",
+          "when": "true"
+        },
+        {
+          "command": "lookatni.importMarkers",
           "when": "true"
         }
       ]
     },
     "keybindings": [
       {
-        "command": "lookatni-revolution.extractFiles",
+        "command": "lookatni-file-markers.extractFiles",
         "key": "ctrl+shift+l e",
         "mac": "cmd+shift+l e"
       },
       {
-        "command": "lookatni-revolution.generateMarkers",
+        "command": "lookatni-file-markers.generateMarkers",
         "key": "ctrl+shift+l g",
         "mac": "cmd+shift+l g"
       },
       {
-        "command": "lookatni-revolution.quickDemo",
+        "command": "lookatni-file-markers.quickDemo",
         "key": "ctrl+shift+l d",
         "mac": "cmd+shift+l d"
       }
@@ -193,7 +293,7 @@
       ]
     },
     "configuration": {
-      "title": "LookAtni Revolution",
+      "title": "LookAtni File Markers",
       "properties": {
         "lookatni.defaultMaxFileSize": {
           "type": "number",
@@ -209,6 +309,46 @@
           "type": "boolean",
           "default": false,
           "description": "Automatically validate files after generation"
+        },
+        "lookatni.visualMarkers.readIcon": {
+          "type": "string",
+          "default": "✓",
+          "description": "Icon for files marked as read"
+        },
+        "lookatni.visualMarkers.unreadIcon": {
+          "type": "string",
+          "default": "●",
+          "description": "Icon for files marked as unread"
+        },
+        "lookatni.visualMarkers.favoriteIcon": {
+          "type": "string",
+          "default": "★",
+          "description": "Icon for files marked as favorite"
+        },
+        "lookatni.visualMarkers.importantIcon": {
+          "type": "string",
+          "default": "!",
+          "description": "Icon for files marked as important"
+        },
+        "lookatni.visualMarkers.todoIcon": {
+          "type": "string",
+          "default": "○",
+          "description": "Icon for files marked as todo"
+        },
+        "lookatni.visualMarkers.customIcon": {
+          "type": "string",
+          "default": "◆",
+          "description": "Default icon for custom markers"
+        },
+        "lookatni.visualMarkers.autoSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically save markers when modified"
+        },
+        "lookatni.visualMarkers.showInStatusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show marker count in status bar"
         }
       }
     }
@@ -225,19 +365,26 @@
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "lookatni": "tsx src/scripts/cli.ts",
+    "lookatni:extract": "tsx src/scripts/extractFiles.ts",
+    "lookatni:generate": "tsx src/scripts/generateMarkers.ts",
+    "lookatni:test": "tsx src/scripts/testLookatni.ts",
+    "lookatni:demo": "tsx src/scripts/demo.ts"
   },
   "devDependencies": {
-    "@types/vscode": "^1.102.0",
+    "@types/jest": "^30.0.0",
     "@types/mocha": "^10.0.10",
-    "@types/node": "20.x",
+    "@types/node": "^20.19.7",
+    "@types/vscode": "^1.102.0",
     "@typescript-eslint/eslint-plugin": "^8.31.1",
     "@typescript-eslint/parser": "^8.31.1",
-    "eslint": "^9.25.1",
-    "esbuild": "^0.25.3",
-    "npm-run-all": "^4.1.5",
-    "typescript": "^5.8.3",
     "@vscode/test-cli": "^0.0.11",
-    "@vscode/test-electron": "^2.5.2"
+    "@vscode/test-electron": "^2.5.2",
+    "esbuild": "^0.25.3",
+    "eslint": "^9.25.1",
+    "npm-run-all": "^4.1.5",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
   }
 }

@@ -291,7 +291,7 @@ export class OpenCLICommand {
         this.outputChannel.appendLine('=== LOOKATNI CLI SETUP INSTRUCTIONS ===');
         this.outputChannel.appendLine('');
         this.outputChannel.appendLine('1. Download the CLI tools:');
-        this.outputChannel.appendLine('   git clone https://github.com/your-repo/lookatni-revolution.git');
+        this.outputChannel.appendLine('   git clone https://github.com/your-repo/lookatni-file-markers.git');
         this.outputChannel.appendLine('');
         this.outputChannel.appendLine('2. Place CLI scripts in one of these locations:');
         this.outputChannel.appendLine(`   • ${path.join(this.context.extensionPath, 'cli')}`);

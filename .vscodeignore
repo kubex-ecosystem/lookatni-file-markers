@@ -18,23 +18,37 @@ test/**
 tests/**
 *.test.js
 *.spec.js
+
+# Arquivos de demo e teste
+test-demo.txt
+demo-extracted/**
+demo-web/**
+demo-web-stats/**
+demo-code.txt
+generated-from-extracted.txt
+
+# Arquivos de desenvolvimento
+AZURE_DEVOPS_SETUP.md
+azure-pipelines.yml
+README_old.md
+TYPESCRIPT_MIGRATION.md
+esbuild.js
+tsconfig.json
+eslint.config.mjs
+
+# Scripts TypeScript (apenas distribuição compilada)
+src/scripts/**
+
+# CLI separado
+cli/**
+
+# Qualquer arquivo shell restante
+*.sh
+**/*.sh
+**/scripts/**
+
+# Outros arquivos de build/desenvolvimento
 .env
 .env.*
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-*.tsbuildinfo
-.git/**
-*.vsix
-cli/**
-resources/icon_backup.png
-resources/icon_optimized.png
-resources/banner.png
-resources/top_banner.png
-resources/top_banner_a.png
-scripts/**
-.vscode-test.mjs
-esbuild.js
-eslint.config.mjs
-test-demo.txt
-README_old.md
+*.local
+*.backup

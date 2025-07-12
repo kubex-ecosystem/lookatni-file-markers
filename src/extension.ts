@@ -5,24 +5,33 @@ import { ValidateMarkersCommand } from './commands/validateMarkers';
 import { QuickDemoCommand } from './commands/quickDemo';
 import { ShowStatisticsCommand } from './commands/showStatistics';
 import { OpenCLICommand } from './commands/openCLI';
+import { VisualMarkersCommand } from './commands/visualMarkers';
+import { QuickMarkersCommands } from './commands/quickMarkers';
 import { LookAtniExplorerProvider } from './views/explorerProvider';
 import { LookAtniStatusBar } from './utils/statusBar';
 import { Logger } from './utils/logger';
+import { VisualMarkersManager } from './utils/visualMarkers';
 
 export function activate(context: vscode.ExtensionContext) {
     // Initialize logger
     const logger = new Logger();
-    const outputChannel = vscode.window.createOutputChannel('LookAtni Revolution');
+    const outputChannel = vscode.window.createOutputChannel('LookAtni File Markers');
     
-    logger.info('🚀 LookAtni Revolution is activating...');
+    logger.info('🚀 LookAtni File Markers is activating...');
     
     // Initialize status bar
     const statusBar = new LookAtniStatusBar();
     context.subscriptions.push(statusBar);
     
+    // Initialize visual markers manager
+    const visualMarkersManager = new VisualMarkersManager(context);
+    
     // Initialize explorer provider
     const explorerProvider = new LookAtniExplorerProvider(context);
     vscode.window.registerTreeDataProvider('lookatniExplorer', explorerProvider);
+    
+    // Initialize quick markers commands
+    const quickMarkers = new QuickMarkersCommands(context, logger, visualMarkersManager);
     
     // Register commands
     const commands = [
@@ -31,7 +40,8 @@ export function activate(context: vscode.ExtensionContext) {
         new ValidateMarkersCommand(context, logger, outputChannel),
         new QuickDemoCommand(context, logger, outputChannel),
         new ShowStatisticsCommand(context, logger, outputChannel),
-        new OpenCLICommand(context, logger, outputChannel)
+        new OpenCLICommand(context, logger, outputChannel),
+        new VisualMarkersCommand(context, logger, outputChannel, visualMarkersManager)
     ];
     
     // Register all commands
@@ -52,6 +62,23 @@ export function activate(context: vscode.ExtensionContext) {
         logger.info(`✅ Registered command: ${command.commandId}`);
     });
     
+    // Register quick markers commands
+    const quickMarkersCommands = [
+        { id: 'lookatni.markAsRead', handler: quickMarkers.markAsRead.bind(quickMarkers) },
+        { id: 'lookatni.markAsFavorite', handler: quickMarkers.markAsFavorite.bind(quickMarkers) },
+        { id: 'lookatni.markAsImportant', handler: quickMarkers.markAsImportant.bind(quickMarkers) },
+        { id: 'lookatni.showMarkersOverview', handler: quickMarkers.showMarkersOverview.bind(quickMarkers) },
+        { id: 'lookatni.clearAllMarkers', handler: quickMarkers.clearAllMarkers.bind(quickMarkers) },
+        { id: 'lookatni.exportMarkers', handler: quickMarkers.exportMarkers.bind(quickMarkers) },
+        { id: 'lookatni.importMarkers', handler: quickMarkers.importMarkers.bind(quickMarkers) }
+    ];
+
+    quickMarkersCommands.forEach(({ id, handler }) => {
+        const disposable = vscode.commands.registerCommand(id, handler);
+        context.subscriptions.push(disposable);
+        logger.info(`✅ Registered quick command: ${id}`);
+    });
+    
     // Register refresh command for explorer
     const refreshCommand = vscode.commands.registerCommand('lookatniExplorer.refresh', () => {
         explorerProvider.refresh();
@@ -61,7 +88,7 @@ export function activate(context: vscode.ExtensionContext) {
     // Show welcome message
     showWelcomeMessage(context);
     
-    logger.info('🎉 LookAtni Revolution activated successfully!');
+    logger.info('🎉 LookAtni File Markers activated successfully!');
     statusBar.show('Ready', 3000);
 }
 
@@ -75,7 +102,7 @@ async function showWelcomeMessage(context: vscode.ExtensionContext) {
     
     if (!hasShownWelcome) {
         const result = await vscode.window.showInformationMessage(
-            '🚀 Welcome to LookAtni Revolution! Transform your code workflow with unique markers.',
+            '🚀 Welcome to LookAtni File Markers! Organize your code workflow with unique markers.',
             'Quick Demo',
             'Open Documentation',
             'Dismiss'

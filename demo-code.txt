@@ -1,0 +1,51 @@
+# LookAtni Demo Code
+
+/// hello.js ///
+console.log('Hello, LookAtni with invisible markers!');
+console.log('This is working perfectly!');
+
+const message = 'Bem-vindo ao futuro!';
+console.log(message);
+
+/// style.css ///
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+/// index.html ///
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LookAtni Demo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 LookAtni Revolution</h1>
+        <p>Marcadores invisíveis funcionando!</p>
+    </div>
+    <script src="hello.js"></script>
+</body>
+</html>
+
+/// README.md ///
+# LookAtni Demo
+
+Demonstração com marcadores invisíveis!
+
+## Como usar
+
+```bash
+tsx extractFiles.ts demo-code.txt ./extracted
+```
+
+Pronto! 🎉
