@@ -11,6 +11,24 @@
 
 🚀 **Revolutionary AI code extraction + visual file organization system**
 
+## 📦 Installation Options
+
+### 🎯 Global CLI Tool
+
+```bash
+# Install globally for command-line usage anywhere
+npm install -g lookatni-file-markers
+
+# Use from any directory
+lookatni extract mycode.txt ./project
+lookatni generate ./src output.txt
+lookatni --help
+```
+
+### 🎨 VS Code Extension
+
+Install from [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=rafa-mori.lookatni-file-markers) or search for "LookAtni File Markers" in VS Code Extensions.
+
 ## 🏆 The Golden Tip: AI-Generated Code Made Easy
 
 **The Problem:** AI generates amazing code in single files, but extracting them into proper project structures is tedious and error-prone.

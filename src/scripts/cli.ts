@@ -26,7 +26,10 @@ class LookAtniCLI {
         console.log(`${colors.CYAN}🚀 LookAtni CLI v3.0 - Sistema de Marcadores Únicos${colors.NC}`);
         console.log("====================================================");
         console.log("");
-        console.log("Uso: tsx cli.ts <comando> [argumentos]");
+        console.log("Uso: lookatni <comando> [argumentos]");
+        console.log("");
+        console.log(`${colors.PURPLE}📦 Instalação Global:${colors.NC}`);
+        console.log(`${colors.YELLOW}npm install -g lookatni-file-markers${colors.NC}`);
         console.log("");
         console.log(`${colors.YELLOW}Comandos disponíveis:${colors.NC}`);
         console.log("");
@@ -35,28 +38,25 @@ class LookAtniCLI {
         console.log(`${colors.GREEN}test${colors.NC}        - Executa testes do sistema LookAtni`);
         console.log(`${colors.GREEN}demo${colors.NC}        - Cria demonstração do sistema`);
         console.log(`${colors.GREEN}help${colors.NC}        - Mostra esta ajuda`);
+        console.log(`${colors.GREEN}version${colors.NC}     - Mostra a versão do LookAtni`);
         console.log("");
         console.log(`${colors.YELLOW}Exemplos:${colors.NC}`);
         console.log("");
         console.log(`${colors.BLUE}# Extrair arquivos${colors.NC}`);
-        console.log(`tsx cli.ts extract codigo.txt ./projeto`);
-        console.log(`tsx cli.ts extract codigo.txt ./destino --dry-run --stats`);
+        console.log(`lookatni extract codigo.txt ./projeto`);
+        console.log(`lookatni extract codigo.txt ./destino --dry-run --stats`);
         console.log("");
         console.log(`${colors.BLUE}# Gerar marcadores${colors.NC}`);
-        console.log(`tsx cli.ts generate ./src codigo.txt`);
-        console.log(`tsx cli.ts generate . projeto.txt --exclude node_modules --include "*.ts"`);
+        console.log(`lookatni generate ./src codigo.txt`);
+        console.log(`lookatni generate . projeto.txt --exclude node_modules --include "*.ts"`);
         console.log("");
         console.log(`${colors.BLUE}# Executar testes${colors.NC}`);
-        console.log(`tsx cli.ts test`);
+        console.log(`lookatni test`);
         console.log("");
-        console.log(`${colors.BLUE}# Criar demonstração${colors.NC}`);
-        console.log(`tsx cli.ts demo`);
+        console.log(`${colors.BLUE}# Criar demo${colors.NC}`);
+        console.log(`lookatni demo`);
         console.log("");
-        console.log(`${colors.PURPLE}Para ajuda específica de cada comando:${colors.NC}`);
-        console.log(`tsx extractFiles.ts --help`);
-        console.log(`tsx generateMarkers.ts --help`);
-        console.log(`tsx testLookatni.ts --help`);
-        console.log(`tsx demo.ts --help`);
+        console.log(`${colors.PURPLE}💡 Dica: Use ${colors.YELLOW}lookatni <comando> --help${colors.NC}${colors.PURPLE} para ajuda específica de cada comando${colors.NC}`);
         console.log("");
         console.log(`${colors.CYAN}✨ LookAtni File Markers - Organize your code with unique markers! ✨${colors.NC}`);
     }
@@ -75,6 +75,11 @@ class LookAtniCLI {
             case 'demo':
                 await this.handleDemo(args);
                 break;
+            case 'version':
+            case '--version':
+            case '-v':
+                this.printVersion();
+                break;
             case 'help':
             case '--help':
             case '-h':
@@ -82,8 +87,21 @@ class LookAtniCLI {
                 break;
             default:
                 console.error(`${colors.RED}❌ Comando desconhecido: ${command}${colors.NC}`);
-                console.error(`${colors.YELLOW}Use 'tsx cli.ts help' para ver os comandos disponíveis${colors.NC}`);
+                console.error(`${colors.YELLOW}Use 'lookatni help' para ver os comandos disponíveis${colors.NC}`);
                 process.exit(1);
+        }
+    }
+
+    printVersion(): void {
+        // Try to read version from package.json
+        try {
+            const fs = require('fs');
+            const path = require('path');
+            const packagePath = path.resolve(__dirname, '../../package.json');
+            const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
+            console.log(`${colors.CYAN}LookAtni File Markers v${packageJson.version}${colors.NC}`);
+        } catch {
+            console.log(`${colors.CYAN}LookAtni File Markers v3.0${colors.NC}`);
         }
     }
 

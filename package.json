@@ -3,8 +3,21 @@
   "displayName": "LookAtni File Markers",
   "description": "Advanced file organization system with unique markers for code sharing and project management. Extract files from marked content, generate markers, and validate project integrity.",
   "version": "1.0.6",
+  "bin": {
+    "lookatni": "./bin/lookatni.js"
+  },
+  "files": [
+    "bin/",
+    "dist/",
+    "resources/",
+    "CLI-README.md",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "engines": {
-    "vscode": "^1.102.0"
+    "vscode": "^1.102.0",
+    "node": ">=16.0.0"
   },
   "categories": [
     "Other",
@@ -94,7 +107,10 @@
     "artificial-intelligence",
     "project-generator",
     "invisible-markers",
-    "unicode-markers"
+    "unicode-markers",
+    "cli",
+    "command-line",
+    "global-package"
   ],
   "qna": "marketplace",
   "contributes": {
@@ -393,16 +409,21 @@
   "scripts": {
     "vscode:prepublish": "npm run package",
     "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "build": "npm run compile && npm run build:cli",
+    "build:cli": "npm run compile-cli-scripts",
+    "compile-cli-scripts": "tsc --project tsconfig.cli.json",
     "watch": "npm-run-all -p watch:*",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-    "package": "npm run check-types && npm run lint && node esbuild.js --production",
+    "package": "npm run check-types && npm run lint && node esbuild.js --production && npm run build:cli",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
     "test": "vscode-test",
+    "prepublishOnly": "npm run build",
+    "postinstall": "node -e \"try{require('./bin/lookatni.js')}catch(e){console.log('LookAtni CLI ready for use!')}\"",
     "lookatni": "tsx src/scripts/cli.ts",
     "lookatni:extract": "tsx src/scripts/extractFiles.ts",
     "lookatni:generate": "tsx src/scripts/generateMarkers.ts",
