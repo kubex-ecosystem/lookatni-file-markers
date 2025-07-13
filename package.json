@@ -2,7 +2,7 @@
   "name": "lookatni-file-markers",
   "displayName": "LookAtni File Markers",
   "description": "Advanced file organization system with unique markers for code sharing and project management. Extract files from marked content, generate markers, and validate project integrity.",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "bin": {
     "lookatni": "./bin/lookatni.js"
   },
