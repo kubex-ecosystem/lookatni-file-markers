@@ -56,3 +56,6 @@ cli/**
 .env.*
 *.local
 *.backup
+*.vsix
+*.vsix*
+
