@@ -1,25 +1,26 @@
-# Teste dos Comandos LookAtni
+# LookAtni Commands Test
 
-Este arquivo foi criado para testar os comandos da extensão LookAtni File Markers.
+This file was created to test the commands of the LookAtni File Markers extension.
 
-## Comandos para testar:
+## Commands to Test
 
-1. **LookAtni: Extract Files** - Extrair arquivos de código marcado
-2. **LookAtni: Generate Markers** - Gerar marcadores de arquivos
-3. **LookAtni: Validate Markers** - Validar estrutura de marcadores
-4. **LookAtni: Quick Demo** - Demo rápido do sistema
-5. **LookAtni: Show Statistics** - Mostrar estatísticas
-6. **LookAtni: Open CLI Tools** - Abrir ferramentas CLI
-7. **LookAtni: Visual Markers** - Marcadores visuais
-8. **LookAtni: Configuration** - Configuração
+1. **LookAtni: Extract Files** - Extract marked code files
+2. **LookAtni: Generate Markers** - Generate file markers
+3. **LookAtni: Validate Markers** - Validate marker structure
+4. **LookAtni: Quick Demo** - Quick system demo
+5. **LookAtni: Show Statistics** - Show statistics
+6. **LookAtni: Open CLI Tools** - Open CLI tools
+7. **LookAtni: Visual Markers** - Visual markers
+8. **LookAtni: Configuration** - Configuration
 
-## Como testar:
+## How to Test
 
-1. Abra a Command Palette (Ctrl+Shift+P)
-2. Digite "LookAtni:" para ver todos os comandos
-3. Teste cada comando individualmente
+1. Open the Command Palette (Ctrl+Shift+P)
+2. Type "LookAtni:" to see all commands
+3. Test each command individually
 
-Os comandos principais que devem funcionar agora:
+The main commands that should work now:
+
 - `lookatni-file-markers.extractFiles`
 - `lookatni-file-markers.generateMarkers`
 - `lookatni-file-markers.validateMarkers`
@@ -27,7 +28,8 @@ Os comandos principais que devem funcionar agora:
 - `lookatni-file-markers.showStatistics`
 - `lookatni-file-markers.openCLI`
 
-E os comandos de marcação:
+And the marking commands:
+
 - `lookatni.visualMarkers`
 - `lookatni.configuration`
 - `lookatni.automatedDemo`

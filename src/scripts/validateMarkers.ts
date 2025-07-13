@@ -7,8 +7,8 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { MarkerParser } from '../utils/markerParser';
-import { Logger } from '../utils/logger';
+import { CLIMarkerParser } from '../utils/cliMarkerParser';
+import { CLILogger } from '../utils/cliLogger';
 
 // Cores para output
 const colors = {
@@ -29,10 +29,10 @@ interface ValidationOptions {
 }
 
 class LookAtniValidator {
-    private logger: Logger;
+    private logger: CLILogger;
 
     constructor(private options: ValidationOptions) {
-        this.logger = new Logger('validate-script');
+        this.logger = new CLILogger('validate-script', options.verbose);
     }
 
     printHelp(): void {
@@ -77,7 +77,7 @@ class LookAtniValidator {
             this.logger.info(`🔍 Validando arquivo: ${absolutePath}`);
 
             // Criar parser e validar
-            const parser = new MarkerParser(this.logger);
+            const parser = new CLIMarkerParser(this.logger);
             const validation = parser.validateMarkers(absolutePath);
 
             // Mostrar resultados
