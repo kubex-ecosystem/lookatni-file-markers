@@ -76,11 +76,11 @@ LookAtni: Extract Files → project-markers.txt → ./restored-project
 
 </div>
 
-<!-- ## 🎬 See It In Action
+## 🎬 See It In Action
 
 <div class="video-container" markdown>
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/your-demo-video" frameborder="0" allowfullscreen></iframe>
-</div> -->
+  <iframe width="720" height="392" src="assets/demo_md.gif" frameborder="0" allowfullscreen></iframe>
+</div>
 
 !!! tip "📹 **Perfect for Recording**"
     

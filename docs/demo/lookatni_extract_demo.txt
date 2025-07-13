@@ -1,4 +1,4 @@
-//␜/ standards/go.md /␜//
+/// standards/go.md ///
 # Go Craftsmanship Standards
 
 Use Go Modules for dependency management. Keep `go.mod` and `go.sum` clean and minimal. Avoid indirect dependencies when possible.
@@ -28,7 +28,7 @@ README must be clear, technical, and up to date. Include build instructions, fea
 Be consistent. Be fast. Be safe. Be Go.
 
 
-//␜/ standards/typescript.md /␜//
+/// standards/typescript.md ///
 # TypeScript Craftsmanship Standards
 
 Use `pnpm` or `npm` with lockfiles committed. Prefer `workspace:` protocol in monorepos. Avoid unnecessary dependencies.
@@ -61,7 +61,7 @@ README must be technical and updated: build, run, test instructions, usage examp
 Be declarative. Be typed. Be testable. Be clean. Be TypeScript.
 
 
-//␜/ standards/java.md /␜//
+/// standards/java.md ///
 # Java Craftsmanship Standards
 
 Use Gradle (preferred) or Maven with minimal `build.gradle.kts` or `pom.xml`. Avoid transitive bloat.
@@ -93,7 +93,7 @@ README must be clear, updated, and technical. Include build/run/test steps, usag
 Be explicit. Be modular. Be tested. Be clean. Be Java.
 
 
-//␜/ standards/shell.md /␜//
+/// standards/shell.md ///
 # Shell Craftsmanship Standards
 
 Declare the interpreter at the top (`#!/usr/bin/env bash`). Make all scripts executable (`chmod +x`).
@@ -121,7 +121,7 @@ Document each script with top-level block comments explaining usage and variable
 Be portable. Be predictable. Be POSIX-compliant when possible. Shell is power — wield it with discipline.
 
 
-//␜/ standards/markdown.md /␜//
+/// standards/markdown.md ///
 # Markdown Craftsmanship Standards
 
 Use `#` for titles. Maintain hierarchy order (no skipping levels). Only one `#` per file (main title).
