@@ -9,6 +9,7 @@ import { LookAtniExtractor } from './extractFiles';
 import { LookAtniGenerator } from './generateMarkers';
 import { LookAtniTester } from './testLookatni';
 import { LookAtniDemo } from './demo';
+import './validateMarkers';
 
 // Cores
 const colors = {
@@ -35,6 +36,7 @@ class LookAtniCLI {
         console.log("");
         console.log(`${colors.GREEN}extract${colors.NC}     - Extrai arquivos de um arquivo marcado`);
         console.log(`${colors.GREEN}generate${colors.NC}    - Gera marcadores a partir de uma estrutura de arquivos`);
+        console.log(`${colors.GREEN}validate${colors.NC}    - Valida marcadores em um arquivo`);
         console.log(`${colors.GREEN}test${colors.NC}        - Executa testes do sistema LookAtni`);
         console.log(`${colors.GREEN}demo${colors.NC}        - Cria demonstração do sistema`);
         console.log(`${colors.GREEN}help${colors.NC}        - Mostra esta ajuda`);
@@ -49,6 +51,10 @@ class LookAtniCLI {
         console.log(`${colors.BLUE}# Gerar marcadores${colors.NC}`);
         console.log(`lookatni generate ./src codigo.txt`);
         console.log(`lookatni generate . projeto.txt --exclude node_modules --include "*.ts"`);
+        console.log("");
+        console.log(`${colors.BLUE}# Validar marcadores${colors.NC}`);
+        console.log(`lookatni validate projeto.txt`);
+        console.log(`lookatni validate codigo.txt --verbose --warnings`);
         console.log("");
         console.log(`${colors.BLUE}# Executar testes${colors.NC}`);
         console.log(`lookatni test`);
@@ -68,6 +74,9 @@ class LookAtniCLI {
                 break;
             case 'generate':
                 await this.handleGenerate(args);
+                break;
+            case 'validate':
+                await this.handleValidate(args);
                 break;
             case 'test':
                 await this.handleTest(args);
@@ -208,6 +217,56 @@ class LookAtniCLI {
 
         const generator = new LookAtniGenerator(options);
         await generator.generateMarkers(sourceDir, outputFile);
+    }
+
+    private async handleValidate(args: string[]): Promise<void> {
+        if (args.includes('--help') || args.includes('-h')) {
+            console.log(`${colors.CYAN}🔍 LookAtni Validator - Valida marcadores únicos${colors.NC}`);
+            console.log("====================================================");
+            console.log("");
+            console.log("Uso: lookatni validate <arquivo> [opções]");
+            console.log("");
+            console.log(`${colors.YELLOW}Argumentos:${colors.NC}`);
+            console.log("  arquivo                   Arquivo com marcadores para validar");
+            console.log("");
+            console.log(`${colors.YELLOW}Opções:${colors.NC}`);
+            console.log("  -v, --verbose            Saída detalhada");
+            console.log("  -w, --warnings           Mostrar avisos além de erros");
+            console.log("  -j, --json              Saída em formato JSON");
+            console.log("  -e, --exit-on-error     Sair com código de erro se inválido");
+            console.log("  -h, --help              Mostrar esta ajuda");
+            console.log("");
+            console.log(`${colors.YELLOW}Exemplos:${colors.NC}`);
+            console.log("");
+            console.log(`${colors.BLUE}# Validar arquivo básico${colors.NC}`);
+            console.log(`lookatni validate projeto.txt`);
+            console.log("");
+            console.log(`${colors.BLUE}# Validar com avisos e verbose${colors.NC}`);
+            console.log(`lookatni validate projeto.txt --verbose --warnings`);
+            console.log("");
+            console.log(`${colors.BLUE}# Validar para CI/CD (JSON + exit on error)${colors.NC}`);
+            console.log(`lookatni validate projeto.txt --json --exit-on-error`);
+            return;
+        }
+
+        // Implementação inline do validador para evitar problemas de import
+        const { spawn } = require('child_process');
+        const path = require('path');
+        
+        const validateScript = path.resolve(__dirname, 'validateMarkers.js');
+        
+        const child = spawn('node', [validateScript, ...args], {
+            stdio: 'inherit'
+        });
+
+        child.on('exit', (code: number | null) => {
+            process.exit(code || 0);
+        });
+
+        child.on('error', (error: Error) => {
+            console.error(`${colors.RED}❌ Erro ao executar validação: ${error.message}${colors.NC}`);
+            process.exit(1);
+        });
     }
 
     private async handleTest(args: string[]): Promise<void> {

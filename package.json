@@ -427,6 +427,7 @@
     "lookatni": "tsx src/scripts/cli.ts",
     "lookatni:extract": "tsx src/scripts/extractFiles.ts",
     "lookatni:generate": "tsx src/scripts/generateMarkers.ts",
+    "lookatni:validate": "tsx src/scripts/validateMarkers.ts",
     "lookatni:test": "tsx src/scripts/testLookatni.ts",
     "lookatni:demo": "tsx src/scripts/demo.ts"
   },
