@@ -129,7 +129,7 @@ async function showWelcomeMessage(context: vscode.ExtensionContext) {
         
         switch (result) {
             case 'Quick Demo':
-                vscode.commands.executeCommand('lookatni.quickDemo');
+                vscode.commands.executeCommand('lookatni-file-markers.quickDemo');
                 break;
             case 'Open Documentation':
                 vscode.env.openExternal(vscode.Uri.parse('https://github.com/rafa-mori/lookatni-file-markers'));

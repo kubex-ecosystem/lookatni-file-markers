@@ -5,7 +5,7 @@ import { Logger } from '../utils/logger';
 import { MarkerParser } from '../utils/markerParser';
 
 export class ShowStatisticsCommand {
-    public readonly commandId = 'lookatni.showStatistics';
+    public readonly commandId = 'lookatni-file-markers.showStatistics';
     
     constructor(
         private context: vscode.ExtensionContext,

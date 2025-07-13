@@ -4,7 +4,7 @@ import * as path from 'path';
 import { Logger } from '../utils/logger';
 
 export class OpenCLICommand {
-    public readonly commandId = 'lookatni.openCLI';
+    public readonly commandId = 'lookatni-file-markers.openCLI';
     
     // ASCII 28 (File Separator) character for invisible markers
     private readonly FS_CHAR = String.fromCharCode(28);

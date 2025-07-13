@@ -5,7 +5,7 @@ import { Logger } from '../utils/logger';
 import { MarkerGenerator } from '../utils/markerGenerator';
 
 export class GenerateMarkersCommand {
-    public readonly commandId = 'lookatni.generateMarkers';
+    public readonly commandId = 'lookatni-file-markers.generateMarkers';
     
     constructor(
         private context: vscode.ExtensionContext,
@@ -236,7 +236,7 @@ export class GenerateMarkersCommand {
         // Show statistics if enabled
         const config = vscode.workspace.getConfiguration('lookatni');
         if (config.get('showStatistics', true)) {
-            vscode.commands.executeCommand('lookatni.showStatistics', results);
+            vscode.commands.executeCommand('lookatni-file-markers.showStatistics', results);
         }
     }
     

@@ -22,6 +22,7 @@ tests/**
 **/*/*.sh
 *.sh
 docs/*.sh
+bkp/
 
 # Arquivos de demo e teste
 test-demo.txt

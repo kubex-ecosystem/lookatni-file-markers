@@ -6,7 +6,7 @@ import { MarkerGenerator } from '../utils/markerGenerator';
 import { MarkerParser } from '../utils/markerParser';
 
 export class QuickDemoCommand {
-    public readonly commandId = 'lookatni.quickDemo';
+    public readonly commandId = 'lookatni-file-markers.quickDemo';
     
     // ASCII 28 (File Separator) character for invisible markers
     private readonly FS_CHAR = String.fromCharCode(28);

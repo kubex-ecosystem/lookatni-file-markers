@@ -72,42 +72,42 @@ export class LookAtniExplorerProvider implements vscode.TreeDataProvider<LookAtn
                 'Extract Files',
                 vscode.TreeItemCollapsibleState.None,
                 'action',
-                'lookatni.extractFiles',
+                'lookatni-file-markers.extractFiles',
                 '$(file-zip) Extract files from marked content'
             ),
             new LookAtniItem(
                 'Generate Markers',
                 vscode.TreeItemCollapsibleState.None,
                 'action',
-                'lookatni.generateMarkers',
+                'lookatni-file-markers.generateMarkers',
                 '$(file-code) Create marked file from project'
             ),
             new LookAtniItem(
                 'Validate Markers',
                 vscode.TreeItemCollapsibleState.None,
                 'action',
-                'lookatni.validateMarkers',
+                'lookatni-file-markers.validateMarkers',
                 '$(check) Validate marked file structure'
             ),
             new LookAtniItem(
                 'Quick Demo',
                 vscode.TreeItemCollapsibleState.None,
                 'action',
-                'lookatni.quickDemo',
+                'lookatni-file-markers.quickDemo',
                 '$(play) Run interactive demonstration'
             ),
             new LookAtniItem(
                 'Show Statistics',
                 vscode.TreeItemCollapsibleState.None,
                 'action',
-                'lookatni.showStatistics',
+                'lookatni-file-markers.showStatistics',
                 '$(graph) View file statistics'
             ),
             new LookAtniItem(
                 'Open CLI Tools',
                 vscode.TreeItemCollapsibleState.None,
                 'action',
-                'lookatni.openCLI',
+                'lookatni-file-markers.openCLI',
                 '$(terminal) Access command-line tools'
             )
         ];

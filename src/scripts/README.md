@@ -1,99 +1,107 @@
-# 🚀 LookAtni Scripts TypeScript
+# 🚀 LookAtni TypeScript Scripts
 
-Esta pasta contém as versões TypeScript dos scripts shell originais, oferecendo uma alternativa mais robusta e segura para o sistema LookAtni.
+This folder contains TypeScript versions of the original shell scripts, offering a more robust and secure alternative for the LookAtni system.
 
-## 📁 Scripts Disponíveis
+## 📁 Available Scripts
 
-### 🎯 CLI Unificado
-- **`cli.ts`** - Interface de linha de comando unificada para todos os scripts
+### 🎯 Unified CLI
 
-### 🔧 Scripts Principais
-- **`extractFiles.ts`** - Extrai arquivos de códigos marcados
-- **`generateMarkers.ts`** - Gera marcadores a partir de estruturas de arquivos
-- **`testLookatni.ts`** - Suite de testes completa
-- **`demo.ts`** - Cria demonstração do sistema
+- **`cli.ts`** - Unified command-line interface for all scripts
 
-## 🚀 Como Usar
+### 🔧 Main Scripts
 
-### Via NPM Scripts (Recomendado)
+- **`extractFiles.ts`** - Extracts files from marked code
+- **`generateMarkers.ts`** - Generates markers from file structures
+- **`testLookatni.ts`** - Complete test suite
+- **`demo.ts`** - Creates system demonstration
+
+## 🚀 How to Use
+
+### Via NPM Scripts (Recommended)
 
 ```bash
-# CLI unificado
+# Unified CLI
 npm run lookatni help
-npm run lookatni extract codigo.txt ./projeto
-npm run lookatni generate ./src codigo.txt
+npm run lookatni extract code.txt ./project
+npm run lookatni generate ./src code.txt
 
-# Scripts individuais
-npm run lookatni:extract codigo.txt ./destino --stats
-npm run lookatni:generate ./projeto codigo.txt --exclude node_modules
+# Individual scripts
+npm run lookatni:extract code.txt ./destination --stats
+npm run lookatni:generate ./project code.txt --exclude node_modules
 npm run lookatni:test
 npm run lookatni:demo
 ```
 
-### Via TSX Direto
+### Via Direct TSX
 
 ```bash
-# CLI unificado
+# Unified CLI
 tsx src/scripts/cli.ts help
-tsx src/scripts/cli.ts extract codigo.txt ./projeto
-tsx src/scripts/cli.ts generate ./src codigo.txt
+tsx src/scripts/cli.ts extract code.txt ./project
+tsx src/scripts/cli.ts generate ./src code.txt
 
-# Scripts individuais
-tsx src/scripts/extractFiles.ts codigo.txt ./destino --stats
-tsx src/scripts/generateMarkers.ts ./projeto codigo.txt --exclude node_modules
+# Individual scripts
+tsx src/scripts/extractFiles.ts code.txt ./destination --stats
+tsx src/scripts/generateMarkers.ts ./project code.txt --exclude node_modules
 tsx src/scripts/testLookatni.ts
 tsx src/scripts/demo.ts
 ```
 
-## 🌟 Vantagens sobre Scripts Shell
+## 🌟 Advantages over Shell Scripts
 
-### ✅ **Compatibilidade Multiplataforma**
-- Funciona em Windows, macOS e Linux
-- Não depende de ferramentas shell específicas
-- Comportamento consistente em todos os ambientes
+### ✅ **Cross-Platform Compatibility**
 
-### 🛡️ **Segurança Aprimorada**
-- Código TypeScript é menos provável de ser detectado como "suspeito"
-- Validação de tipos em tempo de compilação
-- Tratamento de erros mais robusto
+- Works on Windows, macOS, and Linux
+- No dependency on specific shell tools
+- Consistent behavior across all environments
 
-### 🔧 **Funcionalidades Avançadas**
-- Interface mais amigável com cores e formatação
-- Validação de entrada mais rigorosa
-- Relatórios de estatísticas mais detalhados
-- Melhor tratamento de caminhos de arquivo
+### 🛡️ **Enhanced Security**
 
-### 🎯 **Manutenibilidade**
-- Código mais organizado e orientado a objetos
-- Fácil extensão e modificação
-- Testes unitários integrados
-- Documentação inline
+- TypeScript code is less likely to be detected as "suspicious"
+- Compile-time type validation
+- More robust error handling
 
-## 📋 Comandos Principais
+### 🔧 **Advanced Features**
 
-### Extrair Arquivos
+- More user-friendly interface with colors and formatting
+- Stricter input validation
+- More detailed statistics reports
+- Better file path handling
+
+### 🎯 **Maintainability**
+
+- More organized and object-oriented code
+- Easy extension and modification
+- Integrated unit tests
+- Inline documentation
+
+## 📋 Main Commands
+
+### Extract Files
+
 ```bash
-# Extração básica
-npm run lookatni extract codigo.txt ./projeto
+# Basic extraction
+npm run lookatni extract code.txt ./project
 
-# Com opções avançadas
-npm run lookatni extract codigo.txt ./destino \
+# With advanced options
+npm run lookatni extract code.txt ./destination \
   --dry-run \
   --stats \
   --verbose \
   --interactive
 
-# Validar formato apenas
-npm run lookatni extract codigo.txt --format
+# Format validation only
+npm run lookatni extract code.txt --format
 ```
 
-### Gerar Marcadores
-```bash
-# Geração básica
-npm run lookatni generate ./src codigo.txt
+### Generate Markers
 
-# Com filtros
-npm run lookatni generate ./projeto codigo.txt \
+```bash
+# Basic generation
+npm run lookatni generate ./src code.txt
+
+# With filters
+npm run lookatni generate ./project code.txt \
   --exclude node_modules \
   --exclude "*.log" \
   --include "*.ts" \
@@ -101,33 +109,36 @@ npm run lookatni generate ./projeto codigo.txt \
   --max-size 500
 
 # Verbose
-npm run lookatni generate ./src codigo.txt --verbose
+npm run lookatni generate ./src code.txt --verbose
 ```
 
-### Executar Testes
+### Run Tests
+
 ```bash
-# Testes completos
+# Complete tests
 npm run lookatni test
 
-# Testes com ajuda
+# Tests with help
 npm run lookatni test --help
 ```
 
-### Criar Demonstração
+### Create Demo
+
 ```bash
-# Criar demo
+# Create demo
 npm run lookatni demo
 
-# Ver ajuda
+# View help
 npm run lookatni demo --help
 ```
 
-## 🔍 Exemplos Práticos
+## 🔍 Practical Examples
 
-### Compartilhar um Projeto React
+### Share a React Project
+
 ```bash
-# Gerar marcadores excluindo dependências
-npm run lookatni generate ./meu-app projeto-react.txt \
+# Generate markers excluding dependencies
+npm run lookatni generate ./my-app react-project.txt \
   --exclude node_modules \
   --exclude dist \
   --exclude .git \
@@ -136,85 +147,89 @@ npm run lookatni generate ./meu-app projeto-react.txt \
   --include "*.css" \
   --include "*.json"
 
-# Extrair em outro local
-npm run lookatni extract projeto-react.txt ./novo-projeto
-cd novo-projeto && npm install
+# Extract to another location
+npm run lookatni extract react-project.txt ./new-project
+cd new-project && npm install
 ```
 
-### Criar Backup Portátil
+### Create Portable Backup
+
 ```bash
-# Gerar backup completo
-npm run lookatni generate ./meu-projeto backup-$(date +%Y%m%d).txt \
+# Generate complete backup
+npm run lookatni generate ./my-project backup-$(date +%Y%m%d).txt \
   --exclude node_modules \
   --exclude .git \
   --max-size 1000
 
-# Restaurar backup
-npm run lookatni extract backup-20250712.txt ./projeto-restaurado
+# Restore backup
+npm run lookatni extract backup-20250712.txt ./restored-project
 ```
 
-### Demonstração Rápida
+### Quick Demo
+
 ```bash
-# Criar demo e extrair
+# Create demo and extract
 npm run lookatni demo
 npm run lookatni extract demo-code.txt ./demo-web
 cd demo-web && open index.html
 ```
 
-## 📊 Comparação Shell vs TypeScript
+## 📊 Shell vs TypeScript Comparison
 
-| Característica | Shell Scripts | TypeScript Scripts |
-|----------------|---------------|-------------------|
-| Compatibilidade | Unix/Linux/macOS | Multiplataforma |
-| Segurança | Pode ser detectado como suspeito | Mais seguro |
-| Manutenibilidade | Moderada | Alta |
-| Performance | Rápida | Boa |
-| Funcionalidades | Básicas | Avançadas |
-| Tratamento de Erros | Básico | Robusto |
-| Tipagem | Nenhuma | Forte |
-| Testes | Manual | Automatizados |
+| Feature | Shell Scripts | TypeScript Scripts |
+|---------|---------------|-------------------|
+| Compatibility | Unix/Linux/macOS | Cross-platform |
+| Security | Can be detected as suspicious | More secure |
+| Maintainability | Moderate | High |
+| Performance | Fast | Good |
+| Features | Basic | Advanced |
+| Error Handling | Basic | Robust |
+| Typing | None | Strong |
+| Testing | Manual | Automated |
 
-## 🛠️ Desenvolvimento
+## 🛠️ Development
 
-### Adicionando Novos Scripts
-1. Crie o arquivo `.ts` em `src/scripts/`
-2. Implemente a classe principal
-3. Adicione exports necessários
-4. Atualize `cli.ts` se for um comando principal
-5. Adicione script npm em `package.json`
+### Adding New Scripts
 
-### Executando Durante Desenvolvimento
+1. Create the `.ts` file in `src/scripts/`
+2. Implement the main class
+3. Add necessary exports
+4. Update `cli.ts` if it's a main command
+5. Add npm script in `package.json`
+
+### Running During Development
+
 ```bash
-# Compilar e verificar tipos
+# Compile and check types
 npm run check-types
 
 # Linter
 npm run lint
 
-# Testes
+# Tests
 npm run lookatni:test
 
-# Watch mode para desenvolvimento
+# Watch mode for development
 npm run watch
 ```
 
-## 🎯 Casos de Uso
+## 🎯 Use Cases
 
-1. **Publicação de Extensão**: Scripts TypeScript evitam problemas de "conteúdo suspeito"
-2. **Desenvolvimento Multiplataforma**: Funciona em qualquer sistema
-3. **Integração CI/CD**: Facilita automação de builds
-4. **Distribuição**: Pode ser empacotado com a extensão
-5. **Educação**: Código mais legível para aprendizado
+1. **Extension Publishing**: TypeScript scripts avoid "suspicious content" issues
+2. **Cross-Platform Development**: Works on any system
+3. **CI/CD Integration**: Facilitates build automation
+4. **Distribution**: Can be packaged with the extension
+5. **Education**: More readable code for learning
 
 ## 🚀 Roadmap
 
-- [ ] Suporte a configuração via arquivo JSON
-- [ ] Plugin para VS Code Tasks
-- [ ] API REST para integração web
-- [ ] Suporte a templates de projeto
-- [ ] Compressão automática de arquivos grandes
-- [ ] Integração com Git para versionamento
+- [ ] Support for JSON configuration files
+- [ ] VS Code Tasks plugin
+- [ ] REST API for web integration
+- [ ] Project template support
+- [ ] Automatic compression for large files
+- [ ] Git integration for versioning
 
 ---
 
-**LookAtni File Markers** - Transformando scripts shell em código TypeScript moderno! 🚀
+**LookAtni File Markers** - Transforming shell scripts into modern TypeScript code! 🚀

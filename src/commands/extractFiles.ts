@@ -5,7 +5,7 @@ import { Logger } from '../utils/logger';
 import { MarkerParser } from '../utils/markerParser';
 
 export class ExtractFilesCommand {
-    public readonly commandId = 'lookatni.extractFiles';
+    public readonly commandId = 'lookatni-file-markers.extractFiles';
     
     constructor(
         private context: vscode.ExtensionContext,

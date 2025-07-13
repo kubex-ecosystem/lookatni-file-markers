@@ -4,7 +4,7 @@ import { Logger } from '../utils/logger';
 import { MarkerParser } from '../utils/markerParser';
 
 export class ValidateMarkersCommand {
-    public readonly commandId = 'lookatni.validateMarkers';
+    public readonly commandId = 'lookatni-file-markers.validateMarkers';
     
     constructor(
         private context: vscode.ExtensionContext,
