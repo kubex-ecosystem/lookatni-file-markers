@@ -220,7 +220,12 @@ Customize visual markers in your `settings.json`:
 
 ## 🎥 See It In Action
 
-![Visual Markers Demo](https://img.shields.io/badge/Demo-Coming%20Soon-blue)
+
+<!-- ![LookAtni File Markers](docs/demo/demo_md.gif) -->
+![![LookAtni File Markers Demo](docs/demo/demo_md.gif)](docs/demo/demo_md.gif)
+<!-- <div class="video-container" markdown>
+  <iframe width="720" height="392" src="docs/demo/demo_md.gif" frameborder="0" allowfullscreen></iframe>
+</div> -->
 
 > 📹 **Short demo video coming soon!** See how LookAtni transforms your VS Code workflow.
 
