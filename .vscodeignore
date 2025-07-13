@@ -23,6 +23,7 @@ tests/**
 *.sh
 docs/*.sh
 bkp/
+docs-site/
 
 # Arquivos de demo e teste
 test-demo.txt
