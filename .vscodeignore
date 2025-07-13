@@ -60,4 +60,5 @@ cli/**
 *.backup
 *.vsix
 *.vsix*
+*.tgz
 

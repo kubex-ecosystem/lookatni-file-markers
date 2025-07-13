@@ -6,3 +6,7 @@ node_modules
 *.vsix*
 bkp/
 docs-site/site/
+lookatni-file-markers-*.tgz
+**.tgz
+*.tgz
+*.log
