@@ -68,3 +68,9 @@ coverage/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Package files
+*.tgz
+*.zip
+*.tar.gz
+*.tar.bz2
