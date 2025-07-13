@@ -35,36 +35,36 @@ jobs:
       with:
         version: "latest"
 
-    - name: Set up Python
-      run: uv python install
+#     - name: Set up Python
+#       run: uv python install
 
-    - name: Install dependencies
-      run: |
-        cd docs-site
-        uv sync
+#     - name: Install dependencies
+#       run: |
+#         cd docs-site
+#         uv sync
 
-    - name: Setup Pages
-      id: pages
-      uses: actions/configure-pages@v3
+#     - name: Setup Pages
+#       id: pages
+#       uses: actions/configure-pages@v3
 
-    - name: Build documentation
-      run: |
-        cd docs-site
-        uv run mkdocs build --strict --site-dir ../site
+#     - name: Build documentation
+#       run: |
+#         cd docs-site
+#         uv run mkdocs build --strict --site-dir ../site
 
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v2
-      with:
-        path: ./site
+#     - name: Upload artifact
+#       uses: actions/upload-pages-artifact@v2
+#       with:
+#         path: ./site
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    environment:
-      name: gh-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v2
+#   deploy:
+#     needs: build
+#     runs-on: ubuntu-latest
+#     if: github.ref == 'refs/heads/main'
+#     environment:
+#       name: GitHubPages_${{ github.sha }}
+#       url: ${{ steps.deployment.outputs.page_url }}
+#     steps:
+#     - name: Deploy to GitHub Pages
+#       id: deployment
+#       uses: actions/deploy-pages@v2

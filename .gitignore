@@ -5,3 +5,4 @@ node_modules
 *.vsix
 *.vsix*
 bkp/
+docs-site/site/
