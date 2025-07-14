@@ -1,64 +1,65 @@
 # ![LookAtni File Markers](https://raw.githubusercontent.com/rafa-mori/lookatni-file-markers/refs/heads/main/resources/top_banner.png)
 
-[![Version](https://img.shields.io/visual-studio-marketplace/v/rafa-mori.lookatni-file-markers?style=flat-square&logo=visual-studio-code&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=rafa-mori.lookatni-file-markers)
-[![Installs](https://img.shields.io/visual-studio-marketplace/i/rafa-mori.lookatni-file-markers?style=flat-square&color=brightgreen)](https://marketplace.visualstudio.com/items?itemName=rafa-mori.lookatni-file-markers)
-[![Downloads](https://img.shields.io/visual-studio-marketplace/d/rafa-mori.lookatni-file-markers?style=flat-square&color=blue)](https://marketplace.visualstudio.com/items?itemName=rafa-mori.lookatni-file-markers)
-[![Rating](https://img.shields.io/visual-studio-marketplace/r/rafa-mori.lookatni-file-markers?style=flat-square&color=yellow)](https://marketplace.visualstudio.com/items?itemName=rafa-mori.lookatni-file-markers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
-[![AI Code Extraction](https://img.shields.io/badge/AI%20Code-Extraction-ff6b35?style=flat-square&logo=openai)](https://marketplace.visualstudio.com/items?itemName=rafa-mori.lookatni-file-markers)
+[![VSCode](https://img.shields.io/badge/VSCode-Marketplace-blue?style=flat-square&logo=visual-studio-code&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=rafa-mori.lookatni-file-markers)
+[![NPM](https://img.shields.io/badge/NPM-Package-orange?style=flat-square&logo=npm)](https://www.npmjs.com/package/lookatni-file-markers)
+[![AI Code Extraction](https://img.shields.io/badge/AI%20Code-Extraction-purple?style=flat-square&logo=openai)](https://marketplace.visualstudio.com/items?itemName=rafa-mori.lookatni-file-markers)
+[![Marker Generation](https://img.shields.io/badge/Marker-Generation-yellow?style=flat-square&logo=marker)](https://marketplace.visualstudio.com/items?itemName=rafa-mori.lookatni-file-markers)
+[![Visual File Organization](https://img.shields.io/badge/Visual%20File-Organization-4caf50?style=flat-square&logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=rafa-mori.lookatni-file-markers)
 
 ---
 
-🚀 **Revolutionary AI code extraction + visual file organization system**
+## 🚀 **LookAtni File Markers**
 
-## 📦 Installation Options
+The **first VS Code extension** that combines **AI code extraction** and **visual file organization** to revolutionize your development workflow!
+> A powerful tool designed to enhance your coding experience by allowing you to manage files and code snippets efficiently. It provides a seamless way to extract AI-generated code into structured projects, organize files visually, and validate project integrity.
 
-### 🎯 Global CLI Tool
+## Table of Contents
 
-```bash
-# Install globally for command-line usage anywhere
-npm install -g lookatni-file-markers
+- [🏆 The Golden Tip: AI-Generated Code Made Easy](#-the-golden-tip-ai-generated-code-made-easy)
+- [🎯 What is LookAtni File Markers?](#-what-is-lookatni-file-markers)
+- [⚖️ Feature Comparison](#️-feature-comparison)
+- [✨ Features](#-features)
+- [📦 Installation Options](#-installation-options)
+  - [Global CLI Tool](#-global-cli-tool)
+  - [VS Code Marketplace](#-vs-code-extension)
+  
+- [🚀 Quick Start](#-quick-start)
+  - [Installation](#installation)
+  - [AI Code Extraction (The Golden Feature!)](#-ai-code-extraction-the-golden-feature)
+  - [Traditional Project Management](#-traditional-project-management)
+- [🏷️ Marker Format](#️-marker-format)
+- [📋 Commands](#-commands)
+  - [Code Extraction & Generation](#-code-extraction--generation)
+  - [Visual File Organization](#-visual-file-organization)
+- [⚙️ Configuration](#️-configuration)
+- [🎥 See It In Action](#-see-it-in-action)
+- [🤝 Community](#-community)
+- [📄 License](#-license)
+- [🔗 Links](#-links)
 
-# Use from any directory
-lookatni extract mycode.txt ./project
-lookatni generate ./src output.txt
-lookatni --help
-```
-
-### 🎨 VS Code Extension
-
-Install from [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=rafa-mori.lookatni-file-markers) or search for "LookAtni File Markers" in VS Code Extensions.
+---
 
 ## 🏆 The Golden Tip: AI-Generated Code Made Easy
 
-**The Problem:** AI generates amazing code in single files, but extracting them into proper project structures is tedious and error-prone.
-
+**The Problem:** AI generates amazing code in single files, but extracting them into proper project structures is tedious and error-prone.\
+**The Challenge:** How to extract AI-generated code into real projects without losing structure or introducing errors?\
 **The Solution:** LookAtni File Markers! Generate entire projects in one document, then **extract them automatically** into perfect file structures.
 
 ## 🎯 What is LookAtni File Markers?
 
-LookAtni File Markers is the **first extension to combine**:
+**LookAtni File Markers** is built to work both as a standalone CLI tool and as a VS Code extension, making it versatile for different development environments.\
+It's the first tool that combines:
 
-### 🤖 **AI Code Extraction** (Revolutionary)
+🤖 **AI Code Extraction** (Innovative)
 
-```typescript
-// AI generates code with invisible markers - you extract perfect projects!
-// Uses invisible File Separator characters (ASCII 28)
-console.log('This content belongs to src/main.ts');
+- **ChatGPT/Claude generated projects**, extract to real file structure
+- **Code sharing**, send entire projects in one document
+- **Documentation**, include full project examples
+- **Tutorials**, package complete workflows
+- **Code reviews**, share code snippets with context
 
-// Multiple files organized in a single document
-// Each file perfectly marked for automatic extraction
-console.log('This belongs to src/utils.ts');
-```
-
-**🎯 Perfect for:**
-
-- **ChatGPT/Claude generated projects** → Extract to real file structure
-- **Code sharing** → Send entire projects in one document  
-- **Documentation** → Include full project examples
-- **Tutorials** → Package complete workflows
-
-### 🎨 **Visual File Organization** (Enhanced)
+🎨 **Visual File Organization** (Enhanced)
 
 - **Mark files as read/unread** directly in VS Code Explorer
 - **Favorite important files** with star indicators
@@ -135,6 +136,28 @@ console.log('This belongs to src/utils.ts');
 - CI/CD pipeline integration
 - Cross-platform compatibility
 
+## 📦 Installation Options
+
+### 🎯 Global CLI Tool
+
+```bash
+# Install globally for command-line usage anywhere
+npm install -g lookatni-file-markers
+
+# Use from any directory
+lookatni extract mycode.txt ./project
+lookatni generate ./src output.txt
+lookatni --help
+```
+
+### 🎨 VS Code Extension
+
+Install from [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=rafa-mori.lookatni-file-markers) or search for "LookAtni File Markers" in VS Code Extensions.
+
+```bash
+ext install rafa-mori.lookatni-file-markers
+```
+
 ## 🚀 Quick Start
 
 ### Installation
@@ -175,8 +198,8 @@ console.log('This belongs to src/utils.ts');
 LookAtni uses **invisible File Separator characters (ASCII 28)** for conflict-free marking:
 
 ```typescript
-// The actual markers use invisible characters (shown as ␜ for demonstration)
-//␜/ relative/path/to/file.ext /␜//
+// The actual markers use invisible characters (shown as  for demonstration)
+/// relative/path/to/file.ext ///
 
 // In real use, these characters are completely invisible:
 // - They don't appear in your editor
@@ -256,7 +279,16 @@ MIT License - see LICENSE file for details.
 ## 🔗 Links
 
 - **Repository**: [GitHub](https://github.com/rafa-mori/lookatni-file-markers)
+- **License**: [MIT](LICENSE)
+- **Documentation**: [Docs](https://rafa-mori.github.io/lookatni-file-markers/)
 - **Issues**: [Report Issues](https://github.com/rafa-mori/lookatni-file-markers/issues)
+- **Contribute**: [Contributing Guide](https://github.com/rafa-mori/lookatni-file-markers/blob/main/CONTRIBUTING.md)
+- **VS Code Extension**: [Marketplace](https://marketplace.visualstudio.com/items?itemName=rafa-mori.lookatni-file-markers)
+- **Author**: [Rafael Mori](https://rafa-mori.dev)
+- **LinkedIn**: [Rafael Mori](https://www.linkedin.com/in/rafa-mori/)
+- **Twitter**: [@faelmori](https://twitter.com/faelOmori)
+- **GitHub**: [@rafa-mori](https://github.com/rafa-mori)
+- **GitHub**: [@faelmori](https://github.com/faelmori)
 
 ---
 
