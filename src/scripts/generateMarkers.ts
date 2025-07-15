@@ -8,6 +8,10 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import * as os from 'os';
+import * as crypto from 'crypto';
+import { spawn, exec } from 'child_process';
+import { promisify } from 'util';
 
 // Marcadores invisíveis usando File Separator (FS - ASCII 28)
 const FS_CHAR = String.fromCharCode(28); // Caractere invisível
@@ -30,6 +34,10 @@ interface GenerateOptions {
     includePatterns: string[];
     maxSizeKB: number;
     verbose: boolean;
+    remote?: string;
+    sshKey?: string;
+    compress: boolean;
+    retryAttempts: number;
 }
 
 interface GenerateStats {
@@ -58,7 +66,7 @@ class LookAtniGenerator {
     }
 
     printHelp(): void {
-        console.log(`${colors.CYAN}🔧 LookAtni Marker Generator v3.0${colors.NC}`);
+        console.log(`${colors.CYAN}🔧 LookAtni Marker Generator v4.0${colors.NC}`);
         console.log("================================================");
         console.log("Gera arquivo com marcadores únicos a partir de estrutura existente");
         console.log("");
@@ -75,13 +83,37 @@ class LookAtniGenerator {
         console.log("  -v, --verbose         : Saída detalhada");
         console.log("  -h, --help           : Esta ajuda");
         console.log("");
-        console.log("Exemplos:");
+        console.log(`${colors.PURPLE}🌐 Opções Remotas (NOVO!):${colors.NC}`);
+        console.log("  -r, --remote USER@HOST:/PATH : Enviar arquivo para servidor remoto via SCP");
+        console.log("  -k, --ssh-key PATH          : Chave SSH personalizada para autenticação");
+        console.log("  -c, --compress               : Usar compressão durante o upload");
+        console.log("  --retry N                    : Número de tentativas de upload (padrão: 3)");
+        console.log("");
+        console.log("Exemplos Básicos:");
         console.log("  tsx generateMarkers.ts ./src projeto.txt");
         console.log("  tsx generateMarkers.ts . codigo.txt --exclude node_modules --exclude .git");
         console.log("  tsx generateMarkers.ts ./meu-projeto saida.txt --include '*.js' --include '*.ts'");
         console.log("");
+        console.log(`${colors.CYAN}🚀 Exemplos com Upload Remoto:${colors.NC}`);
+        console.log("  # Backup automático");
+        console.log("  tsx generateMarkers.ts ./src backup.txt --remote backup@servidor:/snapshots/");
+        console.log("");
+        console.log("  # Colaboração com compressão");
+        console.log("  tsx generateMarkers.ts . projeto.txt --remote dev@team:/sharing/ --compress");
+        console.log("");
+        console.log("  # Deploy com chave SSH específica");
+        console.log("  tsx generateMarkers.ts ./dist deploy.txt --remote prod@servidor:/deploy/ --ssh-key ~/.ssh/deploy_key");
+        console.log("");
+        console.log("  # Sync com retry customizado");
+        console.log("  tsx generateMarkers.ts . sync.txt --remote laptop@casa:/sync/ --retry 5");
+        console.log("");
         console.log("💡 O arquivo gerado pode ser usado com:");
         console.log("  tsx extractFiles.ts codigo.txt ./novo-projeto");
+        console.log("");
+        console.log(`${colors.YELLOW}🔐 Configuração SSH:${colors.NC}`);
+        console.log("  • Configure chaves SSH sem senha: ssh-keygen -t rsa -b 4096");
+        console.log("  • Copie a chave pública: ssh-copy-id user@servidor");
+        console.log("  • Teste a conexão: ssh user@servidor");
     }
 
     private shouldExcludeFile(filePath: string): boolean {
@@ -230,7 +262,7 @@ class LookAtniGenerator {
     async generateMarkers(sourceDir: string, outputFile: string): Promise<void> {
         const startTime = Date.now();
 
-        console.log(`${colors.CYAN}🔧 LookAtni Marker Generator v3.0${colors.NC}`);
+        console.log(`${colors.CYAN}🔧 LookAtni Marker Generator v4.0${colors.NC}`);
         console.log("================================================");
 
         // Verificar se o diretório fonte existe
@@ -252,6 +284,23 @@ class LookAtniGenerator {
 
         if (this.options.includePatterns.length > 0) {
             console.log(`${colors.BLUE}✅ Padrões de inclusão: ${this.options.includePatterns.join(', ')}${colors.NC}`);
+        }
+
+        // Mostrar configurações remotas
+        if (this.options.remote) {
+            console.log("");
+            console.log(`${colors.PURPLE}🌐 Configuração Remota:${colors.NC}`);
+            console.log(`${colors.BLUE}📡 Destino: ${this.options.remote}${colors.NC}`);
+            
+            if (this.options.sshKey) {
+                console.log(`${colors.BLUE}🔑 Chave SSH: ${this.options.sshKey}${colors.NC}`);
+            }
+            
+            if (this.options.compress) {
+                console.log(`${colors.BLUE}🗜️  Compressão: Habilitada${colors.NC}`);
+            }
+            
+            console.log(`${colors.BLUE}🔄 Tentativas: ${this.options.retryAttempts}${colors.NC}`);
         }
 
         console.log("");
@@ -279,12 +328,9 @@ class LookAtniGenerator {
 
         console.log(`${colors.GREEN}🚀 Gerando marcadores...${colors.NC}`);
 
-        // Gerar conteúdo do arquivo
+        // Gerar conteúdo do arquivo com metadata rica
         let output = '';
-        output += `# LookAtni Code - Gerado automaticamente\n`;
-        output += `# Data: ${new Date().toISOString()}\n`;
-        output += `# Fonte: ${sourceDir}\n`;
-        output += `# Total de arquivos: ${files.length}\n`;
+        output += await this.generateRichHeader(sourceDir, files.length);
         output += `\n`;
 
         for (let i = 0; i < files.length; i++) {
@@ -331,12 +377,103 @@ class LookAtniGenerator {
             
             console.log("");
             console.log(`${colors.GREEN}💾 Arquivo salvo: ${outputFile}${colors.NC}`);
+
+            // Upload remoto se especificado
+            if (this.options.remote) {
+                const remoteInfo = this.parseRemoteDestination(this.options.remote);
+                if (remoteInfo) {
+                    console.log("");
+                    console.log(`${colors.CYAN}🚀 Iniciando upload remoto...${colors.NC}`);
+                    
+                    // Testar conexão SSH primeiro
+                    const connectionOk = await this.testSSHConnection(this.options.remote, this.options.sshKey);
+                    
+                    if (connectionOk) {
+                        const uploadSuccess = await this.uploadWithRetry(outputFile, this.options.remote, this.options.sshKey);
+                        
+                        if (uploadSuccess) {
+                            console.log(`${colors.GREEN}🎉 Upload remoto concluído com sucesso!${colors.NC}`);
+                            console.log(`${colors.BLUE}📍 Localização remota: ${this.options.remote}${colors.NC}`);
+                        } else {
+                            console.log(`${colors.RED}❌ Falha no upload remoto após ${this.options.retryAttempts} tentativas${colors.NC}`);
+                            console.log(`${colors.YELLOW}💡 Arquivo local salvo em: ${outputFile}${colors.NC}`);
+                        }
+                    } else {
+                        console.log(`${colors.RED}❌ Não foi possível conectar ao servidor remoto${colors.NC}`);
+                        console.log(`${colors.YELLOW}💡 Verifique a conectividade SSH e as credenciais${colors.NC}`);
+                        console.log(`${colors.YELLOW}💡 Arquivo local salvo em: ${outputFile}${colors.NC}`);
+                    }
+                }
+            }
         } catch (error) {
             throw new Error(`${colors.RED}❌ Erro ao salvar arquivo: ${error}${colors.NC}`);
         }
 
         const duration = Date.now() - startTime;
         this.printSummary(outputFile, duration);
+    }
+
+    private async generateRichHeader(sourceDir: string, totalFiles: number): Promise<string> {
+        const now = new Date();
+        const hostname = os.hostname();
+        const platform = os.platform();
+        const arch = os.arch();
+        const release = os.release();
+        const userInfo = os.userInfo();
+        const shell = process.env.SHELL || 'unknown';
+        
+        // Detectar distribuição Linux
+        let osInfo = `${platform} ${arch}`;
+        if (platform === 'linux') {
+            try {
+                const releaseInfo = fs.readFileSync('/etc/os-release', 'utf-8');
+                const prettyName = releaseInfo.match(/PRETTY_NAME="([^"]+)"/);
+                if (prettyName) {
+                    osInfo = `${platform} ${arch} (${prettyName[1]})`;
+                }
+            } catch (error) {
+                // Fallback para distribuições sem /etc/os-release
+                osInfo = `${platform} ${arch}`;
+            }
+        }
+
+        // Calcular hash do snapshot baseado no conteúdo e timestamp
+        const hashInput = `${sourceDir}-${totalFiles}-${now.toISOString()}-${hostname}`;
+        const hash = crypto.createHash('sha256').update(hashInput).digest('hex').substring(0, 20);
+
+        // Obter versão do pacote se disponível
+        let version = 'unknown';
+        try {
+            const packagePath = path.join(__dirname, '../../package.json');
+            if (fs.existsSync(packagePath)) {
+                const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf-8'));
+                version = `v${packageJson.version}`;
+            }
+        } catch (error) {
+            // Versão não disponível
+        }
+
+        // Calcular tamanho bruto estimado
+        const rawSizeMB = (this.stats.totalSize / (1024 * 1024)).toFixed(1);
+
+        const header = `# LookAtni Code Snapshot
+# -----------------------
+# Data de geração: ${now.toISOString()}
+# Fonte: ${path.resolve(sourceDir)}
+# Hostname: ${hostname}
+# Sistema: ${osInfo}
+# Kernel: ${release}
+# Usuário: ${userInfo.username}
+# UID: ${userInfo.uid}
+# Shell: ${shell}
+# Total de arquivos: ${totalFiles}
+# Tamanho bruto: ${rawSizeMB} MB
+# Gerado por: lookatni@${version} (via CLI Script)
+# Comando usado: tsx generateMarkers.ts ${process.argv.slice(2).join(' ')}
+# Hash do snapshot: ${hash}...
+`;
+
+        return header;
     }
 
     private printSummary(outputFile: string, duration: number): void {
@@ -369,6 +506,126 @@ class LookAtniGenerator {
         console.log(`  ${colors.YELLOW}# Validar formato:${colors.NC}`);
         console.log(`  tsx extractFiles.ts ${outputFile} --format`);
     }
+
+    private async testSSHConnection(remote: string, sshKey?: string): Promise<boolean> {
+        return new Promise((resolve) => {
+            const [userHost] = remote.split(':');
+            const sshArgs = ['ssh', '-o', 'ConnectTimeout=10', '-o', 'BatchMode=yes'];
+            
+            if (sshKey) {
+                sshArgs.push('-i', sshKey);
+            }
+            
+            sshArgs.push(userHost, 'echo "SSH_TEST_OK"');
+            
+            if (this.options.verbose) {
+                console.log(`${colors.BLUE}🔑 Testando conexão SSH: ${userHost}${colors.NC}`);
+            }
+            
+            const ssh = spawn(sshArgs[0], sshArgs.slice(1), { stdio: 'pipe' });
+            
+            let output = '';
+            ssh.stdout.on('data', (data) => {
+                output += data.toString();
+            });
+            
+            ssh.on('close', (code) => {
+                const success = code === 0 && output.includes('SSH_TEST_OK');
+                if (this.options.verbose) {
+                    console.log(`${success ? colors.GREEN + '✅' : colors.RED + '❌'} Conexão SSH: ${success ? 'Sucesso' : 'Falhou'}${colors.NC}`);
+                }
+                resolve(success);
+            });
+            
+            ssh.on('error', () => resolve(false));
+        });
+    }
+
+    private async uploadFileWithSCP(localFile: string, remote: string, sshKey?: string): Promise<boolean> {
+        return new Promise((resolve) => {
+            const scpArgs = ['scp', '-o', 'ConnectTimeout=30'];
+            
+            if (sshKey) {
+                scpArgs.push('-i', sshKey);
+            }
+            
+            if (this.options.compress) {
+                scpArgs.push('-C'); // Compressão
+            }
+            
+            scpArgs.push(localFile, remote);
+            
+            if (this.options.verbose) {
+                console.log(`${colors.CYAN}📤 Enviando: ${localFile} → ${remote}${colors.NC}`);
+                console.log(`${colors.YELLOW}🔧 Comando: ${scpArgs.join(' ')}${colors.NC}`);
+            }
+            
+            const scp = spawn(scpArgs[0], scpArgs.slice(1), { stdio: 'pipe' });
+            
+            let errorOutput = '';
+            scp.stderr.on('data', (data) => {
+                errorOutput += data.toString();
+            });
+            
+            scp.on('close', (code) => {
+                const success = code === 0;
+                if (!success && this.options.verbose) {
+                    console.log(`${colors.RED}❌ Erro no SCP: ${errorOutput}${colors.NC}`);
+                }
+                resolve(success);
+            });
+            
+            scp.on('error', (err) => {
+                if (this.options.verbose) {
+                    console.log(`${colors.RED}❌ Erro ao executar SCP: ${err.message}${colors.NC}`);
+                }
+                resolve(false);
+            });
+        });
+    }
+
+    private async uploadWithRetry(localFile: string, remote: string, sshKey?: string): Promise<boolean> {
+        for (let attempt = 1; attempt <= this.options.retryAttempts; attempt++) {
+            if (this.options.verbose && attempt > 1) {
+                console.log(`${colors.YELLOW}🔄 Tentativa ${attempt}/${this.options.retryAttempts}${colors.NC}`);
+            }
+            
+            const success = await this.uploadFileWithSCP(localFile, remote, sshKey);
+            
+            if (success) {
+                if (attempt > 1) {
+                    console.log(`${colors.GREEN}✅ Upload bem-sucedido na tentativa ${attempt}${colors.NC}`);
+                }
+                return true;
+            }
+            
+            if (attempt < this.options.retryAttempts) {
+                const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000); // Backoff exponencial
+                if (this.options.verbose) {
+                    console.log(`${colors.YELLOW}⏳ Aguardando ${delay}ms antes da próxima tentativa...${colors.NC}`);
+                }
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+        
+        return false;
+    }
+
+    private parseRemoteDestination(remote: string): { userHost: string; path: string } | null {
+        const match = remote.match(/^([^:]+):(.+)$/);
+        if (!match) {
+            console.log(`${colors.RED}❌ Formato de destino remoto inválido: ${remote}${colors.NC}`);
+            console.log(`${colors.YELLOW}💡 Use o formato: user@host:/path/to/destination${colors.NC}`);
+            return null;
+        }
+        
+        return {
+            userHost: match[1],
+            path: match[2]
+        };
+    }
+
+    // ...existing code...
 }
 
 // Função principal
@@ -379,7 +636,9 @@ async function main(): Promise<void> {
         excludePatterns: [],
         includePatterns: [],
         maxSizeKB: 1000,
-        verbose: false
+        verbose: false,
+        compress: false,
+        retryAttempts: 3
     };
 
     let sourceDir = '.';
@@ -419,6 +678,41 @@ async function main(): Promise<void> {
                     options.maxSizeKB = size;
                 } else {
                     console.error(`❌ Tamanho máximo necessário após ${arg}`);
+                    process.exit(1);
+                }
+                break;
+            case '-r':
+            case '--remote':
+                if (i + 1 < args.length) {
+                    options.remote = args[++i];
+                } else {
+                    console.error(`❌ Destino remoto necessário após ${arg}`);
+                    process.exit(1);
+                }
+                break;
+            case '-k':
+            case '--ssh-key':
+                if (i + 1 < args.length) {
+                    options.sshKey = args[++i];
+                } else {
+                    console.error(`❌ Caminho da chave SSH necessário após ${arg}`);
+                    process.exit(1);
+                }
+                break;
+            case '-c':
+            case '--compress':
+                options.compress = true;
+                break;
+            case '--retry':
+                if (i + 1 < args.length) {
+                    const retry = parseInt(args[++i]);
+                    if (isNaN(retry) || retry <= 0) {
+                        console.error(`❌ Número de tentativas inválido: ${args[i]}`);
+                        process.exit(1);
+                    }
+                    options.retryAttempts = retry;
+                } else {
+                    console.error(`❌ Número de tentativas necessário após ${arg}`);
                     process.exit(1);
                 }
                 break;

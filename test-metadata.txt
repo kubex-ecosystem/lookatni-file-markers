@@ -1,0 +1,1388 @@
+# LookAtni Code Snapshot
+# -----------------------
+# Data de geração: 2025-07-15T06:01:54.618Z
+# Fonte: /srv/apps/LIFE/RAFA-MORI/lookatni-file-markers/src/utils
+# Hostname: asgard
+# Sistema: linux x64 (Debian GNU/Linux 12 (bookworm))
+# Kernel: 6.1.0-37-amd64
+# Usuário: user
+# UID: 1002
+# Shell: /usr/bin/zsh
+# Total de arquivos: 8
+# Tamanho bruto: 0.0 MB
+# Gerado por: lookatni@v1.1.0 (via CLI Script)
+# Comando usado: tsx generateMarkers.ts ./src/utils test-metadata.txt --include *.ts --max-size 50
+# Hash do snapshot: b8c7874493c74b990aab...
+
+/// cliLogger.ts ///
+/**
+ * Simple Logger for CLI scripts (without VS Code dependencies)
+ */
+
+export class CLILogger {
+    constructor(private name: string = 'cli', private verbose: boolean = false) {}
+
+    info(message: string, ...args: any[]): void {
+        if (this.verbose) {
+            console.log(`[${this.name}] ${message}`, ...args);
+        }
+    }
+
+    warn(message: string, ...args: any[]): void {
+        console.warn(`[${this.name}] WARNING: ${message}`, ...args);
+    }
+
+    error(message: string, ...args: any[]): void {
+        console.error(`[${this.name}] ERROR: ${message}`, ...args);
+    }
+
+    debug(message: string, ...args: any[]): void {
+        if (this.verbose) {
+            console.log(`[${this.name}] DEBUG: ${message}`, ...args);
+        }
+    }
+}
+
+/// cliMarkerParser.ts ///
+import * as fs from 'fs';
+import * as path from 'path';
+import { CLILogger } from './cliLogger';
+
+export interface ParsedMarker {
+    filename: string;
+    content: string;
+    startLine: number;
+    endLine: number;
+}
+
+export interface ParseResults {
+    totalMarkers: number;
+    totalFiles: number;
+    totalBytes: number;
+    errors: Array<{ line: number; message: string }>;
+    markers: ParsedMarker[];
+}
+
+export class CLIMarkerParser {
+    // ASCII 28 (File Separator) character for invisible markers
+    private readonly FS_CHAR = String.fromCharCode(28);
+    private readonly markerRegex = new RegExp(`^\\/\\/${this.FS_CHAR.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\/ (.+?) \\/${this.FS_CHAR.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\/\\/$`);
+    
+    constructor(private logger: CLILogger) {}
+    
+    parseMarkedFile(filePath: string): ParseResults {
+        const results: ParseResults = {
+            totalMarkers: 0,
+            totalFiles: 0,
+            totalBytes: 0,
+            errors: [],
+            markers: []
+        };
+        
+        try {
+            const content = fs.readFileSync(filePath, 'utf-8');
+            const lines = content.split('\n');
+            
+            let currentMarker: Partial<ParsedMarker> | null = null;
+            let currentContent: string[] = [];
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const lineNumber = i + 1;
+                
+                const markerMatch = line.match(this.markerRegex);
+                
+                if (markerMatch) {
+                    // Save previous marker if exists
+                    if (currentMarker) {
+                        const marker: ParsedMarker = {
+                            filename: currentMarker.filename!,
+                            content: currentContent.join('\n'),
+                            startLine: currentMarker.startLine!,
+                            endLine: lineNumber - 1
+                        };
+                        results.markers.push(marker);
+                        results.totalFiles++;
+                        results.totalBytes += marker.content.length;
+                    }
+                    
+                    // Start new marker
+                    currentMarker = {
+                        filename: markerMatch[1].trim(),
+                        startLine: lineNumber
+                    };
+                    currentContent = [];
+                    results.totalMarkers++;
+                    
+                } else if (currentMarker) {
+                    // Add content to current marker
+                    currentContent.push(line);
+                }
+            }
+            
+            // Save last marker if exists
+            if (currentMarker) {
+                const marker: ParsedMarker = {
+                    filename: currentMarker.filename!,
+                    content: currentContent.join('\n'),
+                    startLine: currentMarker.startLine!,
+                    endLine: lines.length
+                };
+                results.markers.push(marker);
+                results.totalFiles++;
+                results.totalBytes += marker.content.length;
+            }
+            
+        } catch (error) {
+            const errorMsg = `Error reading file ${filePath}: ${error}`;
+            this.logger.error(errorMsg);
+            results.errors.push({
+                line: 0,
+                message: errorMsg
+            });
+        }
+        
+        return results;
+    }
+    
+    validateMarkers(filePath: string): {
+        isValid: boolean;
+        errors: Array<{ line: number; message: string; severity: 'error' | 'warning' }>;
+        statistics: {
+            totalMarkers: number;
+            duplicateFilenames: string[];
+            invalidFilenames: string[];
+            emptyMarkers: number;
+        };
+    } {
+        
+        const result = {
+            isValid: true,
+            errors: [] as Array<{ line: number; message: string; severity: 'error' | 'warning' }>,
+            statistics: {
+                totalMarkers: 0,
+                duplicateFilenames: [] as string[],
+                invalidFilenames: [] as string[],
+                emptyMarkers: 0
+            }
+        };
+        
+        const parseResults = this.parseMarkedFile(filePath);
+        result.statistics.totalMarkers = parseResults.totalMarkers;
+        
+        // Convert parse errors to validation errors
+        result.errors.push(...parseResults.errors.map(e => ({
+            line: e.line,
+            message: e.message,
+            severity: 'error' as const
+        })));
+        
+        // Check for duplicates and invalid filenames
+        const seenFilenames = new Set<string>();
+        
+        for (const marker of parseResults.markers) {
+            // Check for duplicates
+            if (seenFilenames.has(marker.filename)) {
+                if (!result.statistics.duplicateFilenames.includes(marker.filename)) {
+                    result.statistics.duplicateFilenames.push(marker.filename);
+                    result.errors.push({
+                        line: marker.startLine,
+                        message: `Duplicate filename: ${marker.filename}`,
+                        severity: 'warning'
+                    });
+                }
+            }
+            seenFilenames.add(marker.filename);
+            
+            // Check for invalid filenames
+            if (this.isInvalidFilename(marker.filename)) {
+                result.statistics.invalidFilenames.push(marker.filename);
+                result.errors.push({
+                    line: marker.startLine,
+                    message: `Invalid filename: ${marker.filename}`,
+                    severity: 'error'
+                });
+                result.isValid = false;
+            }
+            
+            // Check for empty content
+            if (marker.content.trim() === '') {
+                result.statistics.emptyMarkers++;
+                result.errors.push({
+                    line: marker.startLine,
+                    message: `Empty content for file: ${marker.filename}`,
+                    severity: 'warning'
+                });
+            }
+        }
+        
+        // Set overall validity
+        if (result.errors.some(e => e.severity === 'error')) {
+            result.isValid = false;
+        }
+        
+        return result;
+    }
+    
+    private isInvalidFilename(filename: string): boolean {
+        // Check for invalid characters
+        const invalidChars = /[<>:"|?*\x00-\x1f]/;
+        if (invalidChars.test(filename)) {
+            return true;
+        }
+        
+        // Check for reserved names on Windows
+        const reservedNames = /^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i;
+        const baseName = path.basename(filename, path.extname(filename));
+        if (reservedNames.test(baseName)) {
+            return true;
+        }
+        
+        // Check for empty or just whitespace
+        if (!filename.trim()) {
+            return true;
+        }
+        
+        return false;
+    }
+}
+
+/// configManager.ts ///
+import * as vscode from 'vscode';
+
+export interface LookatniConfig {
+    // Visual markers configuration
+    visualMarkers: {
+        readIcon: string;
+        unreadIcon: string;
+        favoriteIcon: string;
+        importantIcon: string;
+        todoIcon: string;
+        customIcon: string;
+        autoSave: boolean;
+        showInStatusBar: boolean;
+    };
+    
+    // File processing configuration
+    defaultMaxFileSize: number;
+    showStatistics: boolean;
+    autoValidate: boolean;
+}
+
+export class ConfigurationManager {
+    private static readonly DEFAULT_CONFIG: LookatniConfig = {
+        visualMarkers: {
+            readIcon: '✓',
+            unreadIcon: '●',
+            favoriteIcon: '★',
+            importantIcon: '!',
+            todoIcon: '○',
+            customIcon: '◆',
+            autoSave: true,
+            showInStatusBar: true
+        },
+        defaultMaxFileSize: 1000,
+        showStatistics: true,
+        autoValidate: false
+    };
+
+    private static instance: ConfigurationManager;
+    private config: LookatniConfig;
+
+    private constructor() {
+        this.config = this.loadConfiguration();
+        this.setupConfigurationWatcher();
+    }
+
+    public static getInstance(): ConfigurationManager {
+        if (!ConfigurationManager.instance) {
+            ConfigurationManager.instance = new ConfigurationManager();
+        }
+        return ConfigurationManager.instance;
+    }
+
+    private loadConfiguration(): LookatniConfig {
+        try {
+            const vscodeConfig = vscode.workspace.getConfiguration('lookatni');
+            
+            return {
+                visualMarkers: {
+                    readIcon: this.getSafeConfig(vscodeConfig, 'visualMarkers.readIcon', '✓'),
+                    unreadIcon: this.getSafeConfig(vscodeConfig, 'visualMarkers.unreadIcon', '●'),
+                    favoriteIcon: this.getSafeConfig(vscodeConfig, 'visualMarkers.favoriteIcon', '★'),
+                    importantIcon: this.getSafeConfig(vscodeConfig, 'visualMarkers.importantIcon', '!'),
+                    todoIcon: this.getSafeConfig(vscodeConfig, 'visualMarkers.todoIcon', '○'),
+                    customIcon: this.getSafeConfig(vscodeConfig, 'visualMarkers.customIcon', '◆'),
+                    autoSave: this.getSafeConfig(vscodeConfig, 'visualMarkers.autoSave', true),
+                    showInStatusBar: this.getSafeConfig(vscodeConfig, 'visualMarkers.showInStatusBar', true)
+                },
+                defaultMaxFileSize: this.getSafeConfig(vscodeConfig, 'defaultMaxFileSize', 1000),
+                showStatistics: this.getSafeConfig(vscodeConfig, 'showStatistics', true),
+                autoValidate: this.getSafeConfig(vscodeConfig, 'autoValidate', false)
+            };
+        } catch (error) {
+            console.warn('Failed to load LookAtni configuration, using defaults:', error);
+            return { ...ConfigurationManager.DEFAULT_CONFIG };
+        }
+    }
+
+    private getSafeConfig<T>(config: vscode.WorkspaceConfiguration, key: string, defaultValue: T): T {
+        try {
+            const value = config.get<T>(key);
+            if (value !== undefined && value !== null) {
+                // Additional validation for string configs
+                if (typeof defaultValue === 'string' && typeof value === 'string') {
+                    const trimmedValue = value.trim();
+                    return (trimmedValue || defaultValue) as T;
+                }
+                return value;
+            }
+            return defaultValue;
+        } catch (error) {
+            console.warn(`Failed to get config for ${key}, using default:`, error);
+            return defaultValue;
+        }
+    }
+
+    private setupConfigurationWatcher(): void {
+        vscode.workspace.onDidChangeConfiguration((event) => {
+            if (event.affectsConfiguration('lookatni')) {
+                this.config = this.loadConfiguration();
+                this.notifyConfigurationChange();
+            }
+        });
+    }
+
+    private notifyConfigurationChange(): void {
+        // Emit event for configuration change
+        vscode.commands.executeCommand('lookatni.internal.configChanged');
+    }
+
+    public getConfig(): LookatniConfig {
+        return { ...this.config };
+    }
+
+    public getVisualMarkersConfig() {
+        return { ...this.config.visualMarkers };
+    }
+
+    public getIconForMarkerType(type: string): string {
+        const config = this.config.visualMarkers;
+        const iconMap: Record<string, string> = {
+            'read': config.readIcon,
+            'unread': config.unreadIcon,
+            'favorite': config.favoriteIcon,
+            'important': config.importantIcon,
+            'todo': config.todoIcon,
+            'custom': config.customIcon
+        };
+
+        return iconMap[type] || config.customIcon;
+    }
+
+    public async validateConfiguration(): Promise<{ isValid: boolean; issues: string[] }> {
+        const issues: string[] = [];
+        const config = this.config;
+
+        // Check if icons are not empty
+        Object.entries(config.visualMarkers).forEach(([key, value]) => {
+            if (key.endsWith('Icon') && typeof value === 'string' && !value.trim()) {
+                issues.push(`Visual marker icon for ${key} is empty`);
+            }
+        });
+
+        // Check file size limits
+        if (config.defaultMaxFileSize <= 0) {
+            issues.push('Default max file size must be greater than 0');
+        }
+
+        // Check for invalid characters in icons
+        const iconRegex = /^[\p{L}\p{N}\p{P}\p{S}\p{M}]+$/u;
+        Object.entries(config.visualMarkers).forEach(([key, value]) => {
+            if (key.endsWith('Icon') && typeof value === 'string' && value && !iconRegex.test(value)) {
+                issues.push(`Invalid characters in ${key}: ${value}`);
+            }
+        });
+
+        return {
+            isValid: issues.length === 0,
+            issues
+        };
+    }
+
+    public async resetToDefaults(): Promise<void> {
+        const config = vscode.workspace.getConfiguration('lookatni');
+        
+        try {
+            // Reset all configurations to default
+            for (const [section, values] of Object.entries(ConfigurationManager.DEFAULT_CONFIG)) {
+                if (typeof values === 'object' && values !== null) {
+                    for (const [key, defaultValue] of Object.entries(values)) {
+                        await config.update(`${section}.${key}`, defaultValue, vscode.ConfigurationTarget.Global);
+                    }
+                } else {
+                    await config.update(section, values, vscode.ConfigurationTarget.Global);
+                }
+            }
+            
+            vscode.window.showInformationMessage('LookAtni configuration reset to defaults');
+        } catch (error) {
+            vscode.window.showErrorMessage(`Failed to reset configuration: ${error}`);
+        }
+    }
+
+    public async exportConfiguration(): Promise<string> {
+        return JSON.stringify({
+            version: '1.0.0',
+            exportDate: new Date().toISOString(),
+            configuration: this.config
+        }, null, 2);
+    }
+
+    public async importConfiguration(configJson: string): Promise<void> {
+        try {
+            const importData = JSON.parse(configJson);
+            const config = vscode.workspace.getConfiguration('lookatni');
+            
+            if (importData.configuration) {
+                for (const [section, values] of Object.entries(importData.configuration)) {
+                    if (typeof values === 'object' && values !== null) {
+                        for (const [key, value] of Object.entries(values)) {
+                            await config.update(`${section}.${key}`, value, vscode.ConfigurationTarget.Global);
+                        }
+                    } else {
+                        await config.update(section, values, vscode.ConfigurationTarget.Global);
+                    }
+                }
+            }
+            
+            vscode.window.showInformationMessage('Configuration imported successfully');
+        } catch (error) {
+            throw new Error(`Failed to import configuration: ${error}`);
+        }
+    }
+}
+
+/// logger.ts ///
+import * as vscode from 'vscode';
+
+export enum LogLevel {
+    DEBUG = 0,
+    INFO = 1,
+    WARN = 2,
+    ERROR = 3
+}
+
+export class Logger {
+    private readonly outputChannel: vscode.OutputChannel;
+    private readonly logLevel: LogLevel;
+
+    constructor(
+        channelName: string = 'LookAtni File Markers',
+        logLevel: LogLevel = LogLevel.INFO
+    ) {
+        this.outputChannel = vscode.window.createOutputChannel(channelName);
+        this.logLevel = logLevel;
+    }
+
+    debug(message: string, ...args: any[]): void {
+        this.log(LogLevel.DEBUG, '🔍', message, ...args);
+    }
+
+    info(message: string, ...args: any[]): void {
+        this.log(LogLevel.INFO, 'ℹ️', message, ...args);
+    }
+
+    warn(message: string, ...args: any[]): void {
+        this.log(LogLevel.WARN, '⚠️', message, ...args);
+    }
+
+    error(message: string, ...args: any[]): void {
+        this.log(LogLevel.ERROR, '❌', message, ...args);
+        
+        // Also show error notification for critical issues
+        if (args.length > 0 && args[0] instanceof Error) {
+            vscode.window.showErrorMessage(`LookAtni: ${message}`);
+        }
+    }
+
+    success(message: string, ...args: any[]): void {
+        this.log(LogLevel.INFO, '✅', message, ...args);
+    }
+
+    private log(level: LogLevel, icon: string, message: string, ...args: any[]): void {
+        if (level < this.logLevel) {
+            return;
+        }
+
+        const timestamp = new Date().toISOString();
+        const levelName = LogLevel[level];
+        
+        let formattedMessage = `[${timestamp}] ${icon} ${levelName}: ${message}`;
+        
+        if (args.length > 0) {
+            const formattedArgs = args.map(arg => {
+                if (arg instanceof Error) {
+                    return `\n  Error: ${arg.message}\n  Stack: ${arg.stack}`;
+                } else if (typeof arg === 'object') {
+                    return `\n  ${JSON.stringify(arg, null, 2)}`;
+                } else {
+                    return ` ${arg}`;
+                }
+            }).join('');
+            
+            formattedMessage += formattedArgs;
+        }
+
+        this.outputChannel.appendLine(formattedMessage);
+        
+        // Auto-show output channel for warnings and errors
+        if (level >= LogLevel.WARN) {
+            this.outputChannel.show(true);
+        }
+    }
+
+    show(): void {
+        this.outputChannel.show();
+    }
+
+    hide(): void {
+        this.outputChannel.hide();
+    }
+
+    clear(): void {
+        this.outputChannel.clear();
+    }
+
+    dispose(): void {
+        this.outputChannel.dispose();
+    }
+}
+
+/// markerGenerator.ts ///
+import * as fs from 'fs';
+import * as path from 'path';
+import { Logger } from './logger';
+
+export interface GenerationOptions {
+    maxFileSize: number; // in KB, -1 for no limit
+    excludePatterns: string[];
+}
+
+export interface GenerationResults {
+    sourceFolder: string;
+    totalFiles: number;
+    totalBytes: number;
+    skippedFiles: Array<{ path: string; reason: string }>;
+    fileTypes: { [key: string]: number };
+}
+
+export class MarkerGenerator {
+    // ASCII 28 (File Separator) character for invisible markers
+    private readonly FS_CHAR = String.fromCharCode(28);
+    
+    constructor(private logger: Logger) {}
+    
+    async generateMarkers(
+        sourceFolder: string,
+        outputFile: string,
+        options: GenerationOptions,
+        progressCallback?: (current: number, total: number) => void
+    ): Promise<GenerationResults> {
+        
+        const results: GenerationResults = {
+            sourceFolder,
+            totalFiles: 0,
+            totalBytes: 0,
+            skippedFiles: [],
+            fileTypes: {}
+        };
+        
+        // Get all files to process
+        const allFiles = this.getAllFiles(sourceFolder, options.excludePatterns);
+        this.logger.info(`Found ${allFiles.length} files to process`);
+        
+        // Filter files by size
+        const filesToProcess = allFiles.filter(filePath => {
+            try {
+                const stats = fs.statSync(filePath);
+                const sizeKB = stats.size / 1024;
+                
+                if (options.maxFileSize !== -1 && sizeKB > options.maxFileSize) {
+                    results.skippedFiles.push({
+                        path: path.relative(sourceFolder, filePath),
+                        reason: `File too large (${sizeKB.toFixed(1)} KB > ${options.maxFileSize} KB)`
+                    });
+                    return false;
+                }
+                
+                // Skip binary files
+                if (this.isBinaryFile(filePath)) {
+                    results.skippedFiles.push({
+                        path: path.relative(sourceFolder, filePath),
+                        reason: 'Binary file'
+                    });
+                    return false;
+                }
+                
+                return true;
+            } catch (error) {
+                results.skippedFiles.push({
+                    path: path.relative(sourceFolder, filePath),
+                    reason: `Error reading file: ${error}`
+                });
+                return false;
+            }
+        });
+        
+        this.logger.info(`Processing ${filesToProcess.length} files after filtering`);
+        
+        // Create output content
+        let output = `//${this.FS_CHAR}/ PROJECT_INFO /${this.FS_CHAR}//\n`;
+        output += `Project: ${path.basename(sourceFolder)}\n`;
+        output += `Generated: ${new Date().toISOString()}\n`;
+        output += `Total Files: ${filesToProcess.length}\n`;
+        output += `Source: ${sourceFolder}\n\n`;
+        
+        // Process each file
+        for (let i = 0; i < filesToProcess.length; i++) {
+            const filePath = filesToProcess[i];
+            const relativePath = path.relative(sourceFolder, filePath);
+            
+            if (progressCallback) {
+                progressCallback(i + 1, filesToProcess.length);
+            }
+            
+            try {
+                const content = fs.readFileSync(filePath, 'utf-8');
+                const stats = fs.statSync(filePath);
+                
+                // Update statistics
+                results.totalFiles++;
+                results.totalBytes += stats.size;
+                
+                const ext = path.extname(filePath).toLowerCase() || 'no-extension';
+                results.fileTypes[ext] = (results.fileTypes[ext] || 0) + 1;
+                
+                // Add file marker and content
+                output += `//${this.FS_CHAR}/ ${relativePath} /${this.FS_CHAR}//\n`;
+                output += content;
+                
+                // Ensure content ends with newline
+                if (!content.endsWith('\n')) {
+                    output += '\n';
+                }
+                output += '\n';
+                
+                this.logger.debug(`Processed: ${relativePath} (${stats.size} bytes)`);
+                
+            } catch (error) {
+                this.logger.error(`Error processing ${relativePath}:`, error);
+                results.skippedFiles.push({
+                    path: relativePath,
+                    reason: `Read error: ${error}`
+                });
+            }
+        }
+        
+        // Write output file
+        fs.writeFileSync(outputFile, output, 'utf-8');
+        this.logger.info(`Generated markers file: ${outputFile}`);
+        
+        return results;
+    }
+    
+    private getAllFiles(dir: string, excludePatterns: string[]): string[] {
+        const files: string[] = [];
+        
+        const traverse = (currentDir: string) => {
+            try {
+                const entries = fs.readdirSync(currentDir, { withFileTypes: true });
+                
+                for (const entry of entries) {
+                    const fullPath = path.join(currentDir, entry.name);
+                    const relativePath = path.relative(dir, fullPath);
+                    
+                    // Check exclusion patterns
+                    if (this.shouldExclude(entry.name, relativePath, excludePatterns)) {
+                        continue;
+                    }
+                    
+                    if (entry.isDirectory()) {
+                        traverse(fullPath);
+                    } else if (entry.isFile()) {
+                        files.push(fullPath);
+                    }
+                }
+            } catch (error) {
+                this.logger.warn(`Cannot read directory ${currentDir}:`, error);
+            }
+        };
+        
+        traverse(dir);
+        return files;
+    }
+    
+    private shouldExclude(name: string, relativePath: string, patterns: string[]): boolean {
+        for (const pattern of patterns) {
+            // Simple pattern matching
+            if (pattern.includes('*')) {
+                const regex = new RegExp(pattern.replace(/\*/g, '.*'));
+                if (regex.test(name) || regex.test(relativePath)) {
+                    return true;
+                }
+            } else if (name === pattern || relativePath.includes(pattern)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private isBinaryFile(filePath: string): boolean {
+        const binaryExtensions = [
+            '.exe', '.dll', '.so', '.dylib', '.bin', '.obj',
+            '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.ico', '.webp',
+            '.mp3', '.mp4', '.avi', '.mov', '.wav', '.ogg',
+            '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx',
+            '.zip', '.rar', '.7z', '.tar', '.gz', '.bz2',
+            '.class', '.jar', '.war', '.ear',
+            '.pyc', '.pyo', '.pyd',
+            '.woff', '.woff2', '.ttf', '.otf', '.eot'
+        ];
+        
+        const ext = path.extname(filePath).toLowerCase();
+        if (binaryExtensions.includes(ext)) {
+            return true;
+        }
+        
+        // Try to read first few bytes to detect binary content
+        try {
+            const buffer = fs.readFileSync(filePath, { encoding: null, flag: 'r' });
+            if (buffer.length === 0) {
+                return false;
+            }
+            
+            // Check for null bytes in first 1KB
+            const sampleSize = Math.min(1024, buffer.length);
+            for (let i = 0; i < sampleSize; i++) {
+                if (buffer[i] === 0) {
+                    return true;
+                }
+            }
+            
+            return false;
+        } catch {
+            return true; // If we can't read it, assume it's binary
+        }
+    }
+}
+
+/// markerParser.ts ///
+import * as fs from 'fs';
+import * as path from 'path';
+import { Logger } from './logger';
+
+export interface ParsedMarker {
+    filename: string;
+    content: string;
+    startLine: number;
+    endLine: number;
+}
+
+export interface ParseResults {
+    totalMarkers: number;
+    totalFiles: number;
+    totalBytes: number;
+    errors: Array<{ line: number; message: string }>;
+    markers: ParsedMarker[];
+}
+
+export class MarkerParser {
+    // ASCII 28 (File Separator) character for invisible markers
+    private readonly FS_CHAR = String.fromCharCode(28);
+    private readonly markerRegex = new RegExp(`^\\/\\/${this.FS_CHAR.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\/ (.+?) \\/${this.FS_CHAR.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\/\\/$`);
+    
+    constructor(private logger: Logger) {}
+    
+    parseMarkedFile(filePath: string): ParseResults {
+        const results: ParseResults = {
+            totalMarkers: 0,
+            totalFiles: 0,
+            totalBytes: 0,
+            errors: [],
+            markers: []
+        };
+        
+        try {
+            const content = fs.readFileSync(filePath, 'utf-8');
+            const lines = content.split('\n');
+            
+            let currentMarker: Partial<ParsedMarker> | null = null;
+            let currentContent: string[] = [];
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const lineNumber = i + 1;
+                
+                const markerMatch = line.match(this.markerRegex);
+                
+                if (markerMatch) {
+                    // Save previous marker if exists
+                    if (currentMarker) {
+                        this.finalizeMarker(currentMarker, currentContent, results, i);
+                    }
+                    
+                    // Start new marker
+                    const filename = markerMatch[1].trim();
+                    if (!filename) {
+                        results.errors.push({
+                            line: lineNumber,
+                            message: 'Empty filename in marker'
+                        });
+                        continue;
+                    }
+                    
+                    currentMarker = {
+                        filename,
+                        startLine: lineNumber
+                    };
+                    currentContent = [];
+                    results.totalMarkers++;
+                    
+                } else if (currentMarker) {
+                    // Add content to current marker
+                    currentContent.push(line);
+                }
+            }
+            
+            // Finalize last marker
+            if (currentMarker) {
+                this.finalizeMarker(currentMarker, currentContent, results, lines.length);
+            }
+            
+            this.logger.info(`Parsed ${results.totalMarkers} markers from ${filePath}`);
+            
+        } catch (error) {
+            this.logger.error(`Error parsing marked file ${filePath}:`, error);
+            results.errors.push({
+                line: 0,
+                message: `File read error: ${error}`
+            });
+        }
+        
+        return results;
+    }
+    
+    private finalizeMarker(
+        marker: Partial<ParsedMarker>,
+        content: string[],
+        results: ParseResults,
+        endLine: number
+    ): void {
+        if (!marker.filename || !marker.startLine) {
+            return;
+        }
+        
+        // Remove trailing empty lines
+        while (content.length > 0 && content[content.length - 1].trim() === '') {
+            content.pop();
+        }
+        
+        const finalContent = content.join('\n');
+        
+        const completedMarker: ParsedMarker = {
+            filename: marker.filename,
+            content: finalContent,
+            startLine: marker.startLine,
+            endLine: endLine
+        };
+        
+        results.markers.push(completedMarker);
+        results.totalFiles++;
+        results.totalBytes += Buffer.byteLength(finalContent, 'utf-8');
+    }
+    
+    extractFiles(
+        markedFilePath: string,
+        outputDir: string,
+        options: {
+            overwrite?: boolean;
+            createDirs?: boolean;
+            dryRun?: boolean;
+        } = {}
+    ): { success: boolean; extractedFiles: string[]; errors: string[] } {
+        
+        const result = {
+            success: true,
+            extractedFiles: [] as string[],
+            errors: [] as string[]
+        };
+        
+        const parseResults = this.parseMarkedFile(markedFilePath);
+        
+        if (parseResults.errors.length > 0) {
+            result.errors.push(...parseResults.errors.map(e => `Line ${e.line}: ${e.message}`));
+        }
+        
+        for (const marker of parseResults.markers) {
+            try {
+                const outputPath = path.join(outputDir, marker.filename);
+                
+                // Check if file exists and overwrite is disabled
+                if (!options.overwrite && fs.existsSync(outputPath)) {
+                    const choice = options.dryRun ? 'skip' : 'skip'; // In real implementation, ask user
+                    if (choice === 'skip') {
+                        this.logger.warn(`Skipping existing file: ${outputPath}`);
+                        continue;
+                    }
+                }
+                
+                if (options.dryRun) {
+                    this.logger.info(`[DRY RUN] Would extract: ${outputPath}`);
+                    result.extractedFiles.push(outputPath);
+                    continue;
+                }
+                
+                // Create directory if needed
+                if (options.createDirs) {
+                    const dir = path.dirname(outputPath);
+                    if (!fs.existsSync(dir)) {
+                        fs.mkdirSync(dir, { recursive: true });
+                        this.logger.debug(`Created directory: ${dir}`);
+                    }
+                }
+                
+                // Write file
+                fs.writeFileSync(outputPath, marker.content, 'utf-8');
+                result.extractedFiles.push(outputPath);
+                this.logger.debug(`Extracted: ${outputPath} (${marker.content.length} chars)`);
+                
+            } catch (error) {
+                const errorMsg = `Error extracting ${marker.filename}: ${error}`;
+                this.logger.error(errorMsg);
+                result.errors.push(errorMsg);
+                result.success = false;
+            }
+        }
+        
+        return result;
+    }
+    
+    validateMarkers(filePath: string): {
+        isValid: boolean;
+        errors: Array<{ line: number; message: string; severity: 'error' | 'warning' }>;
+        statistics: {
+            totalMarkers: number;
+            duplicateFilenames: string[];
+            invalidFilenames: string[];
+            emptyMarkers: number;
+        };
+    } {
+        
+        const result = {
+            isValid: true,
+            errors: [] as Array<{ line: number; message: string; severity: 'error' | 'warning' }>,
+            statistics: {
+                totalMarkers: 0,
+                duplicateFilenames: [] as string[],
+                invalidFilenames: [] as string[],
+                emptyMarkers: 0
+            }
+        };
+        
+        const parseResults = this.parseMarkedFile(filePath);
+        result.statistics.totalMarkers = parseResults.totalMarkers;
+        
+        // Convert parse errors to validation errors
+        result.errors.push(...parseResults.errors.map(e => ({
+            line: e.line,
+            message: e.message,
+            severity: 'error' as const
+        })));
+        
+        // Check for duplicates and invalid filenames
+        const seenFilenames = new Set<string>();
+        
+        for (const marker of parseResults.markers) {
+            // Check for duplicates
+            if (seenFilenames.has(marker.filename)) {
+                if (!result.statistics.duplicateFilenames.includes(marker.filename)) {
+                    result.statistics.duplicateFilenames.push(marker.filename);
+                    result.errors.push({
+                        line: marker.startLine,
+                        message: `Duplicate filename: ${marker.filename}`,
+                        severity: 'warning'
+                    });
+                }
+            }
+            seenFilenames.add(marker.filename);
+            
+            // Check for invalid filenames
+            if (this.isInvalidFilename(marker.filename)) {
+                result.statistics.invalidFilenames.push(marker.filename);
+                result.errors.push({
+                    line: marker.startLine,
+                    message: `Invalid filename: ${marker.filename}`,
+                    severity: 'error'
+                });
+                result.isValid = false;
+            }
+            
+            // Check for empty content
+            if (marker.content.trim() === '') {
+                result.statistics.emptyMarkers++;
+                result.errors.push({
+                    line: marker.startLine,
+                    message: `Empty content for file: ${marker.filename}`,
+                    severity: 'warning'
+                });
+            }
+        }
+        
+        // Set overall validity
+        if (result.errors.some(e => e.severity === 'error')) {
+            result.isValid = false;
+        }
+        
+        return result;
+    }
+    
+    private isInvalidFilename(filename: string): boolean {
+        // Check for invalid characters
+        const invalidChars = /[<>:"|?*\x00-\x1f]/;
+        if (invalidChars.test(filename)) {
+            return true;
+        }
+        
+        // Check for reserved names on Windows
+        const reservedNames = /^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i;
+        const baseName = path.basename(filename, path.extname(filename));
+        if (reservedNames.test(baseName)) {
+            return true;
+        }
+        
+        // Check for empty or just whitespace
+        if (!filename.trim()) {
+            return true;
+        }
+        
+        return false;
+    }
+}
+
+/// statusBar.ts ///
+import * as vscode from 'vscode';
+
+export class LookAtniStatusBar {
+    private statusBarItem: vscode.StatusBarItem;
+    private hideTimeout?: NodeJS.Timeout;
+    
+    constructor() {
+        this.statusBarItem = vscode.window.createStatusBarItem(
+            vscode.StatusBarAlignment.Left,
+            100
+        );
+        
+        this.statusBarItem.command = 'lookatni.quickDemo';
+        this.statusBarItem.tooltip = 'LookAtni File Markers - Click for Quick Demo';
+        this.statusBarItem.text = '$(file-code) LookAtni';
+        
+        // Show by default
+        this.statusBarItem.show();
+    }
+    
+    show(message?: string, duration?: number): void {
+        if (this.hideTimeout) {
+            clearTimeout(this.hideTimeout);
+            this.hideTimeout = undefined;
+        }
+        
+        if (message) {
+            this.statusBarItem.text = `$(loading~spin) ${message}`;
+            this.statusBarItem.tooltip = `LookAtni: ${message}`;
+        } else {
+            this.statusBarItem.text = '$(file-code) LookAtni';
+            this.statusBarItem.tooltip = 'LookAtni File Markers - Click for Quick Demo';
+        }
+        
+        this.statusBarItem.show();
+        
+        if (duration && duration > 0) {
+            this.hideTimeout = setTimeout(() => {
+                this.reset();
+            }, duration);
+        }
+    }
+    
+    hide(): void {
+        if (this.hideTimeout) {
+            clearTimeout(this.hideTimeout);
+            this.hideTimeout = undefined;
+        }
+        
+        this.reset();
+    }
+    
+    private reset(): void {
+        this.statusBarItem.text = '$(file-code) LookAtni';
+        this.statusBarItem.tooltip = 'LookAtni File Markers - Click for Quick Demo';
+        this.statusBarItem.show();
+    }
+    
+    updateProgress(current: number, total: number, operation: string): void {
+        const percentage = Math.round((current / total) * 100);
+        this.statusBarItem.text = `$(loading~spin) ${operation} ${percentage}%`;
+        this.statusBarItem.tooltip = `LookAtni: ${operation} (${current}/${total})`;
+    }
+    
+    showError(message: string): void {
+        this.statusBarItem.text = `$(error) LookAtni Error`;
+        this.statusBarItem.tooltip = `LookAtni Error: ${message}`;
+        this.statusBarItem.show();
+        
+        // Reset after 5 seconds
+        setTimeout(() => {
+            this.reset();
+        }, 5000);
+    }
+    
+    showSuccess(message: string): void {
+        this.statusBarItem.text = `$(check) ${message}`;
+        this.statusBarItem.tooltip = `LookAtni: ${message}`;
+        this.statusBarItem.show();
+        
+        // Reset after 3 seconds
+        setTimeout(() => {
+            this.reset();
+        }, 3000);
+    }
+    
+    dispose(): void {
+        if (this.hideTimeout) {
+            clearTimeout(this.hideTimeout);
+        }
+        this.statusBarItem.dispose();
+    }
+}
+
+/// visualMarkers.ts ///
+import * as vscode from 'vscode';
+import * as fs from 'fs';
+import * as path from 'path';
+import { ConfigurationManager } from './configManager';
+
+export interface VisualMarker {
+    uri: vscode.Uri;
+    type: 'read' | 'unread' | 'important' | 'favorite' | 'todo' | 'custom';
+    color?: string;
+    icon?: string;
+    timestamp: number;
+    notes?: string;
+}
+
+export class VisualMarkersManager {
+    private markers: Map<string, VisualMarker> = new Map();
+    private decorationType: vscode.FileDecorationProvider;
+    private storageUri: vscode.Uri;
+    private configManager: ConfigurationManager;
+
+    constructor(private context: vscode.ExtensionContext) {
+        this.storageUri = vscode.Uri.joinPath(context.globalStorageUri, 'visual-markers.json');
+        this.configManager = ConfigurationManager.getInstance();
+        this.decorationType = new FileMarkersDecoratorProvider(this, this.configManager);
+        this.loadMarkers();
+        
+        // Register as decoration provider
+        vscode.window.registerFileDecorationProvider(this.decorationType);
+    }
+
+    async loadMarkers(): Promise<void> {
+        try {
+            if (await this.fileExists(this.storageUri.fsPath)) {
+                const data = await fs.promises.readFile(this.storageUri.fsPath, 'utf8');
+                const markersData = JSON.parse(data);
+                
+                for (const [key, marker] of Object.entries(markersData)) {
+                    this.markers.set(key, marker as VisualMarker);
+                }
+            }
+        } catch (error) {
+            console.error('Error loading visual markers:', error);
+        }
+    }
+
+    async saveMarkers(): Promise<void> {
+        try {
+            await fs.promises.mkdir(path.dirname(this.storageUri.fsPath), { recursive: true });
+            const markersData = Object.fromEntries(this.markers);
+            await fs.promises.writeFile(this.storageUri.fsPath, JSON.stringify(markersData, null, 2));
+        } catch (error) {
+            console.error('Error saving visual markers:', error);
+        }
+    }
+
+    private async fileExists(filePath: string): Promise<boolean> {
+        try {
+            await fs.promises.access(filePath);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    async addMarker(uri: vscode.Uri, type: VisualMarker['type'], options?: { color?: string; icon?: string; notes?: string }): Promise<void> {
+        const key = uri.toString();
+        const marker: VisualMarker = {
+            uri,
+            type,
+            timestamp: Date.now(),
+            color: options?.color,
+            icon: options?.icon,
+            notes: options?.notes
+        };
+
+        this.markers.set(key, marker);
+        await this.saveMarkers();
+        this.refreshDecorations();
+    }
+
+    async removeMarker(uri: vscode.Uri): Promise<void> {
+        const key = uri.toString();
+        this.markers.delete(key);
+        await this.saveMarkers();
+        this.refreshDecorations();
+    }
+
+    async toggleMarker(uri: vscode.Uri, type: VisualMarker['type']): Promise<void> {
+        const key = uri.toString();
+        const existing = this.markers.get(key);
+
+        if (existing && existing.type === type) {
+            await this.removeMarker(uri);
+        } else {
+            await this.addMarker(uri, type);
+        }
+    }
+
+    getMarker(uri: vscode.Uri): VisualMarker | undefined {
+        return this.markers.get(uri.toString());
+    }
+
+    getAllMarkers(): VisualMarker[] {
+        return Array.from(this.markers.values());
+    }
+
+    getMarkersByType(type: VisualMarker['type']): VisualMarker[] {
+        return Array.from(this.markers.values()).filter(marker => marker.type === type);
+    }
+
+    private refreshDecorations(): void {
+        // Trigger decoration refresh
+        vscode.window.onDidChangeActiveTextEditor(() => {
+            // This will cause the decoration provider to refresh
+        });
+    }
+
+    async clearAllMarkers(): Promise<void> {
+        this.markers.clear();
+        await this.saveMarkers();
+        this.refreshDecorations();
+    }
+
+    async exportMarkers(): Promise<string> {
+        const exportData = {
+            version: '1.0.0',
+            exportDate: new Date().toISOString(),
+            markers: Object.fromEntries(this.markers)
+        };
+        return JSON.stringify(exportData, null, 2);
+    }
+
+    async importMarkers(jsonData: string): Promise<void> {
+        try {
+            const importData = JSON.parse(jsonData);
+            if (importData.markers) {
+                for (const [key, marker] of Object.entries(importData.markers)) {
+                    this.markers.set(key, marker as VisualMarker);
+                }
+                await this.saveMarkers();
+                this.refreshDecorations();
+            }
+        } catch (error) {
+            throw new Error(`Failed to import markers: ${error}`);
+        }
+    }
+}
+
+class FileMarkersDecoratorProvider implements vscode.FileDecorationProvider {
+    private _onDidChangeFileDecorations = new vscode.EventEmitter<vscode.Uri | vscode.Uri[] | undefined>();
+    readonly onDidChangeFileDecorations = this._onDidChangeFileDecorations.event;
+
+    constructor(
+        private markersManager: VisualMarkersManager,
+        private configManager: ConfigurationManager
+    ) {}
+
+    provideFileDecoration(uri: vscode.Uri): vscode.FileDecoration | undefined {
+        const marker = this.markersManager.getMarker(uri);
+        if (!marker) {
+            return undefined;
+        }
+
+        const config = this.configManager.getVisualMarkersConfig();
+        
+        let badge: string;
+        let color: vscode.ThemeColor;
+        let tooltip: string;
+
+        switch (marker.type) {
+            case 'read':
+                badge = config.readIcon;
+                color = new vscode.ThemeColor('charts.green');
+                tooltip = 'Marked as read';
+                break;
+            case 'unread':
+                badge = config.unreadIcon;
+                color = new vscode.ThemeColor('charts.blue');
+                tooltip = 'Marked as unread';
+                break;
+            case 'important':
+                badge = config.importantIcon;
+                color = new vscode.ThemeColor('charts.red');
+                tooltip = 'Marked as important';
+                break;
+            case 'favorite':
+                badge = config.favoriteIcon;
+                color = new vscode.ThemeColor('charts.yellow');
+                tooltip = 'Marked as favorite';
+                break;
+            case 'todo':
+                badge = config.todoIcon;
+                color = new vscode.ThemeColor('charts.orange');
+                tooltip = 'Marked as todo';
+                break;
+            case 'custom':
+                badge = marker.icon || config.customIcon;
+                color = marker.color ? new vscode.ThemeColor(marker.color) : new vscode.ThemeColor('charts.purple');
+                tooltip = marker.notes || 'Custom marker';
+                break;
+            default:
+                return undefined;
+        }
+
+        if (marker.notes) {
+            tooltip += ` - ${marker.notes}`;
+        }
+
+        return {
+            badge,
+            color,
+            tooltip,
+            propagate: false
+        };
+    }
+
+    refresh(): void {
+        this._onDidChangeFileDecorations.fire(undefined);
+    }
+}
