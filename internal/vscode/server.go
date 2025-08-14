@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
+	l "github.com/rafa-mori/logz"
 	"github.com/rafa-mori/lookatni-file-markers/internal/parser"
 	"github.com/rafa-mori/lookatni-file-markers/internal/transpiler"
 	"github.com/rafa-mori/lookatni-file-markers/logger"
@@ -14,14 +15,17 @@ import (
 
 // Server handles VS Code integration requests.
 type Server struct {
-	logger     *logger.Logger
+	logger     logger.GLog[l.Logger]
 	port       int
 	parser     *parser.MarkerParser
 	transpiler *transpiler.Transpiler
 }
 
 // NewServer creates a new VS Code integration server.
-func NewServer(log *logger.Logger, port int) *Server {
+func NewServer(log logger.GLog[l.Logger], port int) *Server {
+	if log == nil {
+		log = logger.GetLogger[l.Logger](nil)
+	}
 	// Load default HTML template
 	htmlTemplate := `<!doctype html>
 <html lang="pt-BR">
@@ -64,7 +68,7 @@ func (s *Server) Start() error {
 	handler := s.corsMiddleware(mux)
 
 	addr := ":" + strconv.Itoa(s.port)
-	s.logger.Info("🌐 VS Code integration server listening on %s", addr)
+	s.logger.Log("info", "🌐 VS Code integration server listening on %s", addr)
 
 	return http.ListenAndServe(addr, handler)
 }
@@ -114,7 +118,7 @@ func (s *Server) handleExtract(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.logger.Debug("Extract request: %s -> %s", req.MarkedFile, req.OutputDir)
+	s.logger.Log("debug", "Extract request: %s -> %s", req.MarkedFile, req.OutputDir)
 
 	result, err := s.parser.ExtractFiles(req.MarkedFile, req.OutputDir, req.Options)
 	if err != nil {
@@ -138,7 +142,7 @@ func (s *Server) handleValidate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.logger.Debug("Validate request: %s", req.MarkedFile)
+	s.logger.Log("debug", "Validate request: %s", req.MarkedFile)
 
 	result, err := s.parser.ValidateMarkers(req.MarkedFile)
 	if err != nil {
@@ -162,7 +166,7 @@ func (s *Server) handleGenerate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.logger.Debug("Generate request: %s -> %s", req.SourceDir, req.OutputFile)
+	s.logger.Log("debug", "Generate request: %s -> %s", req.SourceDir, req.OutputFile)
 
 	result, err := s.parser.GenerateFromDirectory(req.SourceDir, req.OutputFile, req.ExcludePatterns)
 	if err != nil {
@@ -186,7 +190,7 @@ func (s *Server) handleTranspile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.logger.Debug("Transpile request: %s -> %s", req.Input, req.OutputDir)
+	s.logger.Log("debug", "Transpile request: %s -> %s", req.Input, req.OutputDir)
 
 	// TODO: Implement transpilation logic similar to CLI
 	// For now, return a placeholder response

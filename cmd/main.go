@@ -1,73 +1,15 @@
-// Package main provides the LookAtni File Markers CLI application.
 package main
 
 import (
-	"flag"
-	"fmt"
-	"os"
-
-	"github.com/rafa-mori/lookatni-file-markers/internal/app"
-	"github.com/rafa-mori/lookatni-file-markers/internal/metadata"
-	"github.com/rafa-mori/lookatni-file-markers/internal/vscode"
-	"github.com/rafa-mori/lookatni-file-markers/logger"
-	"github.com/rafa-mori/lookatni-file-markers/version"
+	l "github.com/rafa-mori/logz"
+	gl "github.com/rafa-mori/lookatni-file-markers/logger"
 )
 
+var logger l.Logger
+
+// main initializes the logger and creates a new LookAtni instance.
 func main() {
-	var (
-		versionFlag = flag.Bool("version", false, "Show version information")
-		vscodeMode  = flag.Bool("vscode", false, "Run in VS Code integration mode")
-		port        = flag.Int("port", 8080, "Port for VS Code integration server")
-		verbose     = flag.Bool("v", false, "Enable verbose logging")
-		listPresets = flag.Bool("list-presets", false, "List available marker presets")
-	)
-	flag.Parse()
-
-	// Initialize logger
-	log := logger.New(logger.Config{
-		Verbose: *verbose,
-		Prefix:  "lookatni",
-	})
-
-	if *listPresets {
-		fmt.Println("🎨 Available Marker Presets:\n")
-		presets := metadata.GetPresetConfigs()
-		for name, preset := range presets {
-			fmt.Printf("  %s: %s\n", name, preset.Name)
-			fmt.Printf("    %s\n", preset.Description)
-
-			// Show example
-			example := preset.Config.FormatMarker("example.go")
-			if example != "" {
-				fmt.Printf("    Example: %s\n", example)
-			}
-			fmt.Println()
-		}
-		return
-	}
-
-	if *versionFlag {
-		fmt.Printf("LookAtni File Markers v%s\n", version.Version)
-		fmt.Printf("Build: %s\n", version.BuildHash)
-		fmt.Printf("Date: %s\n", version.BuildDate)
-		return
-	}
-
-	if *vscodeMode {
-		// Start VS Code integration server
-		server := vscode.NewServer(log, *port)
-		log.Info("🔌 Starting VS Code integration server on port %d", *port)
-		if err := server.Start(); err != nil {
-			log.Error("Failed to start VS Code server: %v", err)
-			os.Exit(1)
-		}
-		return
-	}
-
-	// Run CLI application
-	cliApp := app.New(log)
-	if err := cliApp.Run(flag.Args()); err != nil {
-		log.Error("CLI error: %v", err)
-		os.Exit(1)
+	if err := RegX().Command().Execute(); err != nil {
+		gl.Log("fatal", err.Error())
 	}
 }

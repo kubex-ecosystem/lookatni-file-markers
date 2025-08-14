@@ -1,0 +1,41 @@
+{
+  "name": "Kubex - LookAtni File Markers",
+  "application": "lookatni",
+  "version": "1.2.0",
+  "private": false,
+  "published": true,
+  "aliases": [
+    "lookatni",
+    "lookatni-file-markers"
+  ],
+  "repository": "https://github.com/rafa-mori/lookatni-file-markers",
+  "homepage": "https://lookatni.rafa-mori.dev/",
+  "description": "Kubex - LookAtni File Markers: A meta-framework for handling file markers, entire projects composition/decomposition, and much more.",
+  "main": "cmd/main.go",
+  "bin": "lookatni",
+  "author": "Rafael Mori <faelmori@gmail.com>",
+  "organization": "rafa-mori",
+  "license": "MIT",
+  "keywords": [
+    "lookatni",
+    "kubex",
+    "file-markers",
+    "control",
+    "command-line",
+    "tool",
+    "management"
+  ],
+  "platforms": [
+    "linux/amd64"
+  ],
+  "dependencies": [
+    "tar",
+    "gzip",
+    "curl",
+    "git",
+    "zip",
+    "unzip",
+    "jq",
+    "upx"
+  ]
+}

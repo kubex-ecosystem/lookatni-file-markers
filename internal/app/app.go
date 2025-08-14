@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	l "github.com/rafa-mori/logz"
 	"github.com/rafa-mori/lookatni-file-markers/internal/parser"
 	"github.com/rafa-mori/lookatni-file-markers/internal/transpiler"
 	"github.com/rafa-mori/lookatni-file-markers/logger"
@@ -18,17 +19,21 @@ var templatesFS embed.FS
 
 // App represents the main CLI application.
 type App struct {
-	logger     *logger.Logger
+	logger     logger.GLog[l.Logger] // Is already a interface, so, a pointer...
 	parser     *parser.MarkerParser
 	transpiler *transpiler.Transpiler
 }
 
 // New creates a new App instance.
-func New(log *logger.Logger) *App {
+func New(log logger.GLog[l.Logger]) *App {
+	if log == nil {
+		log = logger.GetLogger[l.Logger](nil)
+	}
+
 	// Load HTML template
 	htmlTemplate, err := templatesFS.ReadFile("templates/base.html")
 	if err != nil {
-		log.Error("Failed to load HTML template: %v", err)
+		log.Log("error", "Failed to load HTML template: %v", err)
 		// Fallback to embedded template
 		htmlTemplate = []byte(fallbackHTMLTemplate)
 	}
@@ -90,7 +95,7 @@ func (a *App) extractCommand(args []string) error {
 		}
 	}
 
-	a.logger.Info("🔄 Extracting files from %s to %s", markedFile, outputDir)
+	a.logger.Log("info", "🔄 Extracting files from %s to %s", markedFile, outputDir)
 
 	result, err := a.parser.ExtractFiles(markedFile, outputDir, options)
 	if err != nil {
@@ -98,23 +103,23 @@ func (a *App) extractCommand(args []string) error {
 	}
 
 	if len(result.Errors) > 0 {
-		a.logger.Warn("⚠️  Extraction completed with errors:")
+		a.logger.Log("warn", "⚠️  Extraction completed with errors:")
 		for _, errMsg := range result.Errors {
-			a.logger.Warn("   %s", errMsg)
+			a.logger.Log("warn", "   %s", errMsg)
 		}
 	}
 
 	if options.DryRun {
-		a.logger.Info("🔍 [DRY RUN] Would extract %d files", len(result.ExtractedFiles))
+		a.logger.Log("info", "🔍 [DRY RUN] Would extract %d files", len(result.ExtractedFiles))
 	} else {
-		a.logger.Info("✅ Successfully extracted %d files", len(result.ExtractedFiles))
+		a.logger.Log("info", "✅ Successfully extracted %d files", len(result.ExtractedFiles))
 	}
 
 	for _, file := range result.ExtractedFiles {
 		if options.DryRun {
-			a.logger.Debug("   [DRY RUN] %s", file)
+			a.logger.Log("debug", "   [DRY RUN] %s", file)
 		} else {
-			a.logger.Debug("   ✓ %s", file)
+			a.logger.Log("debug", "   ✓ %s", file)
 		}
 	}
 
@@ -128,7 +133,7 @@ func (a *App) validateCommand(args []string) error {
 	}
 
 	markedFile := args[0]
-	a.logger.Info("🔍 Validating markers in %s", markedFile)
+	a.logger.Log("info", "🔍 Validating markers in %s", markedFile)
 
 	result, err := a.parser.ValidateMarkers(markedFile)
 	if err != nil {
@@ -136,36 +141,36 @@ func (a *App) validateCommand(args []string) error {
 	}
 
 	if result.IsValid {
-		a.logger.Info("✅ All markers are valid!")
+		a.logger.Log("info", "✅ All markers are valid!")
 	} else {
-		a.logger.Warn("⚠️  Validation issues found:")
+		a.logger.Log("warn", "⚠️  Validation issues found:")
 	}
 
 	if len(result.Errors) > 0 {
-		a.logger.Warn("Errors:")
+		a.logger.Log("warn", "Errors:")
 		for _, errMsg := range result.Errors {
-			a.logger.Warn("   Line %d: %s (%s)", errMsg.Line, errMsg.Message, errMsg.Severity)
+			a.logger.Log("warn", "   Line %d: %s (%s)", errMsg.Line, errMsg.Message, errMsg.Severity)
 		}
 	}
 
 	if len(result.DuplicateFilenames) > 0 {
-		a.logger.Warn("Duplicate filenames:")
+		a.logger.Log("warn", "Duplicate filenames:")
 		for _, dup := range result.DuplicateFilenames {
-			a.logger.Warn("   %s", dup)
+			a.logger.Log("warn", "   %s", dup)
 		}
 	}
 
 	if len(result.InvalidFilenames) > 0 {
-		a.logger.Warn("Invalid filenames:")
+		a.logger.Log("warn", "Invalid filenames:")
 		for _, invalid := range result.InvalidFilenames {
-			a.logger.Warn("   %s", invalid)
+			a.logger.Log("warn", "   %s", invalid)
 		}
 	}
 
 	stats := result.Statistics
-	a.logger.Info("📊 Statistics:")
-	a.logger.Info("   Total markers: %d", stats.TotalMarkers)
-	a.logger.Info("   Empty markers: %d", stats.EmptyMarkers)
+	a.logger.Log("info", "📊 Statistics:")
+	a.logger.Log("info", "   Total markers: %d", stats.TotalMarkers)
+	a.logger.Log("info", "   Empty markers: %d", stats.EmptyMarkers)
 
 	return nil
 }
@@ -179,7 +184,7 @@ func (a *App) transpileCommand(args []string) error {
 	input := args[0]
 	outputDir := args[1]
 
-	a.logger.Info("🔄 Transpiling from %s to %s", input, outputDir)
+	a.logger.Log("info", "🔄 Transpiling from %s to %s", input, outputDir)
 
 	stat, err := os.Stat(input)
 	if err != nil {
@@ -208,13 +213,13 @@ func (a *App) transpileCommand(args []string) error {
 			filePath := filepath.Join(input, entry.Name())
 			content, err := os.ReadFile(filePath)
 			if err != nil {
-				a.logger.Warn("Failed to read %s: %v", filePath, err)
+				a.logger.Log("warn", "Failed to read %s: %v", filePath, err)
 				continue
 			}
 
 			fileInfo, err := a.transpiler.ConvertMarkdownToHTML(entry.Name(), content, outputDir)
 			if err != nil {
-				a.logger.Warn("Failed to transpile %s: %v", entry.Name(), err)
+				a.logger.Log("warn", "Failed to transpile %s: %v", entry.Name(), err)
 				continue
 			}
 
@@ -225,7 +230,7 @@ func (a *App) transpileCommand(args []string) error {
 				totalSize += stat.Size()
 			}
 
-			a.logger.Debug("   ✓ %s -> %s", entry.Name(), fileInfo.FileName)
+			a.logger.Log("debug", "   ✓ %s -> %s", entry.Name(), fileInfo.FileName)
 		}
 	} else {
 		// Process single file
@@ -255,10 +260,10 @@ func (a *App) transpileCommand(args []string) error {
 		if err := a.transpiler.GenerateIndex(files, totalSize, outputDir); err != nil {
 			return fmt.Errorf("failed to generate index: %w", err)
 		}
-		a.logger.Info("✅ Generated index with %d files", len(files))
+		a.logger.Log("info", "✅ Generated index with %d files", len(files))
 	}
 
-	a.logger.Info("✅ Transpilation completed: %d files processed", len(files))
+	a.logger.Log("info", "✅ Transpilation completed: %d files processed", len(files))
 	return nil
 }
 
@@ -287,7 +292,7 @@ func (a *App) generateCommand(args []string) error {
 		}
 	}
 
-	a.logger.Info("🔄 Generating marked file from %s to %s", sourceDir, outputFile)
+	a.logger.Log("info", "🔄 Generating marked file from %s to %s", sourceDir, outputFile)
 
 	result, err := a.parser.GenerateFromDirectory(sourceDir, outputFile, excludePatterns)
 	if err != nil {
@@ -295,16 +300,16 @@ func (a *App) generateCommand(args []string) error {
 	}
 
 	if len(result.Errors) > 0 {
-		a.logger.Warn("⚠️  Generation completed with warnings:")
+		a.logger.Log("warn", "⚠️  Generation completed with warnings:")
 		for _, errMsg := range result.Errors {
-			a.logger.Warn("   %s", errMsg)
+			a.logger.Log("warn", "   %s", errMsg)
 		}
 	}
 
-	a.logger.Info("✅ Successfully generated marked file:")
-	a.logger.Info("   📁 %d files processed", result.TotalFiles)
-	a.logger.Info("   📊 %d bytes written", result.TotalBytes)
-	a.logger.Info("   📄 Output: %s", outputFile)
+	a.logger.Log("info", "✅ Successfully generated marked file:")
+	a.logger.Log("info", "   📁 %d files processed", result.TotalFiles)
+	a.logger.Log("info", "   📊 %d bytes written", result.TotalBytes)
+	a.logger.Log("info", "   📄 Output: %s", outputFile)
 
 	return nil
 }
