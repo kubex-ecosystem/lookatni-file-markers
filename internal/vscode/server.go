@@ -56,6 +56,7 @@ func (s *Server) Start() error {
 	// API endpoints
 	mux.HandleFunc("/api/extract", s.handleExtract)
 	mux.HandleFunc("/api/validate", s.handleValidate)
+	mux.HandleFunc("/api/generate", s.handleGenerate)
 	mux.HandleFunc("/api/transpile", s.handleTranspile)
 	mux.HandleFunc("/api/health", s.handleHealth)
 
@@ -84,6 +85,13 @@ type ValidateRequest struct {
 type TranspileRequest struct {
 	Input     string `json:"input"`
 	OutputDir string `json:"outputDir"`
+}
+
+// GenerateRequest represents a directory consolidation request.
+type GenerateRequest struct {
+	SourceDir       string   `json:"sourceDir"`
+	OutputFile      string   `json:"outputFile"`
+	ExcludePatterns []string `json:"excludePatterns"`
 }
 
 // APIResponse represents a standard API response.
@@ -135,6 +143,30 @@ func (s *Server) handleValidate(w http.ResponseWriter, r *http.Request) {
 	result, err := s.parser.ValidateMarkers(req.MarkedFile)
 	if err != nil {
 		s.sendError(w, fmt.Sprintf("Validation failed: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	s.sendSuccess(w, result)
+}
+
+// handleGenerate handles directory consolidation requests.
+func (s *Server) handleGenerate(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req GenerateRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		s.sendError(w, "Invalid request format", http.StatusBadRequest)
+		return
+	}
+
+	s.logger.Debug("Generate request: %s -> %s", req.SourceDir, req.OutputFile)
+
+	result, err := s.parser.GenerateFromDirectory(req.SourceDir, req.OutputFile, req.ExcludePatterns)
+	if err != nil {
+		s.sendError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 

@@ -52,10 +52,10 @@ func (a *App) Run(args []string) error {
 		return a.extractCommand(args[1:])
 	case "validate":
 		return a.validateCommand(args[1:])
-	case "transpile":
-		return a.transpileCommand(args[1:])
 	case "generate":
 		return a.generateCommand(args[1:])
+	case "transpile":
+		return a.transpileCommand(args[1:])
 	case "help":
 		return a.showHelp()
 	default:
@@ -262,9 +262,50 @@ func (a *App) transpileCommand(args []string) error {
 	return nil
 }
 
-// generateCommand handles marker generation (placeholder for future implementation).
+// generateCommand handles project consolidation (directory -> marked file).
 func (a *App) generateCommand(args []string) error {
-	a.logger.Info("🚧 Generate command not yet implemented")
+	if len(args) < 2 {
+		return fmt.Errorf("usage: generate <source-dir> <output-file> [--exclude patterns]")
+	}
+
+	sourceDir := args[0]
+	outputFile := args[1]
+
+	// Parse exclude patterns from args
+	var excludePatterns []string
+	for i := 2; i < len(args); i++ {
+		if args[i] == "--exclude" && i+1 < len(args) {
+			excludePatterns = append(excludePatterns, args[i+1])
+			i++ // Skip next argument since it's the pattern
+		}
+	}
+
+	// Default exclude patterns
+	if len(excludePatterns) == 0 {
+		excludePatterns = []string{
+			"*.git*", "node_modules", "dist", "build", "*.log", "*.tmp",
+		}
+	}
+
+	a.logger.Info("🔄 Generating marked file from %s to %s", sourceDir, outputFile)
+
+	result, err := a.parser.GenerateFromDirectory(sourceDir, outputFile, excludePatterns)
+	if err != nil {
+		return fmt.Errorf("generation failed: %w", err)
+	}
+
+	if len(result.Errors) > 0 {
+		a.logger.Warn("⚠️  Generation completed with warnings:")
+		for _, errMsg := range result.Errors {
+			a.logger.Warn("   %s", errMsg)
+		}
+	}
+
+	a.logger.Info("✅ Successfully generated marked file:")
+	a.logger.Info("   📁 %d files processed", result.TotalFiles)
+	a.logger.Info("   📊 %d bytes written", result.TotalBytes)
+	a.logger.Info("   📄 Output: %s", outputFile)
+
 	return nil
 }
 
@@ -276,23 +317,49 @@ Usage:
   lookatni <command> [options]
 
 Commands:
-  extract <marked-file> <output-dir> [flags]  Extract files from marked content
-  validate <marked-file>                      Validate markers in file
-  transpile <input> <output-dir>              Convert Markdown to HTML
-  generate                                    Generate markers (coming soon)
+  extract <marked-file> <output-dir> [flags]  Extract files FROM marked content
+  validate <marked-file>                      Validate markers in consolidated file
+  generate <source-dir> <output-file> [flags] Consolidate directory INTO marked file
+  transpile <input> <output-dir>              Convert Markdown to HTML (NEW!)
   help                                        Show this help
+
+Global Flags:
+  --list-presets                              List available marker presets (NEW!)
+  --version                                   Show version information
+  --vscode                                    Run in VS Code integration mode
+  --port <num>                                Port for VS Code server (default: 8080)
+  -v                                          Enable verbose logging
 
 Extract Flags:
   --overwrite     Overwrite existing files
   --create-dirs   Create directories as needed
   --dry-run       Show what would be done without doing it
 
-Examples:
-  lookatni extract marked_content.txt ./output --overwrite --create-dirs
-  lookatni validate my_project.md
-  lookatni transpile ./interviews ./output
+Generate Flags:
+  --exclude <pattern>  Exclude files matching pattern (can be used multiple times)
 
-For VS Code integration, run with --vscode flag.
+🎨 Custom Markers (PREVIEW):
+  The new adaptive marker system supports multiple formats:
+  • HTML Comments: <!-- FILE: filename -->
+  • Markdown Invisible: [//]: # (FILE: filename)
+  • Code Comments: // === FILE: filename ===
+  • Visual Separators: 🔥🔥🔥 FILE: filename 🔥🔥🔥
+  • Classic (ASCII 28): Invisible markers (default)
+
+Examples:
+  # Basic workflow
+  lookatni generate ./my-project project.marked --exclude "*.log" --exclude "node_modules"
+  lookatni extract project.marked ./output --overwrite --create-dirs
+  lookatni validate project.marked
+
+  # New features
+  lookatni --list-presets                     # Show available marker formats
+  lookatni transpile ./interviews ./output    # Convert Markdown to HTML
+
+  # VS Code integration
+  lookatni --vscode --port 8080               # Start integration server
+
+For more info: https://github.com/rafa-mori/lookatni-file-markers
 `
 	fmt.Print(help)
 	return nil

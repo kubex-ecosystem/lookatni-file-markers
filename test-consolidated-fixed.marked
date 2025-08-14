@@ -1,0 +1,419 @@
+index.html.tmpl
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Interview Index</title>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 2rem; line-height: 1.6; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+      .card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; }
+      .title { font-size: 1.1rem; margin: 0 0 8px; }
+      .meta { color: #6b7280; font-size: .9rem; }
+      a.btn { display: inline-block; margin-top: 10px; padding: 8px 12px; background: #0b69c7; color: white; border-radius: 6px; text-decoration: none; }
+      a.btn:hover { background: #0a5db0; }
+    </style>
+  </head>
+  <body>
+    <h1>Interview Prep – HTML Index</h1>
+    <p class="meta">Arquivos: {{ .FileCount }} • Tamanho total: {{ .TotalSize }} KB • Gerado em {{ .GeneratedAt }}</p>
+    <div class="grid">
+      {{ range .Files }}
+      <div class="card">
+        <div class="title">{{ .Icon }} {{ .Title }}</div>
+        <div class="meta">{{ .Description }} • {{ .Size }} KB</div>
+        <a class="btn" href="./{{ .FileName }}">Abrir</a>
+      </div>
+      {{ end }}
+    </div>
+  </body>
+  </html>
+
+interview_preparation_script.md
+# Lean Layer – Data Engineer Interview Prep
+
+## Tabela de Conteúdo
+
+- [Apresentação inicial](#apresentação-inicial)
+- [Follow-up do case Texaco](#follow-up-do-case-texaco)
+- [Perguntas clássicas para Data Engineer](#perguntas-clássicas-para-data-engineer)
+- [Plano de emergência](#plano-de-emergência)
+- [Simulações de Respostas](#simulações-de-respostas)
+- [Perguntas para o Entrevistador](#perguntas-para-o-entrevistador)
+- [Resumo de Ferramentas e Tecnologias](#resumo-de-ferramentas-e-tecnologias)
+- [Checklist de Preparação](#checklist-de-preparação)
+
+---
+
+## Apresentação inicial
+
+**Pergunta:**
+*"Can you tell me a bit about yourself and your background as a Data Engineer?"*
+*(Use o case Texaco como base)*
+
+---
+
+## Follow-up do case Texaco
+
+**Q1.** *"What was the most challenging technical problem you faced in this project?"*
+
+**Q2.** *"How did you ensure data quality and integrity?"*
+
+**Q3.** *"If you were to rebuild this system today, what would you change?"*
+
+**Q4.** *"How did you handle integrating multiple data sources?"*
+
+**Q5.** *"Did you work alone or with a team, and how did you manage communication?"*
+
+---
+
+## Perguntas clássicas para Data Engineer
+
+**Q6.** *"Tell me about a time when you improved a data pipeline or ETL process."*
+
+**Q7.** *"How do you approach designing a data model for scalability?"*
+
+**Q8.** *"Can you describe a situation where you had to deal with incomplete or inconsistent data?"*
+
+**Q9.** *"What’s your process for translating business requirements into technical solutions?"*
+
+**Q10.** *"How do you stay updated with new data engineering tools and technologies?"*
+
+---
+
+## Plano de emergência
+
+- **Se sentir inseguro logo no começo**
+*"While I can communicate in English, I don’t have daily conversation practice, so sometimes I need an extra second to express an idea. That’s why I’ve been taking structured speaking lessons to improve my fluency, and I’m already seeing progress."*
+
+- **Se travar no meio da resposta**
+*"Sorry, I just need a quick moment to phrase this correctly — English is not my first language, but I’m actively improving it. I prefer to take a second rather than give you the wrong answer."*
+
+- **Se perguntarem sobre o idioma diretamente**
+*"I believe communication is key, and that’s why I’m investing in my English speaking skills through a dedicated course. I’m confident my technical expertise and problem-solving abilities will allow me to deliver results while I continue improving my fluency."*
+
+---
+
+## Simulações de Respostas
+
+- **Q1:** *"What was the most challenging technical problem you faced in this project?"*
+*Resposta simulada:* *"One of the most challenging problems was integrating legacy systems with modern cloud-based solutions. I had to design a custom ETL pipeline to ensure seamless data flow."*
+
+- **Q6:** *"Tell me about a time when you improved a data pipeline or ETL process."*
+*Resposta simulada:* *"In a previous project, I optimized an ETL pipeline by implementing parallel processing, reducing data processing time by 40%."*
+
+---
+
+## Perguntas para o Entrevistador
+
+- *"What are the main challenges the team is currently facing?"*
+- *"How does Lean Layers approach innovation in data engineering?"*
+- *"What tools and technologies does the team use most frequently?"*
+
+---
+
+## Resumo de Ferramentas e Tecnologias
+
+- **Ferramentas:** Apache Spark, Airflow, Tableau, Power BI
+- **Linguagens:** Python, SQL
+- **Cloud:** AWS, Azure
+
+---
+
+## Checklist de Preparação
+
+- [ ] Revisar o case Texaco
+- [ ] Praticar respostas simuladas
+- [ ] Estudar ferramentas e tecnologias mencionadas
+- [ ] Preparar perguntas para o entrevistador
+- [ ] Revisar plano de emergência para comunicação em inglês
+
+---
+
+```prompt id="intro" mode="chat" toolHints=["git","shell"]
+role: user
+goal: "Generate a short briefing for the interview session"
+inputs:
+  - name: level
+    type: select
+    values: ["basic", "detailed"]
+template: |
+  Provide a {{level}} summary of my preparation plan.
+  Focus on Texaco case follow-ups and key tools.
+```
+interview_preparation_script_test.md
+# Lean Layer – Data Engineer Interview Prep
+
+## Tabela de Conteúdo
+
+- [Apresentação inicial](#apresentação-inicial)
+- [Follow-up do case Texaco](#follow-up-do-case-texaco)
+- [Perguntas clássicas para Data Engineer](#perguntas-clássicas-para-data-engineer)
+- [Plano de emergência](#plano-de-emergência)
+- [Simulações de Respostas](#simulações-de-respostas)
+- [Perguntas para o Entrevistador](#perguntas-para-o-entrevistador)
+- [Resumo de Ferramentas e Tecnologias](#resumo-de-ferramentas-e-tecnologias)
+- [Checklist de Preparação](#checklist-de-preparação)
+
+---
+
+## Apresentação inicial
+
+**Pergunta:**
+*"Can you tell me a bit about yourself and your background as a Data Engineer?"*
+*(Use o case Texaco como base)*
+
+---
+
+## Follow-up do case Texaco
+
+**Q1.** *"What was the most challenging technical problem you faced in this project?"*
+
+**Q2.** *"How did you ensure data quality and integrity?"*
+
+**Q3.** *"If you were to rebuild this system today, what would you change?"*
+
+**Q4.** *"How did you handle integrating multiple data sources?"*
+
+**Q5.** *"Did you work alone or with a team, and how did you manage communication?"*
+
+---
+
+## Perguntas clássicas para Data Engineer
+
+**Q6.** *"Tell me about a time when you improved a data pipeline or ETL process."*
+
+**Q7.** *"How do you approach designing a data model for scalability?"*
+
+**Q8.** *"Can you describe a situation where you had to deal with incomplete or inconsistent data?"*
+
+**Q9.** *"What’s your process for translating business requirements into technical solutions?"*
+
+**Q10.** *"How do you stay updated with new data engineering tools and technologies?"*
+
+---
+
+## Plano de emergência
+
+- **Se sentir inseguro logo no começo**
+*"While I can communicate in English, I don’t have daily conversation practice, so sometimes I need an extra second to express an idea. That’s why I’ve been taking structured speaking lessons to improve my fluency, and I’m already seeing progress."*
+
+- **Se travar no meio da resposta**
+*"Sorry, I just need a quick moment to phrase this correctly — English is not my first language, but I’m actively improving it. I prefer to take a second rather than give you the wrong answer."*
+
+- **Se perguntarem sobre o idioma diretamente**
+*"I believe communication is key, and that’s why I’m investing in my English speaking skills through a dedicated course. I’m confident my technical expertise and problem-solving abilities will allow me to deliver results while I continue improving my fluency."*
+
+---
+
+## Simulações de Respostas
+
+- **Q1:** *"What was the most challenging technical problem you faced in this project?"*
+*Resposta simulada:* *"One of the most challenging problems was integrating legacy systems with modern cloud-based solutions. I had to design a custom ETL pipeline to ensure seamless data flow."*
+
+- **Q6:** *"Tell me about a time when you improved a data pipeline or ETL process."*
+*Resposta simulada:* *"In a previous project, I optimized an ETL pipeline by implementing parallel processing, reducing data processing time by 40%."*
+
+---
+
+## Perguntas para o Entrevistador
+
+- *"What are the main challenges the team is currently facing?"*
+- *"How does Lean Layers approach innovation in data engineering?"*
+- *"What tools and technologies does the team use most frequently?"*
+
+---
+
+## Resumo de Ferramentas e Tecnologias
+
+- **Ferramentas:** Apache Spark, Airflow, Tableau, Power BI
+- **Linguagens:** Python, SQL
+- **Cloud:** AWS, Azure
+
+---
+
+## Checklist de Preparação
+
+- [ ] Revisar o case Texaco
+- [ ] Praticar respostas simuladas
+- [ ] Estudar ferramentas e tecnologias mencionadas
+- [ ] Preparar perguntas para o entrevistador
+- [ ] Revisar plano de emergência para comunicação em inglês
+interview_preparation_script_v2.md
+# Lean Layer – Data Engineer Interview Prep (Refined Version)
+
+## 1. Initial Presentation
+
+**Question:**
+*"Can you tell me a bit about yourself and your background as a Data Engineer?"*
+
+**Polished Answer:**
+"I am a Data Engineer with strong experience in designing and maintaining scalable data solutions.
+Seven years ago, I developed a complete data processing and reporting system for a major Texaco distributor in Brazil.
+I designed data consolidation models, integrated multiple sources, and built a modular, dynamic architecture that still powers the company’s commission system today — for a business averaging over 18 million reais in monthly revenue.
+My focus has always been on building reliable, maintainable data solutions that generate measurable business impact, which aligns closely with Lean Layer’s mission."
+
+---
+
+## 2. Follow-up Questions for the Texaco Case
+
+**Q1.** *"What was the most challenging technical problem you faced in this project?"*
+"The biggest challenge was integrating multiple data sources with different formats and quality levels.
+I solved it by creating an ETL pipeline with strict validation rules and transformation steps, ensuring all incoming data matched a unified schema before processing."
+
+**Q2.** *"How did you ensure data quality and integrity?"*
+"I implemented automated validation at every stage of the pipeline — from raw ingestion to final reporting — including duplicate checks, null handling, and business-rule-based calculations.
+This reduced data errors to nearly zero."
+
+**Q3.** *"If you were to rebuild this system today, what would you change?"*
+"I would migrate the architecture to a cloud-based stack with managed ETL services and modern BI tools.
+This would reduce maintenance overhead and make scaling easier while keeping the stability of the current logic."
+
+**Q4.** *"How did you handle integrating multiple data sources?"*
+"I used a modular approach, creating connectors for each source that fed into a common processing layer.
+This allowed me to swap or update a connector without affecting the rest of the system."
+
+**Q5.** *"Did you work alone or with a team, and how did you manage communication?"*
+"I led the project from design to deployment, but collaborated closely with sales and finance teams to gather requirements and validate outputs.
+Clear documentation and regular feedback sessions were key to success."
+
+---
+
+## 3. Common Data Engineer Interview Questions
+
+**Q6.** *"Tell me about a time when you improved a data pipeline or ETL process."*
+"I optimized an existing ETL process by restructuring transformation logic and introducing incremental data loads.
+This reduced processing time by 60% and minimized system resource usage."
+
+**Q7.** *"How do you approach designing a data model for scalability?"*
+"I start by understanding the business requirements and expected growth in data volume.
+I then normalize where needed for integrity, and denormalize selectively for performance, ensuring indexes and partitioning strategies are in place."
+
+**Q8.** *"Can you describe a situation where you had to deal with incomplete or inconsistent data?"*
+"In one project, data from external sources often arrived with missing fields.
+I implemented pre-processing validation scripts to fill gaps from reference datasets and flagged any remaining anomalies for manual review."
+
+**Q9.** *"What’s your process for translating business requirements into technical solutions?"*
+"I work closely with stakeholders to define clear requirements, map them to technical specifications, and validate through prototypes before full-scale implementation."
+
+**Q10.** *"How do you stay updated with new data engineering tools and technologies?"*
+"I follow industry publications, participate in professional communities, and regularly test new tools in small-scale proof-of-concepts before adopting them in production."
+
+---
+
+## 4. Acceptable Humility Workarounds
+
+- **If feeling insecure at the start:**
+"While I can communicate in English, I don’t have daily conversation practice, so sometimes I need an extra second to express an idea.
+That’s why I’ve been taking structured speaking lessons to improve my fluency, and I’m already seeing progress."
+
+- **If stuck mid-response:**
+"Sorry, I just need a quick moment to phrase this correctly — English is not my first language, but I’m actively improving it.
+I prefer to take a second rather than give you the wrong answer."
+
+- **If asked directly about language skills:**
+"I believe communication is key, and that’s why I’m investing in my English speaking skills through a dedicated course.
+I’m confident my technical expertise and problem-solving abilities will allow me to deliver results while I continue improving my fluency."
+template.html.tmpl
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Interview Prep</title>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 2rem; line-height: 1.6; }
+      pre, code { background: #f6f8fa; padding: .2rem .4rem; border-radius: 4px; }
+      a { color: #0b69c7; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      h1, h2, h3 { line-height: 1.25; }
+      .container { max-width: 900px; margin: 0 auto; }
+      kx-prompt-block { display: block; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; margin: 16px 0; }
+      .kx-field { margin: 8px 0; }
+      .kx-controls { display: flex; gap: 8px; margin-top: 8px; }
+      .kx-controls button { background: #0b69c7; color: white; border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+      .kx-controls button.secondary { background: #6b7280; }
+      .kx-controls button:hover { opacity: .95; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      {{ . }}
+    </div>
+    <script>
+      (function(){
+        function parseJSONAttr(el, name){
+          try { return JSON.parse(el.getAttribute(name) || '{}'); } catch(e){ return {}; }
+        }
+        function simpleRender(tpl, ctx){
+          return tpl.replace(/\{\{\s*([\w.-]+)\s*\}\}/g, function(_, k){
+            return (ctx && (k in ctx)) ? String(ctx[k]) : '';
+          });
+        }
+        function ensureUI(block){
+          // Transform <kx-field> to actual inputs
+          const defaults = parseJSONAttr(block, 'data-defaults');
+          const templateStr = block.getAttribute('data-template') || '';
+          const fieldNodes = Array.from(block.querySelectorAll('kx-field'));
+          const fields = [];
+          fieldNodes.forEach(fn => {
+            const name = fn.getAttribute('name') || '';
+            const type = fn.getAttribute('type') || 'text';
+            let values = [];
+            try { values = JSON.parse(fn.getAttribute('values') || '[]'); } catch(e) {}
+            const wrap = document.createElement('div');
+            wrap.className = 'kx-field';
+            const label = document.createElement('label');
+            label.textContent = name;
+            label.style.display = 'block';
+            wrap.appendChild(label);
+            let input;
+            if(type === 'select'){
+              input = document.createElement('select');
+              values.forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v; opt.textContent = v; input.appendChild(opt);
+              });
+            } else {
+              input = document.createElement('input');
+              input.type = type;
+              if(values && values.length) input.value = values[0];
+            }
+            input.name = name;
+            wrap.appendChild(input);
+            fn.replaceWith(wrap);
+            fields.push({name, input});
+          });
+          // Controls
+          const controls = document.createElement('div');
+          controls.className = 'kx-controls';
+          const runBtn = block.querySelector('button.run') || document.createElement('button');
+          runBtn.textContent = 'Run with MCP';
+          const copyBtn = document.createElement('button'); copyBtn.textContent = 'Copy as Markdown'; copyBtn.className='secondary';
+          controls.appendChild(runBtn); controls.appendChild(copyBtn);
+          block.appendChild(controls);
+          const preview = block.querySelector('pre.preview') || (function(){ const p=document.createElement('pre'); p.className='preview'; block.appendChild(p); return p; })();
+
+          function currentContext(){
+            const ctx = Object.assign({}, defaults);
+            fields.forEach(f => { ctx[f.name] = f.input.value; });
+            return ctx;
+          }
+          function update(){
+            preview.textContent = simpleRender(templateStr, currentContext());
+          }
+          fields.forEach(f => f.input.addEventListener('input', update));
+          runBtn.addEventListener('click', update);
+          copyBtn.addEventListener('click', function(){
+            try { navigator.clipboard.writeText(preview.textContent); } catch(e) {}
+          });
+          update();
+        }
+        document.addEventListener('DOMContentLoaded', function(){
+          document.querySelectorAll('kx-prompt-block').forEach(ensureUI);
+        });
+      })();
+    </script>
+  </body>
+</html>
