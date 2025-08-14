@@ -60,11 +60,11 @@ type MarkerParser struct {
 // New creates a new MarkerParser instance.
 func New() *MarkerParser {
 	fsChar := string(rune(28)) // ASCII 28 File Separator
-	
+
 	// Create regex pattern: //FS/ filename /FS//
 	pattern := fmt.Sprintf(`^\/\/%s\/ (.+?) \/%s\/\/$`, regexp.QuoteMeta(fsChar), regexp.QuoteMeta(fsChar))
 	markerRegex := regexp.MustCompile(pattern)
-	
+
 	return &MarkerParser{
 		fsChar:      fsChar,
 		markerRegex: markerRegex,
@@ -91,7 +91,7 @@ func (mp *MarkerParser) ParseMarkedReader(reader io.Reader, sourceName string) (
 
 	scanner := bufio.NewScanner(reader)
 	lineNumber := 0
-	
+
 	var currentMarker *ParsedMarker
 	var currentContent strings.Builder
 
@@ -149,7 +149,7 @@ func (mp *MarkerParser) ParseMarkedReader(reader io.Reader, sourceName string) (
 func (mp *MarkerParser) finalizeMarker(marker *ParsedMarker, content *strings.Builder, results *ParseResults, endLine int) {
 	// Remove trailing empty lines
 	finalContent := strings.TrimRight(content.String(), "\n")
-	
+
 	marker.Content = finalContent
 	marker.EndLine = endLine
 	marker.Size = int64(len(finalContent))
@@ -228,10 +228,10 @@ func (mp *MarkerParser) ValidateMarkers(filePath string) (*ValidationResults, er
 	}
 
 	validation := &ValidationResults{
-		IsValid:           len(parseResults.Errors) == 0,
-		Errors:            make([]ValidationError, 0),
+		IsValid:            len(parseResults.Errors) == 0,
+		Errors:             make([]ValidationError, 0),
 		DuplicateFilenames: make([]string, 0),
-		InvalidFilenames:  make([]string, 0),
+		InvalidFilenames:   make([]string, 0),
 		Statistics: ValidationStatistics{
 			TotalMarkers: parseResults.TotalMarkers,
 			EmptyMarkers: 0,
@@ -247,12 +247,12 @@ func (mp *MarkerParser) ValidateMarkers(filePath string) (*ValidationResults, er
 	filenameCount := make(map[string]int)
 	for _, marker := range parseResults.Markers {
 		filenameCount[marker.Filename]++
-		
+
 		// Check for empty markers
 		if strings.TrimSpace(marker.Content) == "" {
 			validation.Statistics.EmptyMarkers++
 		}
-		
+
 		// Validate filename
 		if !mp.isValidFilename(marker.Filename) {
 			validation.InvalidFilenames = append(validation.InvalidFilenames, marker.Filename)
@@ -276,10 +276,10 @@ func (mp *MarkerParser) ValidateMarkers(filePath string) (*ValidationResults, er
 
 // ValidationResults contains marker validation results.
 type ValidationResults struct {
-	IsValid            bool                `json:"isValid"`
-	Errors             []ValidationError   `json:"errors"`
-	DuplicateFilenames []string            `json:"duplicateFilenames"`
-	InvalidFilenames   []string            `json:"invalidFilenames"`
+	IsValid            bool                 `json:"isValid"`
+	Errors             []ValidationError    `json:"errors"`
+	DuplicateFilenames []string             `json:"duplicateFilenames"`
+	InvalidFilenames   []string             `json:"invalidFilenames"`
 	Statistics         ValidationStatistics `json:"statistics"`
 }
 
@@ -301,7 +301,7 @@ func (mp *MarkerParser) isValidFilename(filename string) bool {
 	if filename == "" {
 		return false
 	}
-	
+
 	// Check for invalid characters (basic check)
 	invalidChars := []string{"<", ">", ":", "\"", "|", "?", "*"}
 	for _, char := range invalidChars {
@@ -309,7 +309,7 @@ func (mp *MarkerParser) isValidFilename(filename string) bool {
 			return false
 		}
 	}
-	
+
 	// Check for reserved names (Windows)
 	reserved := []string{"CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"}
 	upper := strings.ToUpper(filename)
@@ -318,6 +318,6 @@ func (mp *MarkerParser) isValidFilename(filename string) bool {
 			return false
 		}
 	}
-	
+
 	return true
 }

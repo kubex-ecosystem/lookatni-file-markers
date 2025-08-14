@@ -3,7 +3,6 @@ package app
 
 import (
 	"embed"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -19,8 +18,8 @@ var templatesFS embed.FS
 
 // App represents the main CLI application.
 type App struct {
-	logger *logger.Logger
-	parser *parser.MarkerParser
+	logger     *logger.Logger
+	parser     *parser.MarkerParser
 	transpiler *transpiler.Transpiler
 }
 

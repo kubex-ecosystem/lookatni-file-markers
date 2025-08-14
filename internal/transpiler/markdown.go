@@ -20,8 +20,8 @@ import (
 
 // Frontmatter represents YAML frontmatter in Markdown files.
 type Frontmatter struct {
-	Title    interface{}        `yaml:"title"`
-	Tags     []string          `yaml:"tags"`
+	Title    interface{}            `yaml:"title"`
+	Tags     []string               `yaml:"tags"`
 	Context  map[string]interface{} `yaml:"context"`
 	Defaults struct {
 		Model       string   `yaml:"model"`
@@ -70,7 +70,7 @@ type Transpiler struct {
 	quoteTrim   *regexp.Regexp
 	bracketTrim *regexp.Regexp
 	listSplit   *regexp.Regexp
-	
+
 	// HTML template
 	htmlTemplate string
 }
@@ -78,12 +78,12 @@ type Transpiler struct {
 // New creates a new Transpiler instance.
 func New(htmlTemplate string) *Transpiler {
 	return &Transpiler{
-		fmRegex:     regexp.MustCompile(`(?s)^---\n(.*?)\n---\n`),
-		fenceRegex:  regexp.MustCompile("(?s)```prompt\\s*([^\\n]*)\\n(.*?)```\\s*"),
-		attrKVRegex: regexp.MustCompile(`(\w+)=([^\s]+)`),
-		quoteTrim:   regexp.MustCompile(`^\"|\"$`),
-		bracketTrim: regexp.MustCompile(`^[\[]|[\]]$`),
-		listSplit:   regexp.MustCompile(`\s*,\s*`),
+		fmRegex:      regexp.MustCompile(`(?s)^---\n(.*?)\n---\n`),
+		fenceRegex:   regexp.MustCompile("(?s)```prompt\\s*([^\\n]*)\\n(.*?)```\\s*"),
+		attrKVRegex:  regexp.MustCompile(`(\w+)=([^\s]+)`),
+		quoteTrim:    regexp.MustCompile(`^\"|\"$`),
+		bracketTrim:  regexp.MustCompile(`^[\[]|[\]]$`),
+		listSplit:    regexp.MustCompile(`\s*,\s*`),
 		htmlTemplate: htmlTemplate,
 	}
 }
@@ -92,51 +92,51 @@ func New(htmlTemplate string) *Transpiler {
 func (t *Transpiler) ConvertMarkdownToHTML(filename string, content []byte, outputDir string) (*FileInfo, error) {
 	// Preprocess markdown (frontmatter + prompt blocks)
 	processed, frontmatter, blockCount := t.preprocessMarkdown(string(content))
-	
+
 	// Generate HTML file path
 	baseName := strings.TrimSuffix(strings.TrimPrefix(filename, "interview_"), ".md")
 	htmlFileName := fmt.Sprintf("%s_view.html", baseName)
 	htmlFilePath := filepath.Join(outputDir, htmlFileName)
-	
+
 	// Ensure output directory exists
 	if err := os.MkdirAll(outputDir, 0755); err != nil {
 		return nil, fmt.Errorf("failed to create output directory: %w", err)
 	}
-	
+
 	// Convert markdown to HTML
 	extensions := parser.CommonExtensions | parser.AutoHeadingIDs
 	p := parser.NewWithExtensions(extensions)
 	doc := p.Parse([]byte(processed))
-	
+
 	htmlFlags := html.CommonFlags | html.HrefTargetBlank
 	opts := html.RendererOptions{Flags: htmlFlags}
 	renderer := html.NewRenderer(opts)
-	
+
 	htmlContent := markdown.Render(doc, renderer)
-	
+
 	// Apply HTML template
 	finalHTML := strings.ReplaceAll(t.htmlTemplate, "{{.Content}}", string(htmlContent))
-	
+
 	// Write HTML file
 	if err := os.WriteFile(htmlFilePath, []byte(finalHTML), 0644); err != nil {
 		return nil, fmt.Errorf("failed to write HTML file: %w", err)
 	}
-	
+
 	// Generate supplementary files
 	if err := t.writeTocJSON(doc, outputDir, htmlFilePath); err != nil {
 		return nil, fmt.Errorf("failed to write TOC JSON: %w", err)
 	}
-	
+
 	if err := t.writeDocIndexJSON(outputDir, htmlFilePath, filename, doc, blockCount); err != nil {
 		return nil, fmt.Errorf("failed to write doc index JSON: %w", err)
 	}
-	
+
 	// Calculate file size
 	stat, err := os.Stat(htmlFilePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to stat HTML file: %w", err)
 	}
-	
+
 	fileInfo := &FileInfo{
 		FileName:    htmlFileName,
 		Title:       t.generateTitle(filename),
@@ -144,14 +144,14 @@ func (t *Transpiler) ConvertMarkdownToHTML(filename string, content []byte, outp
 		Size:        fmt.Sprintf("%.1f", float64(stat.Size())/1024),
 		Icon:        t.generateIcon(filename),
 	}
-	
+
 	return fileInfo, nil
 }
 
 // preprocessMarkdown parses frontmatter and transpiles prompt blocks.
 func (t *Transpiler) preprocessMarkdown(src string) (string, *Frontmatter, int) {
 	var fm *Frontmatter
-	
+
 	// Extract frontmatter if present
 	if m := t.fmRegex.FindStringSubmatch(src); len(m) == 2 {
 		fm = &Frontmatter{}
@@ -161,24 +161,24 @@ func (t *Transpiler) preprocessMarkdown(src string) (string, *Frontmatter, int) 
 		}
 		src = src[len(m[0]):]
 	}
-	
+
 	replaced := 0
 	out := t.fenceRegex.ReplaceAllStringFunc(src, func(full string) string {
 		m := t.fenceRegex.FindStringSubmatch(full)
 		if len(m) != 3 {
 			return full
 		}
-		
+
 		attrLine := strings.TrimSpace(m[1])
 		bodyYAML := strings.TrimSpace(m[2])
-		
+
 		attrs := t.parsePromptAttrs(attrLine)
 		var pb PromptBody
 		if err := yaml.Unmarshal([]byte(bodyYAML), &pb); err != nil {
 			// leave original block if YAML fails
 			return full
 		}
-		
+
 		// Merge defaults from frontmatter and block
 		defaults := make(map[string]interface{})
 		if fm != nil {
@@ -204,10 +204,10 @@ func (t *Transpiler) preprocessMarkdown(src string) (string, *Frontmatter, int) 
 		if len(attrs.ToolHints) > 0 {
 			defaults["toolHints"] = attrs.ToolHints
 		}
-		
+
 		defJSON, _ := json.Marshal(defaults)
 		templateAttr := htmlpkg.EscapeString(pb.Template)
-		
+
 		// Build inputs HTML
 		var fields []string
 		for _, in := range pb.Inputs {
@@ -218,18 +218,18 @@ func (t *Transpiler) preprocessMarkdown(src string) (string, *Frontmatter, int) 
 			))
 		}
 		inner := strings.Join(fields, "\n  ") + "\n  <button class=\"run\">Run with MCP</button>\n  <pre class=\"preview\"></pre>"
-		
+
 		htmlBlock := fmt.Sprintf(
 			`<kx-prompt-block data-id="%s" data-defaults='%s' data-template="%s">
   %s
 </kx-prompt-block>`,
 			htmlpkg.EscapeString(attrs.ID), htmlpkg.EscapeString(string(defJSON)), templateAttr, inner,
 		)
-		
+
 		replaced++
 		return htmlBlock
 	})
-	
+
 	return out, fm, replaced
 }
 
@@ -242,7 +242,7 @@ func (t *Transpiler) parsePromptAttrs(line string) PromptAttrs {
 		}
 		key := m[1]
 		val := m[2]
-		
+
 		// Unwrap quotes or brackets
 		if strings.HasPrefix(val, "\"") && strings.HasSuffix(val, "\"") {
 			val = t.quoteTrim.ReplaceAllString(val, "")
@@ -261,7 +261,7 @@ func (t *Transpiler) parsePromptAttrs(line string) PromptAttrs {
 			}
 			continue
 		}
-		
+
 		switch key {
 		case "id":
 			pa.ID = val
@@ -284,7 +284,7 @@ func (t *Transpiler) writeTocJSON(doc ast.Node, outDir, htmlPath string) error {
 		Text  string `json:"text"`
 		ID    string `json:"id"`
 	}
-	
+
 	var items []tocItem
 	ast.WalkFunc(doc, func(n ast.Node, entering bool) ast.WalkStatus {
 		if !entering {
@@ -304,7 +304,7 @@ func (t *Transpiler) writeTocJSON(doc ast.Node, outDir, htmlPath string) error {
 		}
 		return ast.GoToNext
 	})
-	
+
 	data, _ := json.MarshalIndent(items, "", "  ")
 	base := strings.TrimSuffix(filepath.Base(htmlPath), filepath.Ext(htmlPath))
 	return os.WriteFile(filepath.Join(outDir, base+"_toc.json"), data, 0644)
@@ -318,7 +318,7 @@ func (t *Transpiler) writeDocIndexJSON(outDir, htmlPath, srcName string, doc ast
 		"blocks":      blockCount,
 		"generatedAt": time.Now().Format(time.RFC3339),
 	}
-	
+
 	data, _ := json.MarshalIndent(idx, "", "  ")
 	base := strings.TrimSuffix(filepath.Base(htmlPath), filepath.Ext(htmlPath))
 	return os.WriteFile(filepath.Join(outDir, base+"_index.json"), data, 0644)
@@ -328,7 +328,7 @@ func (t *Transpiler) writeDocIndexJSON(outDir, htmlPath, srcName string, doc ast
 func (t *Transpiler) generateTitle(filename string) string {
 	name := strings.TrimSuffix(strings.TrimPrefix(filename, "interview_"), ".md")
 	name = strings.ReplaceAll(name, "_", " ")
-	
+
 	// Capitalize first letter of each word
 	words := strings.Fields(name)
 	for i, word := range words {
@@ -336,7 +336,7 @@ func (t *Transpiler) generateTitle(filename string) string {
 			words[i] = strings.ToUpper(word[:1]) + word[1:]
 		}
 	}
-	
+
 	return strings.Join(words, " ")
 }
 
@@ -366,7 +366,7 @@ func (t *Transpiler) slugify(s string) string {
 	s = strings.ToLower(s)
 	var b strings.Builder
 	dash := false
-	
+
 	for _, r := range s {
 		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == ' ' || r == '-' {
 			if r == ' ' {
@@ -383,7 +383,7 @@ func (t *Transpiler) slugify(s string) string {
 			b.WriteRune(r)
 		}
 	}
-	
+
 	out := b.String()
 	out = strings.Trim(out, "-")
 	return out
@@ -425,9 +425,9 @@ func (t *Transpiler) GenerateIndex(files []FileInfo, totalSizeBytes int64, outpu
       </div>`, file.Icon, file.Title, file.Description, file.Size, file.FileName))
 	}
 
-	indexHTML := fmt.Sprintf(indexTemplate, 
-		len(files), 
-		float64(totalSizeBytes)/1024, 
+	indexHTML := fmt.Sprintf(indexTemplate,
+		len(files),
+		float64(totalSizeBytes)/1024,
 		time.Now().Format("02/01/2006 às 15:04"),
 		cards.String())
 
@@ -441,7 +441,7 @@ func (t *Transpiler) GenerateIndex(files []FileInfo, totalSizeBytes int64, outpu
 		"count":       len(files),
 		"files":       files,
 	}
-	
+
 	data, _ := json.MarshalIndent(idx, "", "  ")
 	return os.WriteFile(filepath.Join(outputDir, "index.json"), data, 0644)
 }
