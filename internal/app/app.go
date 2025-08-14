@@ -1,0 +1,344 @@
+// Package app provides the main CLI application logic for LookAtni File Markers.
+package app
+
+import (
+	"embed"
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+
+	"github.com/rafa-mori/lookatni-file-markers/internal/parser"
+	"github.com/rafa-mori/lookatni-file-markers/internal/transpiler"
+	"github.com/rafa-mori/lookatni-file-markers/logger"
+)
+
+//go:embed templates/*
+var templatesFS embed.FS
+
+// App represents the main CLI application.
+type App struct {
+	logger *logger.Logger
+	parser *parser.MarkerParser
+	transpiler *transpiler.Transpiler
+}
+
+// New creates a new App instance.
+func New(log *logger.Logger) *App {
+	// Load HTML template
+	htmlTemplate, err := templatesFS.ReadFile("templates/base.html")
+	if err != nil {
+		log.Error("Failed to load HTML template: %v", err)
+		// Fallback to embedded template
+		htmlTemplate = []byte(fallbackHTMLTemplate)
+	}
+
+	return &App{
+		logger:     log,
+		parser:     parser.New(),
+		transpiler: transpiler.New(string(htmlTemplate)),
+	}
+}
+
+// Run executes the CLI application with the given arguments.
+func (a *App) Run(args []string) error {
+	if len(args) == 0 {
+		return a.showHelp()
+	}
+
+	command := args[0]
+	switch command {
+	case "extract":
+		return a.extractCommand(args[1:])
+	case "validate":
+		return a.validateCommand(args[1:])
+	case "transpile":
+		return a.transpileCommand(args[1:])
+	case "generate":
+		return a.generateCommand(args[1:])
+	case "help":
+		return a.showHelp()
+	default:
+		return fmt.Errorf("unknown command: %s", command)
+	}
+}
+
+// extractCommand handles file extraction from marked files.
+func (a *App) extractCommand(args []string) error {
+	if len(args) < 2 {
+		return fmt.Errorf("usage: extract <marked-file> <output-dir> [--overwrite] [--create-dirs] [--dry-run]")
+	}
+
+	markedFile := args[0]
+	outputDir := args[1]
+
+	options := parser.ExtractOptions{
+		Overwrite:  false,
+		CreateDirs: true,
+		DryRun:     false,
+	}
+
+	// Parse flags
+	for _, arg := range args[2:] {
+		switch arg {
+		case "--overwrite":
+			options.Overwrite = true
+		case "--create-dirs":
+			options.CreateDirs = true
+		case "--dry-run":
+			options.DryRun = true
+		}
+	}
+
+	a.logger.Info("🔄 Extracting files from %s to %s", markedFile, outputDir)
+
+	result, err := a.parser.ExtractFiles(markedFile, outputDir, options)
+	if err != nil {
+		return fmt.Errorf("extraction failed: %w", err)
+	}
+
+	if len(result.Errors) > 0 {
+		a.logger.Warn("⚠️  Extraction completed with errors:")
+		for _, errMsg := range result.Errors {
+			a.logger.Warn("   %s", errMsg)
+		}
+	}
+
+	if options.DryRun {
+		a.logger.Info("🔍 [DRY RUN] Would extract %d files", len(result.ExtractedFiles))
+	} else {
+		a.logger.Info("✅ Successfully extracted %d files", len(result.ExtractedFiles))
+	}
+
+	for _, file := range result.ExtractedFiles {
+		if options.DryRun {
+			a.logger.Debug("   [DRY RUN] %s", file)
+		} else {
+			a.logger.Debug("   ✓ %s", file)
+		}
+	}
+
+	return nil
+}
+
+// validateCommand handles marker validation.
+func (a *App) validateCommand(args []string) error {
+	if len(args) == 0 {
+		return fmt.Errorf("usage: validate <marked-file>")
+	}
+
+	markedFile := args[0]
+	a.logger.Info("🔍 Validating markers in %s", markedFile)
+
+	result, err := a.parser.ValidateMarkers(markedFile)
+	if err != nil {
+		return fmt.Errorf("validation failed: %w", err)
+	}
+
+	if result.IsValid {
+		a.logger.Info("✅ All markers are valid!")
+	} else {
+		a.logger.Warn("⚠️  Validation issues found:")
+	}
+
+	if len(result.Errors) > 0 {
+		a.logger.Warn("Errors:")
+		for _, errMsg := range result.Errors {
+			a.logger.Warn("   Line %d: %s (%s)", errMsg.Line, errMsg.Message, errMsg.Severity)
+		}
+	}
+
+	if len(result.DuplicateFilenames) > 0 {
+		a.logger.Warn("Duplicate filenames:")
+		for _, dup := range result.DuplicateFilenames {
+			a.logger.Warn("   %s", dup)
+		}
+	}
+
+	if len(result.InvalidFilenames) > 0 {
+		a.logger.Warn("Invalid filenames:")
+		for _, invalid := range result.InvalidFilenames {
+			a.logger.Warn("   %s", invalid)
+		}
+	}
+
+	stats := result.Statistics
+	a.logger.Info("📊 Statistics:")
+	a.logger.Info("   Total markers: %d", stats.TotalMarkers)
+	a.logger.Info("   Empty markers: %d", stats.EmptyMarkers)
+
+	return nil
+}
+
+// transpileCommand handles Markdown to HTML transpilation.
+func (a *App) transpileCommand(args []string) error {
+	if len(args) < 2 {
+		return fmt.Errorf("usage: transpile <input-dir|file> <output-dir>")
+	}
+
+	input := args[0]
+	outputDir := args[1]
+
+	a.logger.Info("🔄 Transpiling from %s to %s", input, outputDir)
+
+	stat, err := os.Stat(input)
+	if err != nil {
+		return fmt.Errorf("input not found: %w", err)
+	}
+
+	var files []transpiler.FileInfo
+	var totalSize int64
+
+	if stat.IsDir() {
+		// Process directory
+		entries, err := os.ReadDir(input)
+		if err != nil {
+			return fmt.Errorf("failed to read directory: %w", err)
+		}
+
+		for _, entry := range entries {
+			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".md") {
+				continue
+			}
+
+			if !strings.HasPrefix(entry.Name(), "interview_") {
+				continue
+			}
+
+			filePath := filepath.Join(input, entry.Name())
+			content, err := os.ReadFile(filePath)
+			if err != nil {
+				a.logger.Warn("Failed to read %s: %v", filePath, err)
+				continue
+			}
+
+			fileInfo, err := a.transpiler.ConvertMarkdownToHTML(entry.Name(), content, outputDir)
+			if err != nil {
+				a.logger.Warn("Failed to transpile %s: %v", entry.Name(), err)
+				continue
+			}
+
+			files = append(files, *fileInfo)
+
+			// Calculate size
+			if stat, err := os.Stat(filepath.Join(outputDir, fileInfo.FileName)); err == nil {
+				totalSize += stat.Size()
+			}
+
+			a.logger.Debug("   ✓ %s -> %s", entry.Name(), fileInfo.FileName)
+		}
+	} else {
+		// Process single file
+		if !strings.HasSuffix(input, ".md") {
+			return fmt.Errorf("input must be a .md file")
+		}
+
+		content, err := os.ReadFile(input)
+		if err != nil {
+			return fmt.Errorf("failed to read file: %w", err)
+		}
+
+		filename := filepath.Base(input)
+		fileInfo, err := a.transpiler.ConvertMarkdownToHTML(filename, content, outputDir)
+		if err != nil {
+			return fmt.Errorf("transpilation failed: %w", err)
+		}
+
+		files = append(files, *fileInfo)
+		if stat, err := os.Stat(filepath.Join(outputDir, fileInfo.FileName)); err == nil {
+			totalSize = stat.Size()
+		}
+	}
+
+	// Generate index
+	if len(files) > 0 {
+		if err := a.transpiler.GenerateIndex(files, totalSize, outputDir); err != nil {
+			return fmt.Errorf("failed to generate index: %w", err)
+		}
+		a.logger.Info("✅ Generated index with %d files", len(files))
+	}
+
+	a.logger.Info("✅ Transpilation completed: %d files processed", len(files))
+	return nil
+}
+
+// generateCommand handles marker generation (placeholder for future implementation).
+func (a *App) generateCommand(args []string) error {
+	a.logger.Info("🚧 Generate command not yet implemented")
+	return nil
+}
+
+// showHelp displays help information.
+func (a *App) showHelp() error {
+	help := `LookAtni File Markers v2.0 - Advanced file organization with Go power
+
+Usage:
+  lookatni <command> [options]
+
+Commands:
+  extract <marked-file> <output-dir> [flags]  Extract files from marked content
+  validate <marked-file>                      Validate markers in file
+  transpile <input> <output-dir>              Convert Markdown to HTML
+  generate                                    Generate markers (coming soon)
+  help                                        Show this help
+
+Extract Flags:
+  --overwrite     Overwrite existing files
+  --create-dirs   Create directories as needed
+  --dry-run       Show what would be done without doing it
+
+Examples:
+  lookatni extract marked_content.txt ./output --overwrite --create-dirs
+  lookatni validate my_project.md
+  lookatni transpile ./interviews ./output
+
+For VS Code integration, run with --vscode flag.
+`
+	fmt.Print(help)
+	return nil
+}
+
+// fallbackHTMLTemplate is used when the embedded template fails to load.
+const fallbackHTMLTemplate = `<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Interview Prep</title>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 2rem; line-height: 1.6; }
+      pre, code { background: #f6f8fa; padding: .2rem .4rem; border-radius: 4px; }
+      a { color: #0b69c7; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      h1, h2, h3 { line-height: 1.25; }
+      .container { max-width: 900px; margin: 0 auto; }
+      kx-prompt-block { display: block; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; margin: 16px 0; }
+      .kx-field { margin: 8px 0; }
+      .kx-controls { display: flex; gap: 8px; margin-top: 8px; }
+      .kx-controls button { background: #0b69c7; color: white; border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+      .kx-controls button.secondary { background: #6b7280; }
+      .kx-controls button:hover { opacity: .95; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      {{.Content}}
+    </div>
+    <script>
+      // Add interactive functionality for prompt blocks
+      document.addEventListener('DOMContentLoaded', function() {
+        const promptBlocks = document.querySelectorAll('kx-prompt-block');
+        promptBlocks.forEach(block => {
+          const runButton = block.querySelector('button.run');
+          if (runButton) {
+            runButton.addEventListener('click', function() {
+              console.log('Run with MCP clicked');
+              // TODO: Implement MCP integration
+            });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>`

@@ -1,10 +1,3 @@
-/// PROJECT_INFO ///
-Project: bkp
-Generated: 2025-07-15T06:29:35.548Z
-Total Files: 1
-Source: /srv/apps/LIFE/RAFA-MORI/lookatni-file-markers/bkp
-
-/// post.md ///
 **🔍 Empolgado por compartilhar minha mais recente criação: LookAtni File Markers!**
 
 Se você já sofreu para extrair trechos específicos do código para montar tutoriais, documentação técnica ou conteúdo didático, esta extensão VSCode foi feita pra você:
@@ -62,4 +55,3 @@ Adoraria trocar ideias sobre possibilidades de colaboração, posições abertas
 Veja o GIF, instale a extensão e me marca caso queira discutir detalhes técnicos ou implementar algo parecido nas suas pipelines!
 
 #OpenToWork #VSCode #DevTools #DeveloperExperience #Automation #OpenSource
-

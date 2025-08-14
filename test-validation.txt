@@ -1,13 +1,0 @@
-/// src/test.ts ///
-console.log('teste');
-
-/// src/utils.ts ///
-export function test() {}
-
-/// src/test.ts ///
-// duplicado
-console.log('dup');
-
-/// CON ///
-// nome inválido
-const x = 1;
