@@ -1,0 +1,8 @@
+?   	github.com/rafa-mori/lookatni-file-markers	[no test files]
+?   	github.com/rafa-mori/lookatni-file-markers/cmd	[no test files]
+?   	github.com/rafa-mori/lookatni-file-markers/internal/app	[no test files]
+?   	github.com/rafa-mori/lookatni-file-markers/internal/parser	[no test files]
+?   	github.com/rafa-mori/lookatni-file-markers/internal/transpiler	[no test files]
+?   	github.com/rafa-mori/lookatni-file-markers/internal/vscode	[no test files]
+?   	github.com/rafa-mori/lookatni-file-markers/logger	[no test files]
+?   	github.com/rafa-mori/lookatni-file-markers/version	[no test files]
