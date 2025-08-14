@@ -154,7 +154,7 @@ async function extractFiles() {
 
     const result: { success: boolean; data?: any; error?: string } | unknown = await response.json();
 
-    if (result && typeof result === 'object' && 'success' in result && result.success) {
+    if (result && typeof result === 'object' && 'success' in result) {
       const rObj: { data: { extractedFiles: string[] } } | Record<string, any> = result;
       if (result.success) {
         vscode.window.showInformationMessage(
@@ -187,20 +187,26 @@ async function validateMarkers() {
       })
     });
 
-    const result = await response.json();
+    const result: { success: boolean; data?: any; error?: string } | unknown = await response.json();
 
-    if (result.success) {
-      if (result.data.isValid) {
-        vscode.window.showInformationMessage('✅ All markers are valid!');
+    if (result && typeof result === 'object' && 'success' in result) {
+      const rObj: { data: { extractedFiles: string[] } } | Record<string, any> = result;
+
+      if (rObj.success) {
+        if (rObj.data.isValid) {
+          vscode.window.showInformationMessage('✅ All markers are valid!');
+        } else {
+          const errors = rObj.data.errors.length;
+          const duplicates = rObj.data.duplicateFilenames.length;
+          vscode.window.showWarningMessage(
+            `⚠️ Validation issues: ${errors} errors, ${duplicates} duplicates`
+          );
+        }
       } else {
-        const errors = result.data.errors.length;
-        const duplicates = result.data.duplicateFilenames.length;
-        vscode.window.showWarningMessage(
-          `⚠️ Validation issues: ${errors} errors, ${duplicates} duplicates`
-        );
+        vscode.window.showErrorMessage(`❌ Validation failed: ${rObj.error}`);
       }
     } else {
-      vscode.window.showErrorMessage(`❌ Validation failed: ${result.error}`);
+      vscode.window.showErrorMessage('❌ Invalid response from server');
     }
   } catch (error) {
     vscode.window.showErrorMessage(`❌ Failed to validate markers: ${error}`);
@@ -243,24 +249,29 @@ async function transpileMarkdown() {
         })
       });
 
-      const result = await response.json();
+      const result: { success: boolean; data?: any; error?: string } | unknown = await response.json();
 
-      if (result.success) {
-        vscode.window.showInformationMessage('✅ Markdown transpilation completed!');
+      if (result && typeof result === 'object' && 'success' in result) {
+        const rObj: { data: { extractedFiles: string[] } } | Record<string, any> = result;
+        if (rObj.success) {
+          vscode.window.showInformationMessage('✅ Markdown transpilation completed!');
 
-        // Offer to open the output directory
-        const openResult = await vscode.window.showInformationMessage(
-          'Open output directory?',
-          'Yes',
-          'No'
-        );
+          // Offer to open the output directory
+          const openResult = await vscode.window.showInformationMessage(
+            'Open output directory?',
+            'Yes',
+            'No'
+          );
 
-        if (openResult === 'Yes') {
-          const outputUri = vscode.Uri.file(path.resolve(workspaceFolder.uri.fsPath, outputDir));
-          vscode.commands.executeCommand('vscode.openFolder', outputUri, { forceNewWindow: true });
+          if (openResult === 'Yes') {
+            const outputUri = vscode.Uri.file(path.resolve(workspaceFolder.uri.fsPath, outputDir));
+            vscode.commands.executeCommand('vscode.openFolder', outputUri, { forceNewWindow: true });
+          }
+        } else {
+          vscode.window.showErrorMessage(`❌ Transpilation failed: ${rObj.error}`);
         }
       } else {
-        vscode.window.showErrorMessage(`❌ Transpilation failed: ${result.error}`);
+        vscode.window.showErrorMessage(`❌ Invalid response from server`);
       }
     });
   } catch (error) {
