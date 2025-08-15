@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	l "github.com/rafa-mori/logz"
+	"github.com/rafa-mori/lookatni-file-markers/internal/integration"
 	"github.com/rafa-mori/lookatni-file-markers/internal/parser"
 	"github.com/rafa-mori/lookatni-file-markers/internal/transpiler"
 	"github.com/rafa-mori/lookatni-file-markers/logger"
@@ -19,9 +20,17 @@ var templatesFS embed.FS
 
 // App represents the main CLI application.
 type App struct {
-	logger     logger.GLog[l.Logger] // Is already a interface, so, a pointer...
-	parser     *parser.MarkerParser
-	transpiler *transpiler.Transpiler
+	logger            logger.GLog[l.Logger] // Is already a interface, so, a pointer...
+	parser            *parser.MarkerParser
+	transpiler        *transpiler.Transpiler
+	gromptIntegration *integration.GromptIntegration
+}
+
+func init() {
+	// Initialize Grompt integration
+	gromptIntegration := integration.NewGromptIntegration()
+	providers := gromptIntegration.GetAvailableProviders()
+	logger.Log("info", "🚀 Grompt integration initialized with %d providers", len(providers))
 }
 
 // New creates a new App instance.
@@ -39,9 +48,10 @@ func New(log logger.GLog[l.Logger]) *App {
 	}
 
 	return &App{
-		logger:     log,
-		parser:     parser.New(),
-		transpiler: transpiler.New(string(htmlTemplate)),
+		logger:            log,
+		parser:            parser.New(),
+		transpiler:        transpiler.New(string(htmlTemplate)),
+		gromptIntegration: integration.NewGromptIntegration(),
 	}
 }
 
@@ -178,13 +188,22 @@ func (a *App) validateCommand(args []string) error {
 // transpileCommand handles Markdown to HTML transpilation.
 func (a *App) transpileCommand(args []string) error {
 	if len(args) < 2 {
-		return fmt.Errorf("usage: transpile <input-dir|file> <output-dir>")
+		return fmt.Errorf("usage: transpile <input-dir|file> <output-dir> [--with-prompts]")
 	}
 
 	input := args[0]
 	outputDir := args[1]
 
-	a.logger.Log("info", "🔄 Transpiling from %s to %s", input, outputDir)
+	// Check for prompt processing flag
+	withPrompts := false
+	for _, arg := range args[2:] {
+		if arg == "--with-prompts" {
+			withPrompts = true
+			break
+		}
+	}
+
+	a.logger.Log("info", "🔄 Transpiling from %s to %s (prompts: %v)", input, outputDir, withPrompts)
 
 	stat, err := os.Stat(input)
 	if err != nil {
@@ -215,6 +234,17 @@ func (a *App) transpileCommand(args []string) error {
 			if err != nil {
 				a.logger.Log("warn", "Failed to read %s: %v", filePath, err)
 				continue
+			}
+
+			// Process with Grompt if enabled
+			if withPrompts && a.gromptIntegration != nil {
+				processedContent, err := a.gromptIntegration.ProcessMarkdownWithPrompts(string(content))
+				if err != nil {
+					a.logger.Log("warn", "Grompt processing failed for %s: %v", entry.Name(), err)
+				} else {
+					content = []byte(processedContent)
+					a.logger.Log("debug", "   🤖 Enhanced %s with AI processing", entry.Name())
+				}
 			}
 
 			fileInfo, err := a.transpiler.ConvertMarkdownToHTML(entry.Name(), content, outputDir)
@@ -325,7 +355,7 @@ Commands:
   extract <marked-file> <output-dir> [flags]  Extract files FROM marked content
   validate <marked-file>                      Validate markers in consolidated file
   generate <source-dir> <output-file> [flags] Consolidate directory INTO marked file
-  transpile <input> <output-dir>              Convert Markdown to HTML (NEW!)
+  transpile <input> <output-dir> [flags]      Convert Markdown to HTML with AI (NEW!)
   help                                        Show this help
 
 Global Flags:
@@ -343,6 +373,9 @@ Extract Flags:
 Generate Flags:
   --exclude <pattern>  Exclude files matching pattern (can be used multiple times)
 
+Transpile Flags:
+  --with-prompts  Enable AI-powered content enhancement via Grompt integration (NEW!)
+
 🎨 Custom Markers (PREVIEW):
   The new adaptive marker system supports multiple formats:
   • HTML Comments: <!-- FILE: filename -->
@@ -357,9 +390,10 @@ Examples:
   lookatni extract project.marked ./output --overwrite --create-dirs
   lookatni validate project.marked
 
-  # New features
+  # New features with AI integration
   lookatni --list-presets                     # Show available marker formats
   lookatni transpile ./interviews ./output    # Convert Markdown to HTML
+  lookatni transpile ./docs ./output --with-prompts  # AI-enhanced transpilation
 
   # VS Code integration
   lookatni --vscode --port 8080               # Start integration server

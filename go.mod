@@ -4,6 +4,7 @@ go 1.24.5
 
 require (
 	github.com/gomarkdown/markdown v0.0.0-20250810172220-2e2c11897d1a
+	github.com/rafa-mori/grompt v0.0.0-00010101000000-000000000000
 	github.com/rafa-mori/logz v1.3.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -32,3 +33,5 @@ require (
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.25.0 // indirect
 )
+
+replace github.com/rafa-mori/grompt => /srv/apps/LIFE/PROJECTS/grompt
