@@ -3,6 +3,10 @@
 # Copyright (c) 2025 Rafael Mori
 # License: MIT License
 
+BIN_DIR := dist
+BIN := $(BIN_DIR)/lookatni
+MD_BIN := $(BIN_DIR)/md_to_html
+
 # Define the application name and root directory
 ROOT_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 APP_NAME := $(shell jq -r '.name' < $(ROOT_DIR)info/manifest.json)

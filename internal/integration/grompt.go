@@ -16,7 +16,7 @@ type GromptIntegration struct {
 
 // NewGromptIntegration creates a new Grompt integration instance
 func NewGromptIntegration() *GromptIntegration {
-	config := grompt.DefaultConfig()
+	config := grompt.DefaultConfig("")
 	engine := grompt.NewPromptEngine(config)
 
 	return &GromptIntegration{
