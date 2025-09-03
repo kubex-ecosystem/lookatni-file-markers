@@ -1,6 +1,6 @@
 {
   "name": "Kubex - LookAtni File Markers",
-  "application": "lookatni",
+  "application": "lookatni-file-markers",
   "version": "1.2.0",
   "private": false,
   "published": true,
