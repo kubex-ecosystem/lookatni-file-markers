@@ -1,48 +1,0 @@
-/// index.html ///
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Test HTML File</title>
-</head>
-
-<body>
-  <h1>Hello World!</h1>
-  <p>This is a test HTML file for demonstrating custom markers.</p>
-</body>
-
-</html>
-/// script.js ///
-function sayHello() {
-    console.log("Hello from LookAtni custom markers!");
-    document.body.style.backgroundColor = getRandomColor();
-}
-
-function getRandomColor() {
-    const colors = ['#ffebee', '#e8f5e8', '#e3f2fd', '#fff3e0'];
-    return colors[Math.floor(Math.random() * colors.length)];
-}
-
-// Initialize on load
-document.addEventListener('DOMContentLoaded', function() {
-    console.log("LookAtni demo loaded!");
-    setInterval(sayHello, 3000);
-});
-/// style.css ///
-body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
-  background-color: #f5f5f5;
-}
-
-h1 {
-  color: #333;
-  text-align: center;
-}
-
-p {
-  color: #666;
-  line-height: 1.6;
-}

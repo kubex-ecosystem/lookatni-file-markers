@@ -23,7 +23,7 @@ The **first VS Code extension** that combines **AI code extraction** and **visua
 - [📦 Installation Options](#-installation-options)
   - [Global CLI Tool](#-global-cli-tool)
   - [VS Code Marketplace](#-vs-code-extension)
-  
+
 - [🚀 Quick Start](#-quick-start)
   - [Installation](#installation)
   - [AI Code Extraction (The Golden Feature!)](#-ai-code-extraction-the-golden-feature)
@@ -63,7 +63,7 @@ It's the first tool that combines:
 
 - **Mark files as read/unread** directly in VS Code Explorer
 - **Favorite important files** with star indicators
-- **Flag urgent items** with warning badges  
+- **Flag urgent items** with warning badges
 - **Create custom markers** with personal notes
 - **Track project status** visually
 
@@ -203,7 +203,7 @@ LookAtni uses **invisible File Separator characters (ASCII 28)** for conflict-fr
 
 // In real use, these characters are completely invisible:
 // - They don't appear in your editor
-// - They don't interfere with syntax highlighting  
+// - They don't interfere with syntax highlighting
 // - They work in any programming language
 // - Zero visual impact on your content
 ```
