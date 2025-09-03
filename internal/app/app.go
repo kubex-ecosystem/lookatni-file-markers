@@ -71,6 +71,8 @@ func (a *App) Run(args []string) error {
 		return a.generateCommand(args[1:])
 	case "transpile":
 		return a.transpileCommand(args[1:])
+	case "refactor":
+		return a.refactorCommand(args[1:])
 	case "help":
 		return a.showHelp()
 	default:
@@ -340,6 +342,116 @@ func (a *App) generateCommand(args []string) error {
 	a.logger.Log("info", "   📁 %d files processed", result.TotalFiles)
 	a.logger.Log("info", "   📊 %d bytes written", result.TotalBytes)
 	a.logger.Log("info", "   📄 Output: %s", outputFile)
+
+	return nil
+}
+
+// refactorCommand handles AI-powered code refactoring using Grompt integration.
+func (a *App) refactorCommand(args []string) error {
+	if len(args) < 1 {
+		return fmt.Errorf("usage: refactor <artifact-file> [--rules <file>] [--provider <name>] [--output <dir>] [--dry-run] [--interactive]")
+	}
+
+	artifactFile := args[0]
+
+	// Default options
+	rulesFile := "docs/prompt/my-rules.md"
+	provider := "gemini" // Default to gemini since we have the key
+	outputDir := ""
+	dryRun := false
+	interactive := false
+
+	// Parse flags
+	for i, arg := range args[1:] {
+		switch arg {
+		case "--rules":
+			if i+2 < len(args) {
+				rulesFile = args[i+2]
+			}
+		case "--provider":
+			if i+2 < len(args) {
+				provider = args[i+2]
+			}
+		case "--output":
+			if i+2 < len(args) {
+				outputDir = args[i+2]
+			}
+		case "--dry-run":
+			dryRun = true
+		case "--interactive":
+			interactive = true
+		}
+	}
+
+	a.logger.Log("info", "🤖 Starting AI-powered refactoring...")
+	a.logger.Log("info", "📄 Artifact: %s", artifactFile)
+	a.logger.Log("info", "📋 Rules: %s", rulesFile)
+	a.logger.Log("info", "🧠 Provider: %s", provider)
+
+	// Read artifact content
+	artifactContent, err := os.ReadFile(artifactFile)
+	if err != nil {
+		return fmt.Errorf("failed to read artifact file: %w", err)
+	}
+
+	// Read rules content
+	rulesContent, err := os.ReadFile(rulesFile)
+	if err != nil {
+		a.logger.Log("warn", "Failed to read rules file %s, using default rules", rulesFile)
+		rulesContent = []byte("Apply Go best practices and improve code quality")
+	}
+
+	if a.gromptIntegration == nil {
+		return fmt.Errorf("Grompt integration not initialized")
+	}
+
+	// Perform refactoring using Grompt
+	a.logger.Log("info", "🔄 Processing with AI provider...")
+	result, err := a.gromptIntegration.RefactorArtifact(
+		string(artifactContent),
+		string(rulesContent),
+		provider,
+	)
+	if err != nil {
+		return fmt.Errorf("refactoring failed: %w", err)
+	}
+
+	a.logger.Log("info", "✅ Refactoring completed - ID: %s", result.ProcessingID)
+
+	if dryRun {
+		// Just show suggestions
+		a.logger.Log("info", "🔍 DRY RUN - Suggestions:")
+		for i, suggestion := range result.Suggestions {
+			a.logger.Log("info", "  %d. %s", i+1, suggestion)
+		}
+		return nil
+	}
+
+	if interactive {
+		// TODO: Implement interactive mode
+		a.logger.Log("info", "🤝 Interactive mode not yet implemented, proceeding with automatic refactoring")
+	}
+
+	// Save refactored content
+	outputFile := artifactFile
+	if outputDir != "" {
+		outputFile = filepath.Join(outputDir, filepath.Base(artifactFile))
+	}
+
+	// Add .refactored suffix if not overwriting
+	if outputFile == artifactFile {
+		ext := filepath.Ext(outputFile)
+		base := strings.TrimSuffix(outputFile, ext)
+		outputFile = base + ".refactored" + ext
+	}
+
+	err = os.WriteFile(outputFile, []byte(result.RefactoredContent), 0644)
+	if err != nil {
+		return fmt.Errorf("failed to write refactored file: %w", err)
+	}
+
+	a.logger.Log("info", "✅ Refactored artifact saved to: %s", outputFile)
+	a.logger.Log("info", "📊 Applied %d suggestions", len(result.Suggestions))
 
 	return nil
 }
