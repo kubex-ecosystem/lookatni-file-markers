@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	manifest "github.com/rafa-mori/lookatni-file-markers/info"
-	"github.com/rafa-mori/lookatni-file-markers/logger"
+	manifest "github.com/rafa-mori/lookatni-file-markers/internal/module/info"
+	"github.com/rafa-mori/lookatni-file-markers/internal/module/logger"
 	"github.com/spf13/cobra"
 )
 

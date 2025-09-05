@@ -1,12 +1,12 @@
 package cli
 
 import (
-	"fmt"
+	"os"
 
 	"github.com/rafa-mori/lookatni-file-markers/internal/app"
 	"github.com/rafa-mori/lookatni-file-markers/internal/metadata"
+	gl "github.com/rafa-mori/lookatni-file-markers/internal/module/logger"
 	"github.com/rafa-mori/lookatni-file-markers/internal/vscode"
-	gl "github.com/rafa-mori/lookatni-file-markers/logger"
 	"github.com/spf13/cobra"
 )
 
@@ -25,6 +25,7 @@ func ServiceCmdList() []*cobra.Command {
 // extractCommand handles file extraction from marked files.
 func extractCommand() *cobra.Command {
 	var overwrite, createDirs, dryRun bool
+	var debug bool
 
 	var extractCmd = &cobra.Command{
 		Use:   "extract <marked-file> <output-dir>",
@@ -34,8 +35,11 @@ func extractCommand() *cobra.Command {
 		Annotations: GetDescriptions([]string{
 			"Extract files from marked content to directory structure",
 			"Extract files FROM marked content",
-		}, false),
+		}, os.Getenv("LOOKATNI_HIDEBANNER") == "true"),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if debug {
+				gl.SetDebug(true)
+			}
 			markedFile := args[0]
 			outputDir := args[1]
 
@@ -65,12 +69,15 @@ func extractCommand() *cobra.Command {
 	extractCmd.Flags().BoolVar(&overwrite, "overwrite", false, "Overwrite existing files")
 	extractCmd.Flags().BoolVar(&createDirs, "create-dirs", true, "Create directories as needed")
 	extractCmd.Flags().BoolVar(&dryRun, "dry-run", false, "Show what would be done without doing it")
+	extractCmd.Flags().BoolVarP(&debug, "debug", "D", false, "Enable debug logging")
 
 	return extractCmd
 }
 
 // validateCommand handles marker validation.
 func validateCommand() *cobra.Command {
+	var debug bool
+
 	var validateCmd = &cobra.Command{
 		Use:   "validate <marked-file>",
 		Short: "Validate markers in consolidated file",
@@ -81,6 +88,9 @@ func validateCommand() *cobra.Command {
 			"Validate markers in consolidated file",
 		}, false),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if debug {
+				gl.SetDebug(true)
+			}
 			markedFile := args[0]
 
 			// Initialize app
@@ -90,6 +100,8 @@ func validateCommand() *cobra.Command {
 		},
 	}
 
+	validateCmd.Flags().BoolP("debug", "D", false, "Enable debug logging")
+
 	return validateCmd
 }
 
@@ -97,6 +109,7 @@ func validateCommand() *cobra.Command {
 func generateCommand() *cobra.Command {
 	var excludePatterns []string
 	var markerPreset, markerStart, markerEnd, markerPattern string
+	var debug bool
 
 	var generateCmd = &cobra.Command{
 		Use:   "generate <source-dir> <output-file>",
@@ -108,6 +121,9 @@ func generateCommand() *cobra.Command {
 			"Consolidate directory INTO marked file",
 		}, false),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if debug {
+				gl.SetDebug(true)
+			}
 			sourceDir := args[0]
 			outputFile := args[1]
 
@@ -136,27 +152,36 @@ func generateCommand() *cobra.Command {
 		},
 	}
 
-	generateCmd.Flags().StringSliceVar(&excludePatterns, "exclude", []string{"*.log", "node_modules", ".git"}, "Exclude files matching pattern")
-	generateCmd.Flags().StringVar(&markerPreset, "marker-preset", "", "Use predefined marker format (html, markdown, code, visual)")
-	generateCmd.Flags().StringVar(&markerStart, "marker-start", "", "Custom marker start pattern")
-	generateCmd.Flags().StringVar(&markerEnd, "marker-end", "", "Custom marker end pattern")
-	generateCmd.Flags().StringVar(&markerPattern, "marker-pattern", "", "Custom marker pattern with {filename} placeholder")
+	generateCmd.Flags().StringSliceVarP(&excludePatterns, "exclude", "x", []string{"*.log", "node_modules", ".git"}, "Exclude files matching pattern")
+	generateCmd.Flags().StringVarP(&markerPreset, "marker-preset", "m", "", "Use predefined marker format (html, markdown, code, visual)")
+	generateCmd.Flags().StringVarP(&markerStart, "marker-start", "s", "", "Custom marker start pattern")
+	generateCmd.Flags().StringVarP(&markerEnd, "marker-end", "e", "", "Custom marker end pattern")
+	generateCmd.Flags().StringVarP(&markerPattern, "marker-pattern", "p", "", "Custom marker pattern with {filename} placeholder")
+	generateCmd.Flags().BoolVarP(&debug, "debug", "D", false, "Enable debug logging")
 
 	return generateCmd
 }
 
 // transpileCommand handles Markdown to HTML transpilation.
 func transpileCommand() *cobra.Command {
+	var debug bool
+
+	short := "Convert Markdown to HTML with advanced templating"
+	long := "Convert Markdown files to HTML with prompt block DSL support and template generation."
+
 	var transpileCmd = &cobra.Command{
 		Use:   "transpile <input> <output-dir>",
-		Short: "Convert Markdown to HTML (NEW!)",
-		Long:  "Convert Markdown files to HTML with prompt block DSL support and template generation.",
+		Short: short,
+		Long:  long,
 		Args:  cobra.ExactArgs(2),
 		Annotations: GetDescriptions([]string{
-			"Convert Markdown files to HTML with advanced templating",
-			"Convert Markdown to HTML (NEW!)",
-		}, false),
+			long,
+			short,
+		}, os.Getenv("LOOKATNI_HIDEBANNER") == "true"),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if debug {
+				gl.SetDebug(true)
+			}
 			input := args[0]
 			outputDir := args[1]
 
@@ -167,37 +192,51 @@ func transpileCommand() *cobra.Command {
 		},
 	}
 
+	transpileCmd.Flags().BoolVarP(&debug, "debug", "D", false, "Enable debug logging")
+
 	return transpileCmd
 }
 
 // presetsCommand lists available marker presets.
 func presetsCommand() *cobra.Command {
+	var debug bool
+
+	short := "List available marker presets"
+	long := "Display all available marker presets with examples and descriptions."
+
 	var presetsCmd = &cobra.Command{
 		Use:   "presets",
-		Short: "List available marker presets",
-		Long:  "Display all available marker presets with examples and descriptions.",
+		Short: short,
+		Long:  long,
 		Args:  cobra.NoArgs,
 		Annotations: GetDescriptions([]string{
-			"List all available marker presets for custom formatting",
-			"List available marker presets",
-		}, false),
+			long,
+			short,
+		}, os.Getenv("LOOKATNI_HIDEBANNER") == "true"),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Println("🎨 Available Marker Presets:\n")
+			if debug {
+				gl.SetDebug(true)
+			}
+			// fmt.Println("🎨 Available Marker Presets:")
+			gl.Log("info", "Available Marker Presets:")
+
 			presets := metadata.GetPresetConfigs()
 			for name, preset := range presets {
-				fmt.Printf("  %s: %s\n", name, preset.Name)
-				fmt.Printf("    %s\n", preset.Description)
+				gl.Log("info", "  %s: %s", name, preset.Name)
+				gl.Log("info", "    %s", preset.Description)
 
 				// Show example
 				example := preset.Config.FormatMarker("example.go")
 				if example != "" {
-					fmt.Printf("    Example: %s\n", example)
+					gl.Log("info", "    Example: %s", example)
 				}
-				fmt.Println()
+				gl.Log("info", "")
 			}
 			return nil
 		},
 	}
+
+	presetsCmd.Flags().BoolVarP(&debug, "debug", "D", false, "Enable debug logging")
 
 	return presetsCmd
 }
@@ -205,20 +244,27 @@ func presetsCommand() *cobra.Command {
 // vscodeCommand starts the VS Code integration server.
 func vscodeCommand() *cobra.Command {
 	var port int
+	var debug bool
+
+	short := "Start VS Code integration server"
+	long := "Start the HTTP server for VS Code extension integration and communication."
 
 	var vscodeCmd = &cobra.Command{
 		Use:   "vscode",
-		Short: "Start VS Code integration server",
-		Long:  "Start the HTTP server for VS Code extension integration and communication.",
+		Short: short,
+		Long:  long,
 		Args:  cobra.NoArgs,
 		Annotations: GetDescriptions([]string{
-			"Start HTTP server for VS Code extension integration",
-			"Start VS Code integration server",
-		}, false),
+			short,
+			long,
+		}, os.Getenv("LOOKATNI_HIDEBANNER") == "true"),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if debug {
+				gl.SetDebug(true)
+			}
 			// Start VS Code integration server
 			server := vscode.NewServer(nil, port)
-			gl.Log("info", "🌐 Starting VS Code integration server on port %d", port)
+			gl.Log("info", "Starting VS Code integration server on port %d", port)
 
 			if err := server.Start(); err != nil {
 				gl.Log("error", "Failed to start VS Code server: %v", err)
@@ -229,6 +275,7 @@ func vscodeCommand() *cobra.Command {
 	}
 
 	vscodeCmd.Flags().IntVarP(&port, "port", "p", 8080, "Port for VS Code integration server")
+	vscodeCmd.Flags().BoolVarP(&debug, "debug", "D", false, "Enable debug logging")
 
 	return vscodeCmd
 }
@@ -236,12 +283,10 @@ func vscodeCommand() *cobra.Command {
 // refactorCommand handles AI-powered code refactoring using Grompt integration.
 func refactorCommand() *cobra.Command {
 	var rulesFile, provider, outputDir string
-	var dryRun, interactive bool
+	var dryRun, interactive, debug bool
 
-	var refactorCmd = &cobra.Command{
-		Use:   "refactor <artifact-file> [options]",
-		Short: "AI-powered code refactoring with Grompt",
-		Long: `Refactor code using AI through Grompt integration.
+	short := "AI-powered code refactoring with Grompt"
+	long := `Refactor code using AI through Grompt integration.
 
 This command implements the LookAtni refactor loop:
 1. Reads an artifact file (generated by 'lookatni generate')
@@ -249,13 +294,22 @@ This command implements the LookAtni refactor loop:
 3. Applies refactoring based on specified rules
 4. Optionally extracts the improved code back to files
 
-Supports multiple AI providers (OpenAI, Claude, Gemini, etc.) and custom refactoring rules.`,
-		Args: cobra.ExactArgs(1),
+Supports multiple AI providers (OpenAI, Claude, Gemini, etc.) and custom refactoring rules.`
+
+	var refactorCmd = &cobra.Command{
+		Use:   "refactor <artifact-file> [options]",
+		Short: short,
+		Long:  long,
+		Args:  cobra.ExactArgs(1),
 		Annotations: GetDescriptions([]string{
-			"AI-powered code refactoring using Grompt integration",
-			"AI-powered code refactoring with Grompt",
-		}, false),
+			long,
+			short,
+		}, os.Getenv("LOOKATNI_HIDEBANNER") == "true"),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if debug {
+				gl.SetDebug(true)
+			}
+
 			artifactFile := args[0]
 
 			// Initialize app
@@ -287,11 +341,12 @@ Supports multiple AI providers (OpenAI, Claude, Gemini, etc.) and custom refacto
 		},
 	}
 
-	refactorCmd.Flags().StringVar(&rulesFile, "rules", "docs/prompt/my-rules.md", "Path to refactoring rules file")
-	refactorCmd.Flags().StringVar(&provider, "provider", "", "AI provider to use (openai, claude, gemini, deepseek, ollama)")
-	refactorCmd.Flags().StringVar(&outputDir, "output", "", "Output directory for refactored files (if not specified, modifies artifact in-place)")
-	refactorCmd.Flags().BoolVar(&dryRun, "dry-run", false, "Show refactoring suggestions without applying them")
-	refactorCmd.Flags().BoolVar(&interactive, "interactive", false, "Interactive mode: review each suggestion before applying")
+	refactorCmd.Flags().StringVarP(&rulesFile, "rules", "r", "docs/prompt/my-rules.md", "Path to refactoring rules file")
+	refactorCmd.Flags().StringVarP(&provider, "provider", "p", "", "AI provider to use (openai, claude, gemini, deepseek, ollama)")
+	refactorCmd.Flags().StringVarP(&outputDir, "output", "o", "", "Output directory for refactored files (if not specified, modifies artifact in-place)")
+	refactorCmd.Flags().BoolVarP(&dryRun, "dry-run", "d", false, "Show refactoring suggestions without applying them")
+	refactorCmd.Flags().BoolVarP(&interactive, "interactive", "i", false, "Interactive mode: review each suggestion before applying")
+	refactorCmd.Flags().BoolVarP(&debug, "debug", "D", false, "Enable debug logging")
 
 	return refactorCmd
 }

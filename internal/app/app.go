@@ -10,9 +10,9 @@ import (
 
 	l "github.com/rafa-mori/logz"
 	"github.com/rafa-mori/lookatni-file-markers/internal/integration"
+	"github.com/rafa-mori/lookatni-file-markers/internal/module/logger"
 	"github.com/rafa-mori/lookatni-file-markers/internal/parser"
 	"github.com/rafa-mori/lookatni-file-markers/internal/transpiler"
-	"github.com/rafa-mori/lookatni-file-markers/logger"
 )
 
 //go:embed templates/*
@@ -30,7 +30,7 @@ func init() {
 	// Initialize Grompt integration
 	gromptIntegration := integration.NewGromptIntegration()
 	providers := gromptIntegration.GetAvailableProviders()
-	logger.Log("info", "🚀 Grompt integration initialized with %d providers", len(providers))
+	logger.Log("info", fmt.Sprintf("Grompt integration initialized with %d providers", len(providers)))
 }
 
 // New creates a new App instance.
@@ -107,7 +107,7 @@ func (a *App) extractCommand(args []string) error {
 		}
 	}
 
-	a.logger.Log("info", "🔄 Extracting files from %s to %s", markedFile, outputDir)
+	a.logger.Log("info", fmt.Sprintf("Extracting files from %s to %s", markedFile, outputDir))
 
 	result, err := a.parser.ExtractFiles(markedFile, outputDir, options)
 	if err != nil {
@@ -115,23 +115,23 @@ func (a *App) extractCommand(args []string) error {
 	}
 
 	if len(result.Errors) > 0 {
-		a.logger.Log("warn", "⚠️  Extraction completed with errors:")
+		a.logger.Log("warn", "Extraction completed with errors:")
 		for _, errMsg := range result.Errors {
 			a.logger.Log("warn", "   %s", errMsg)
 		}
 	}
 
 	if options.DryRun {
-		a.logger.Log("info", "🔍 [DRY RUN] Would extract %d files", len(result.ExtractedFiles))
+		a.logger.Log("info", "[DRY RUN] Would extract %d files", len(result.ExtractedFiles))
 	} else {
-		a.logger.Log("info", "✅ Successfully extracted %d files", len(result.ExtractedFiles))
+		a.logger.Log("success", fmt.Sprintf("Successfully extracted %d files", len(result.ExtractedFiles)))
 	}
 
 	for _, file := range result.ExtractedFiles {
 		if options.DryRun {
-			a.logger.Log("debug", "   [DRY RUN] %s", file)
+			a.logger.Log("debug", fmt.Sprintf("   [DRY RUN] %s", file))
 		} else {
-			a.logger.Log("debug", "   ✓ %s", file)
+			a.logger.Log("debug", fmt.Sprintf("   ✓ %s", file))
 		}
 	}
 
@@ -145,7 +145,7 @@ func (a *App) validateCommand(args []string) error {
 	}
 
 	markedFile := args[0]
-	a.logger.Log("info", "🔍 Validating markers in %s", markedFile)
+	a.logger.Log("info", fmt.Sprintf("Validating markers in %s", markedFile))
 
 	result, err := a.parser.ValidateMarkers(markedFile)
 	if err != nil {
@@ -153,9 +153,9 @@ func (a *App) validateCommand(args []string) error {
 	}
 
 	if result.IsValid {
-		a.logger.Log("info", "✅ All markers are valid!")
+		a.logger.Log("success", "All markers are valid!")
 	} else {
-		a.logger.Log("warn", "⚠️  Validation issues found:")
+		a.logger.Log("warn", "Validation issues found:")
 	}
 
 	if len(result.Errors) > 0 {
@@ -205,7 +205,7 @@ func (a *App) transpileCommand(args []string) error {
 		}
 	}
 
-	a.logger.Log("info", "🔄 Transpiling from %s to %s (prompts: %v)", input, outputDir, withPrompts)
+	a.logger.Log("info", fmt.Sprintf("Transpiling from %s to %s (prompts: %v)", input, outputDir, withPrompts))
 
 	stat, err := os.Stat(input)
 	if err != nil {
@@ -234,7 +234,7 @@ func (a *App) transpileCommand(args []string) error {
 			filePath := filepath.Join(input, entry.Name())
 			content, err := os.ReadFile(filePath)
 			if err != nil {
-				a.logger.Log("warn", "Failed to read %s: %v", filePath, err)
+				a.logger.Log("warn", fmt.Sprintf("Failed to read %s: %v", filePath, err))
 				continue
 			}
 
@@ -242,10 +242,10 @@ func (a *App) transpileCommand(args []string) error {
 			if withPrompts && a.gromptIntegration != nil {
 				processedContent, err := a.gromptIntegration.ProcessMarkdownWithPrompts(string(content))
 				if err != nil {
-					a.logger.Log("warn", "Grompt processing failed for %s: %v", entry.Name(), err)
+					a.logger.Log("warn", fmt.Sprintf("Grompt processing failed for %s: %v", entry.Name(), err))
 				} else {
 					content = []byte(processedContent)
-					a.logger.Log("debug", "   🤖 Enhanced %s with AI processing", entry.Name())
+					a.logger.Log("debug", fmt.Sprintf("Enhanced %s with AI processing", entry.Name()))
 				}
 			}
 
@@ -262,7 +262,7 @@ func (a *App) transpileCommand(args []string) error {
 				totalSize += stat.Size()
 			}
 
-			a.logger.Log("debug", "   ✓ %s -> %s", entry.Name(), fileInfo.FileName)
+			a.logger.Log("debug", fmt.Sprintf("  ✓ %s -> %s", entry.Name(), fileInfo.FileName))
 		}
 	} else {
 		// Process single file
@@ -292,10 +292,10 @@ func (a *App) transpileCommand(args []string) error {
 		if err := a.transpiler.GenerateIndex(files, totalSize, outputDir); err != nil {
 			return fmt.Errorf("failed to generate index: %w", err)
 		}
-		a.logger.Log("info", "✅ Generated index with %d files", len(files))
+		a.logger.Log("success", fmt.Sprintf("Generated index with %d files", len(files)))
 	}
 
-	a.logger.Log("info", "✅ Transpilation completed: %d files processed", len(files))
+	a.logger.Log("success", fmt.Sprintf("Transpilation completed: %d files processed", len(files)))
 	return nil
 }
 
@@ -324,7 +324,7 @@ func (a *App) generateCommand(args []string) error {
 		}
 	}
 
-	a.logger.Log("info", "🔄 Generating marked file from %s to %s", sourceDir, outputFile)
+	a.logger.Log("info", fmt.Sprintf("Generating marked file from %s to %s", sourceDir, outputFile))
 
 	result, err := a.parser.GenerateFromDirectory(sourceDir, outputFile, excludePatterns)
 	if err != nil {
@@ -332,16 +332,16 @@ func (a *App) generateCommand(args []string) error {
 	}
 
 	if len(result.Errors) > 0 {
-		a.logger.Log("warn", "⚠️  Generation completed with warnings:")
+		a.logger.Log("warn", "Generation completed with warnings:")
 		for _, errMsg := range result.Errors {
-			a.logger.Log("warn", "   %s", errMsg)
+			a.logger.Log("warn", fmt.Sprintf("   %s", errMsg))
 		}
 	}
 
-	a.logger.Log("info", "✅ Successfully generated marked file:")
-	a.logger.Log("info", "   📁 %d files processed", result.TotalFiles)
-	a.logger.Log("info", "   📊 %d bytes written", result.TotalBytes)
-	a.logger.Log("info", "   📄 Output: %s", outputFile)
+	a.logger.Log("success", "Successfully generated marked file:")
+	a.logger.Log("success", fmt.Sprintf("   📁 %d files processed", result.TotalFiles))
+	a.logger.Log("success", fmt.Sprintf("   📊 %d bytes written", result.TotalBytes))
+	a.logger.Log("success", fmt.Sprintf("   📄 Output: %s", outputFile))
 
 	return nil
 }
@@ -384,9 +384,9 @@ func (a *App) refactorCommand(args []string) error {
 	}
 
 	a.logger.Log("info", "🤖 Starting AI-powered refactoring...")
-	a.logger.Log("info", "📄 Artifact: %s", artifactFile)
-	a.logger.Log("info", "📋 Rules: %s", rulesFile)
-	a.logger.Log("info", "🧠 Provider: %s", provider)
+	a.logger.Log("info", fmt.Sprintf("📄 Artifact: %s", artifactFile))
+	a.logger.Log("info", fmt.Sprintf("📋 Rules: %s", rulesFile))
+	a.logger.Log("info", fmt.Sprintf("🧠 Provider: %s", provider))
 
 	// Read artifact content
 	artifactContent, err := os.ReadFile(artifactFile)
@@ -397,12 +397,12 @@ func (a *App) refactorCommand(args []string) error {
 	// Read rules content
 	rulesContent, err := os.ReadFile(rulesFile)
 	if err != nil {
-		a.logger.Log("warn", "Failed to read rules file %s, using default rules", rulesFile)
+		a.logger.Log("warn", fmt.Sprintf("Failed to read rules file %s, using default rules", rulesFile))
 		rulesContent = []byte("Apply Go best practices and improve code quality")
 	}
 
 	if a.gromptIntegration == nil {
-		return fmt.Errorf("Grompt integration not initialized")
+		return fmt.Errorf("grompt integration not initialized")
 	}
 
 	// Perform refactoring using Grompt
@@ -450,8 +450,8 @@ func (a *App) refactorCommand(args []string) error {
 		return fmt.Errorf("failed to write refactored file: %w", err)
 	}
 
-	a.logger.Log("info", "✅ Refactored artifact saved to: %s", outputFile)
-	a.logger.Log("info", "📊 Applied %d suggestions", len(result.Suggestions))
+	a.logger.Log("info", fmt.Sprintf("✅ Refactored artifact saved to: %s", outputFile))
+	a.logger.Log("info", fmt.Sprintf("📊 Applied %d suggestions", len(result.Suggestions)))
 
 	return nil
 }
@@ -467,11 +467,11 @@ Commands:
   extract <marked-file> <output-dir> [flags]  Extract files FROM marked content
   validate <marked-file>                      Validate markers in consolidated file
   generate <source-dir> <output-file> [flags] Consolidate directory INTO marked file
-  transpile <input> <output-dir> [flags]      Convert Markdown to HTML with AI (NEW!)
+  transpile <input> <output-dir> [flags]      Convert Markdown to HTML with AI
   help                                        Show this help
 
 Global Flags:
-  --list-presets                              List available marker presets (NEW!)
+  --list-presets                              List available marker presets
   --version                                   Show version information
   --vscode                                    Run in VS Code integration mode
   --port <num>                                Port for VS Code server (default: 8080)
@@ -486,14 +486,14 @@ Generate Flags:
   --exclude <pattern>  Exclude files matching pattern (can be used multiple times)
 
 Transpile Flags:
-  --with-prompts  Enable AI-powered content enhancement via Grompt integration (NEW!)
+  --with-prompts  Enable AI-powered content enhancement via Grompt integration
 
 🎨 Custom Markers (PREVIEW):
   The new adaptive marker system supports multiple formats:
   • HTML Comments: <!-- FILE: filename -->
   • Markdown Invisible: [//]: # (FILE: filename)
   • Code Comments: // === FILE: filename ===
-  • Visual Separators: 🔥🔥🔥 FILE: filename 🔥🔥🔥
+  • Visual Separators: FILE: filename
   • Classic (ASCII 28): Invisible markers (default)
 
 Examples:

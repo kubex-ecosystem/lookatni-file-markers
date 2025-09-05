@@ -1,5 +1,5 @@
-// Package manifest provides functionality to read and parse the application manifest.
-package manifest
+// Package info provides utilities for working with the application manifest.
+package info
 
 import (
 	_ "embed"

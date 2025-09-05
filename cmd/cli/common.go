@@ -2,7 +2,6 @@
 package cli
 
 import (
-	"math/rand"
 	"os"
 	"strings"
 )
@@ -21,7 +20,7 @@ var banners = []string{
 `,
 }
 
-func GetDescriptions(descriptionArg []string, _ bool) map[string]string {
+func GetDescriptions(descriptionArg []string, hideBanner bool) map[string]string {
 	var description, banner string
 	if descriptionArg != nil {
 		if strings.Contains(strings.Join(os.Args[0:], ""), "-h") {
@@ -32,8 +31,8 @@ func GetDescriptions(descriptionArg []string, _ bool) map[string]string {
 	} else {
 		description = ""
 	}
-	bannerRandLen := len(banners)
-	bannerRandIndex := rand.Intn(bannerRandLen)
-	banner = banners[bannerRandIndex]
+	if !hideBanner {
+		banner = banners[0]
+	}
 	return map[string]string{"banner": banner, "description": description}
 }

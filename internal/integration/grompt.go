@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/rafa-mori/grompt"
-	gl "github.com/rafa-mori/lookatni-file-markers/logger"
+	gl "github.com/rafa-mori/lookatni-file-markers/internal/module/logger"
 )
 
 // GromptIntegration provides prompt engineering capabilities for LookAtni
@@ -28,7 +28,7 @@ func NewGromptIntegration() *GromptIntegration {
 // ProcessMarkdownWithPrompts processes markdown content with prompt blocks
 func (g *GromptIntegration) ProcessMarkdownWithPrompts(content string) (string, error) {
 	if g.engine == nil {
-		return content, fmt.Errorf("Grompt engine not initialized")
+		return content, fmt.Errorf("grompt engine not initialized")
 	}
 
 	// Example: Process a simple prompt template
@@ -41,11 +41,11 @@ func (g *GromptIntegration) ProcessMarkdownWithPrompts(content string) (string, 
 
 	result, err := g.engine.ProcessPrompt(template, variables)
 	if err != nil {
-		gl.Log("warn", "Failed to process prompt: %v", err)
+		gl.Log("warn", fmt.Sprintf("Failed to process prompt: %v", err))
 		return content, nil // Return original content on error
 	}
 
-	gl.Log("info", "✅ Processed markdown with Grompt - ID: %s", result.ID)
+	gl.Log("info", fmt.Sprintf("✅ Processed markdown with Grompt - ID: %s", result.ID))
 	return result.Response, nil
 }
 
@@ -68,7 +68,7 @@ func (g *GromptIntegration) GetProcessingHistory() []grompt.Result {
 // BatchProcessPrompts processes multiple prompts concurrently
 func (g *GromptIntegration) BatchProcessPrompts(prompts []string, commonVars map[string]interface{}) ([]grompt.Result, error) {
 	if g.engine == nil {
-		return nil, fmt.Errorf("Grompt engine not initialized")
+		return nil, fmt.Errorf("grompt engine not initialized")
 	}
 
 	return g.engine.BatchProcess(prompts, commonVars)
@@ -77,7 +77,7 @@ func (g *GromptIntegration) BatchProcessPrompts(prompts []string, commonVars map
 // SaveInteraction manually saves a prompt/response pair to history
 func (g *GromptIntegration) SaveInteraction(prompt, response string) error {
 	if g.engine == nil {
-		return fmt.Errorf("Grompt engine not initialized")
+		return fmt.Errorf("grompt engine not initialized")
 	}
 
 	return g.engine.SaveToHistory(prompt, response)
@@ -86,7 +86,7 @@ func (g *GromptIntegration) SaveInteraction(prompt, response string) error {
 // RefactorArtifact processes a LookAtni artifact with AI-powered refactoring
 func (g *GromptIntegration) RefactorArtifact(artifactContent, rulesContent, provider string) (*RefactorResult, error) {
 	if g.engine == nil {
-		return nil, fmt.Errorf("Grompt engine not initialized")
+		return nil, fmt.Errorf("grompt engine not initialized")
 	}
 
 	// Create professional refactoring prompt
@@ -101,10 +101,11 @@ func (g *GromptIntegration) RefactorArtifact(artifactContent, rulesContent, prov
 	})
 
 	if err != nil {
+		gl.Log("error", fmt.Sprintf("Failed to process refactor prompt: %v", err))
 		return nil, fmt.Errorf("failed to process refactor prompt: %w", err)
 	}
 
-	gl.Log("info", "✅ Refactored artifact with Grompt - ID: %s", result.ID)
+	gl.Log("info", fmt.Sprintf("✅ Refactored artifact with Grompt - ID: %s", result.ID))
 
 	return &RefactorResult{
 		OriginalContent:   artifactContent,
@@ -119,7 +120,7 @@ func (g *GromptIntegration) RefactorArtifact(artifactContent, rulesContent, prov
 // AnalyzeCodeQuality analyzes code quality and suggests improvements
 func (g *GromptIntegration) AnalyzeCodeQuality(content string) (*QualityAnalysis, error) {
 	if g.engine == nil {
-		return nil, fmt.Errorf("Grompt engine not initialized")
+		return nil, fmt.Errorf("grompt engine not initialized")
 	}
 
 	prompt := g.buildQualityAnalysisPrompt(content)
@@ -166,9 +167,11 @@ func (g *GromptIntegration) buildRefactorPrompt(artifactContent, rulesContent st
 You are an expert code refactoring assistant working with LookAtni artifacts. Your task is to analyze the provided code artifact and apply refactoring improvements based on the specified rules.
 
 ## Refactoring Rules
+
 %s
 
 ## Code Artifact to Refactor
+
 %s
 
 ## Instructions
@@ -203,6 +206,7 @@ func (g *GromptIntegration) buildQualityAnalysisPrompt(content string) string {
 Analyze the following code and provide a comprehensive quality assessment:
 
 ## Code to Analyze
+
 %s
 
 ## Analysis Requirements

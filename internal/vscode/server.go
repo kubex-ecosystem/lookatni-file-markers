@@ -8,9 +8,9 @@ import (
 	"strconv"
 
 	l "github.com/rafa-mori/logz"
+	"github.com/rafa-mori/lookatni-file-markers/internal/module/logger"
 	"github.com/rafa-mori/lookatni-file-markers/internal/parser"
 	"github.com/rafa-mori/lookatni-file-markers/internal/transpiler"
-	"github.com/rafa-mori/lookatni-file-markers/logger"
 )
 
 // Server handles VS Code integration requests.

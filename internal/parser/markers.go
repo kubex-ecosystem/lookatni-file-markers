@@ -269,6 +269,8 @@ func (mp *MarkerParser) ValidateMarkers(filePath string) (*ValidationResults, er
 	// Update validity
 	if len(validation.DuplicateFilenames) > 0 || len(validation.InvalidFilenames) > 0 || validation.Statistics.EmptyMarkers > 0 {
 		validation.IsValid = false
+	} else if validation.Statistics.TotalMarkers == 0 {
+		validation.IsValid = false
 	}
 
 	return validation, nil
@@ -387,6 +389,7 @@ func (mp *MarkerParser) GenerateFromDirectory(sourceDir, outputFile string, excl
 
 		// Write marker in format //FS/ filename /FS//
 		fsChar := string(rune(28)) // ASCII 28 File Separator
+		// Write marker
 		marker := fmt.Sprintf("//%s/ %s /%s//\n", fsChar, relPath, fsChar)
 		if _, err := outFile.WriteString(marker); err != nil {
 			result.Errors = append(result.Errors, fmt.Sprintf("Failed to write marker for %s: %v", relPath, err))

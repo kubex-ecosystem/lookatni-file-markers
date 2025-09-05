@@ -1,9 +1,10 @@
-package main
+// Package module provides internal types and functions for the Grompt application.
+package module
 
 import (
 	cc "github.com/rafa-mori/lookatni-file-markers/cmd/cli"
-	gl "github.com/rafa-mori/lookatni-file-markers/logger"
-	vs "github.com/rafa-mori/lookatni-file-markers/version"
+	gl "github.com/rafa-mori/lookatni-file-markers/internal/module/logger"
+	vs "github.com/rafa-mori/lookatni-file-markers/internal/module/version"
 	"github.com/spf13/cobra"
 
 	"os"
@@ -83,15 +84,4 @@ func (m *LookAtni) concatenateExamples() string {
 		examples += rtCmd + example + "\n  "
 	}
 	return examples
-}
-
-func RegX() *LookAtni {
-	var printBannerV = os.Getenv("LOOKATNI_PRINT_BANNER")
-	if printBannerV == "" {
-		printBannerV = "true"
-	}
-
-	return &LookAtni{
-		printBanner: strings.ToLower(printBannerV) == "true",
-	}
 }

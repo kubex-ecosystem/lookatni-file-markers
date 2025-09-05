@@ -109,6 +109,28 @@ test:
 	@bash $(INSTALL_SCRIPT) test $(ARGS)
 	$(shell exit 0)
 
+# Platform-specific targets (prevent wildcard capture)
+linux:
+	@echo "Process finished for platform: linux"
+
+amd64:
+	@echo "Process finished for architecture: amd64"
+
+windows:
+	@echo "Process finished for platform: windows"
+
+darwin:
+	@echo "Process finished for platform: darwin"
+
+arm64:
+	@echo "Process finished for architecture: arm64"
+
+386:
+	@echo "Process finished for architecture: 386"
+
+all:
+	@echo "Process finished for all platforms and architectures"
+
 ## Run dynamic commands with arguments calling the install script.
 %:
 	@:
