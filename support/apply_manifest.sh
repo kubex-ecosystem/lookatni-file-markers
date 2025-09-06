@@ -23,8 +23,8 @@ _PRIVATE_REPOSITORY="${_PRIVATE_REPOSITORY:-}"
 _VERSION_GO="${_VERSION_GO:-}"
 _PLATFORMS_SUPPORTED="${_PLATFORMS_SUPPORTED:-}"
 
-# _MANIFEST_SUBPATH=${_MANIFEST_SUBPATH:-'internal/module/info/manifest.json'}
-_MANIFEST_SUBPATH=${_MANIFEST_SUBPATH:-'info/manifest.json'}
+_MANIFEST_SUBPATH=${_MANIFEST_SUBPATH:-'internal/module/info/manifest.json'}
+# _MANIFEST_SUBPATH=${_MANIFEST_SUBPATH:-'info/manifest.json'}
 
 __get_values_from_manifest() {
   # # Define the root directory (assuming this script is in lib/ under the root)
@@ -55,82 +55,82 @@ __replace_project_name() {
   local _old_bin_name="gobe"
   local _new_bin_name="${_BINARY_NAME}"
 
-  if [[ ! -d "$_ROOT_DIR/bkp" ]]; then
-    mkdir -p "$_ROOT_DIR/bkp"
-  fi
+  # if [[ ! -d "$_ROOT_DIR/bkp" ]]; then
+  #   mkdir -p "$_ROOT_DIR/bkp"
+  # fi
 
-  # Backup the original files before making changes
-  tar --exclude='bkp' --exclude='*.tar.gz' --exclude='go.sum' -czf "$_ROOT_DIR/bkp/$(date +%Y%m%d_%H%M%S)_goforge_backup.tar.gz" -C "$_ROOT_DIR" . || {
-    log fatal "Could not create backup. Please check if the directory exists and is writable." true
-    return 1
-  }
+  # # Backup the original files before making changes
+  # tar --exclude='bkp' --exclude='*.tar.gz' --exclude='go.sum' -czf "$_ROOT_DIR/bkp/$(date +%Y%m%d_%H%M%S)_goforge_backup.tar.gz" -C "$_ROOT_DIR" . || {
+  #   log fatal "Could not create backup. Please check if the directory exists and is writable." true
+  #   return 1
+  # }
 
-  local _files_to_remove=(
-    "$_ROOT_DIR/README.md"
-    "$_ROOT_DIR/CHANGELOG.md"
-    "$_ROOT_DIR/docs/README.md"
-    "$_ROOT_DIR/docs/assets/*"
-    "$_ROOT_DIR/go.sum"
-  )
-  for _file in "${_files_to_remove[@]}"; do
-    if [[ -f "$_file" ]]; then
-      rm -f "$_file" || {
-        log error "Could not remove $_file. Please check if the file exists and is writable." true
-        continue
-      }
-      log info "Removed $_file"
-    else
-      log warn "File $_file does not exist, skipping."
-    fi
-  done
+  # local _files_to_remove=(
+  #   "$_ROOT_DIR/README.md"
+  #   "$_ROOT_DIR/CHANGELOG.md"
+  #   "$_ROOT_DIR/docs/README.md"
+  #   "$_ROOT_DIR/docs/assets/*"
+  #   "$_ROOT_DIR/go.sum"
+  # )
+  # for _file in "${_files_to_remove[@]}"; do
+  #   if [[ -f "$_file" ]]; then
+  #     rm -f "$_file" || {
+  #       log error "Could not remove $_file. Please check if the file exists and is writable." true
+  #       continue
+  #     }
+  #     log info "Removed $_file"
+  #   else
+  #     log warn "File $_file does not exist, skipping."
+  #   fi
+  # done
 
-  local _files_to_rename=(
-    "$_ROOT_DIR/go${_old_bin_name}.go"
-    "$_ROOT_DIR/"**"/${_old_bin_name}.go"
-  )
-  for _file in "${_files_to_rename[@]}"; do
-    if [[ -f "$_file" ]]; then
-      local _new_file="${_file//${_old_bin_name}/$_BINARY_NAME}"
-      mv "$_file" "$_new_file" || {
-        log error "Could not rename $_file to $_new_file. Please check if the file exists and is writable." true
-        continue
-      }
-      log info "Renamed $_file to $_new_file"
-    else
-      log warn "File $_file does not exist, skipping."
-    fi
-  done
+  # local _files_to_rename=(
+  #   "$_ROOT_DIR/go${_old_bin_name}.go"
+  #   "$_ROOT_DIR/"**"/${_old_bin_name}.go"
+  # )
+  # for _file in "${_files_to_rename[@]}"; do
+  #   if [[ -f "$_file" ]]; then
+  #     local _new_file="${_file//${_old_bin_name}/$_BINARY_NAME}"
+  #     mv "$_file" "$_new_file" || {
+  #       log error "Could not rename $_file to $_new_file. Please check if the file exists and is writable." true
+  #       continue
+  #     }
+  #     log info "Renamed $_file to $_new_file"
+  #   else
+  #     log warn "File $_file does not exist, skipping."
+  #   fi
+  # done
 
-  local _files_to_update=(
-    "$_ROOT_DIR/go.mod"
-    "$_ROOT_DIR/"**/*.go
-    "$_ROOT_DIR/"**/*.md
-    "$_ROOT_DIR/"*/*.go
-    "$_ROOT_DIR/"*.md
-  )
-  for _file in "${_files_to_update[@]}"; do
-    if [[ -f "$_file" ]]; then
-      sed -i "s/$_old_bin_name/$_new_bin_name/g" "$_file" || {
-        log error "Could not update $_file. Please check if the file exists and is writable." true
-        continue
-      }
-      log info "Updated $_file"
-    else
-      log warn "File $_file does not exist, skipping."
-    fi
-  done
+  # local _files_to_update=(
+  #   "$_ROOT_DIR/go.mod"
+  #   "$_ROOT_DIR/"**/*.go
+  #   "$_ROOT_DIR/"**/*.md
+  #   "$_ROOT_DIR/"*/*.go
+  #   "$_ROOT_DIR/"*.md
+  # )
+  # for _file in "${_files_to_update[@]}"; do
+  #   if [[ -f "$_file" ]]; then
+  #     sed -i "s/$_old_bin_name/$_new_bin_name/g" "$_file" || {
+  #       log error "Could not update $_file. Please check if the file exists and is writable." true
+  #       continue
+  #     }
+  #     log info "Updated $_file"
+  #   else
+  #     log warn "File $_file does not exist, skipping."
+  #   fi
+  # done
 
-  cd "$_ROOT_DIR" || {
-    log error "Could not change directory to $_ROOT_DIR. Please check if the directory exists." true
-    return 1
-  }
+  # cd "$_ROOT_DIR" || {
+  #   log error "Could not change directory to $_ROOT_DIR. Please check if the directory exists." true
+  #   return 1
+  # }
 
-  go mod tidy || {
-    log error "Could not run 'go mod tidy'. Please check if Go is installed and configured correctly." true
-    return 1
-  }
+  # go mod tidy || {
+  #   log error "Could not run 'go mod tidy'. Please check if Go is installed and configured correctly." true
+  #   return 1
+  # }
 
-  return 0
+  # return 0
 }
 
 change_project_name() {
