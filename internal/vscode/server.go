@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"strconv"
 
-	l "github.com/rafa-mori/logz"
-	"github.com/rafa-mori/lookatni-file-markers/internal/module/logger"
-	"github.com/rafa-mori/lookatni-file-markers/internal/parser"
-	"github.com/rafa-mori/lookatni-file-markers/internal/transpiler"
+	l "github.com/kubex-ecosystem/logz"
+	"github.com/kubex-ecosystem/lookatni-file-markers/internal/module/logger"
+	"github.com/kubex-ecosystem/lookatni-file-markers/internal/parser"
+	"github.com/kubex-ecosystem/lookatni-file-markers/internal/transpiler"
 )
 
 // Server handles VS Code integration requests.

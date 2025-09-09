@@ -2,9 +2,9 @@
 package module
 
 import (
-	cc "github.com/rafa-mori/lookatni-file-markers/cmd/cli"
-	gl "github.com/rafa-mori/lookatni-file-markers/internal/module/logger"
-	vs "github.com/rafa-mori/lookatni-file-markers/internal/module/version"
+	cc "github.com/kubex-ecosystem/lookatni-file-markers/cmd/cli"
+	gl "github.com/kubex-ecosystem/lookatni-file-markers/internal/module/logger"
+	vs "github.com/kubex-ecosystem/lookatni-file-markers/internal/module/version"
 	"github.com/spf13/cobra"
 
 	"os"

@@ -4,8 +4,8 @@ package integration
 import (
 	"fmt"
 
-	"github.com/rafa-mori/grompt"
-	gl "github.com/rafa-mori/lookatni-file-markers/internal/module/logger"
+	"github.com/kubex-ecosystem/grompt"
+	gl "github.com/kubex-ecosystem/lookatni-file-markers/internal/module/logger"
 )
 
 // GromptIntegration provides prompt engineering capabilities for LookAtni

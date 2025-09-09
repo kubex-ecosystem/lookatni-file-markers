@@ -1,13 +1,13 @@
-# ![LookAtni File Markers - CLI Tools](https://raw.githubusercontent.com/rafa-mori/lookatni-file-markers/main/resources/top_banner.png)
+# ![LookAtni File Markers - CLI Tools](https://raw.githubusercontent.com/kubex-ecosystem/lookatni-file-markers/main/resources/top_banner.png)
 
 ---
 
-![![GitHub Release](https://img.shields.io/github/release/rafa-mori/lookatni-file-markers.svg)](https://github.com/rafa-mori/lookatni-file-markers/releases)
-![![GitHub Issues](https://img.shields.io/github/issues/rafa-mori/lookatni-file-markers.svg)](https://github.com/rafa-mori/lookatni-file-markers/issues)
-![![GitHub License](https://img.shields.io/github/license/rafa-mori/lookatni-file-markers.svg)](https://github.com/rafa-mori/lookatni-file-markers/blob/main/LICENSE)
-![![GitHub Stars](https://img.shields.io/github/stars/rafa-mori/lookatni-file-markers.svg)](https://github.com/rafa-mori/lookatni-file-markers/stargazers)
-![![GitHub Forks](https://img.shields.io/github/forks/rafa-mori/lookatni-file-markers.svg)](https://github.com/rafa-mori/lookatni-file-markers/network/members)
-![![GitHub Contributors](https://img.shields.io/github/contributors/rafa-mori/lookatni-file-markers.svg)](https://github.com/rafa-mori/lookatni-file-markers/graphs/contributors)
+![![GitHub Release](https://img.shields.io/github/release/kubex-ecosystem/lookatni-file-markers.svg)](https://github.com/kubex-ecosystem/lookatni-file-markers/releases)
+![![GitHub Issues](https://img.shields.io/github/issues/kubex-ecosystem/lookatni-file-markers.svg)](https://github.com/kubex-ecosystem/lookatni-file-markers/issues)
+![![GitHub License](https://img.shields.io/github/license/kubex-ecosystem/lookatni-file-markers.svg)](https://github.com/kubex-ecosystem/lookatni-file-markers/blob/main/LICENSE)
+![![GitHub Stars](https://img.shields.io/github/stars/kubex-ecosystem/lookatni-file-markers.svg)](https://github.com/kubex-ecosystem/lookatni-file-markers/stargazers)
+![![GitHub Forks](https://img.shields.io/github/forks/kubex-ecosystem/lookatni-file-markers.svg)](https://github.com/kubex-ecosystem/lookatni-file-markers/network/members)
+![![GitHub Contributors](https://img.shields.io/github/contributors/kubex-ecosystem/lookatni-file-markers.svg)](https://github.com/kubex-ecosystem/lookatni-file-markers/graphs/contributors)
 
 ---
 
@@ -135,7 +135,7 @@ Interactive demonstration of LookAtni capabilities.
 
 ```bash
 # Clone the repository
-git clone https://github.com/rafa-mori/lookatni-file-markers.git
+git clone https://github.com/kubex-ecosystem/lookatni-file-markers.git
 cd lookatni-file-markers/cli
 
 # Make scripts executable
@@ -297,7 +297,7 @@ git add .lookatni-backup.txt
 **Benchmarks** (tested on average development machine):
 
 - **Small projects** (< 100 files): ~1 second
-- **Medium projects** (< 1000 files): ~5-10 seconds  
+- **Medium projects** (< 1000 files): ~5-10 seconds
 - **Large projects** (< 10000 files): ~30-60 seconds
 
 **Memory usage**: Minimal - processes files individually, not batch-loaded.
@@ -306,7 +306,7 @@ git add .lookatni-backup.txt
 
 ## 🔗 Links
 
-- **Main Repository**: [LookAtni File Markers](https://github.com/rafa-mori/lookatni-file-markers)
+- **Main Repository**: [LookAtni File Markers](https://github.com/kubex-ecosystem/lookatni-file-markers)
 - **VS Code Extension**: Available in the marketplace
 - **Documentation**: Full docs in `/docs` directory
 - **Issues & Support**: GitHub Issues

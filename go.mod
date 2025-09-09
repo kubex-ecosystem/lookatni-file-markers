@@ -1,10 +1,10 @@
-module github.com/rafa-mori/lookatni-file-markers
+module github.com/kubex-ecosystem/lookatni-file-markers
 
-go 1.25.0
+go 1.25.1
 
 require (
 	github.com/gomarkdown/markdown v0.0.0-20250810172220-2e2c11897d1a
-	github.com/rafa-mori/logz v1.4.0
+	github.com/kubex-ecosystem/logz v1.5.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -21,7 +21,7 @@ require (
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
-	github.com/rafa-mori/grompt v1.0.7
+	github.com/kubex-ecosystem/grompt v1.0.7
 	github.com/sagikazarmark/locafero v0.10.0 // indirect
 	github.com/sourcegraph/conc v0.3.1-0.20240121214520-5f936abd7ae8 // indirect
 	github.com/spf13/afero v1.14.0 // indirect
@@ -34,4 +34,4 @@ require (
 	golang.org/x/text v0.28.0 // indirect
 )
 
-// replace github.com/rafa-mori/grompt => ../grompt
+// replace github.com/kubex-ecosystem/grompt => ../grompt

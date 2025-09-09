@@ -281,4 +281,4 @@ The first stable release of LookAtni File Markers with complete core functionali
 3. **Beta**: Release beta versions for community testing
 4. **Release**: Final testing and release to stable channel
 
-For the latest updates and detailed release notes, visit our [GitHub Releases](https://github.com/rafa-mori/lookatni-file-markers/releases) page.
+For the latest updates and detailed release notes, visit our [GitHub Releases](https://github.com/kubex-ecosystem/lookatni-file-markers/releases) page.

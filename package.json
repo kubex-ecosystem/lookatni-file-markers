@@ -84,11 +84,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rafa-mori/lookatni-file-markers.git"
+    "url": "https://github.com/kubex-ecosystem/lookatni-file-markers.git"
   },
-  "homepage": "https://github.com/rafa-mori/lookatni-file-markers#readme",
+  "homepage": "https://github.com/kubex-ecosystem/lookatni-file-markers#readme",
   "bugs": {
-    "url": "https://github.com/rafa-mori/lookatni-file-markers/issues"
+    "url": "https://github.com/kubex-ecosystem/lookatni-file-markers/issues"
   },
   "keywords": [
     "file-markers",

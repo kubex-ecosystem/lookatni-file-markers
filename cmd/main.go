@@ -1,9 +1,9 @@
 package main
 
 import (
-	l "github.com/rafa-mori/logz"
-	"github.com/rafa-mori/lookatni-file-markers/internal/module"
-	gl "github.com/rafa-mori/lookatni-file-markers/internal/module/logger"
+	l "github.com/kubex-ecosystem/logz"
+	"github.com/kubex-ecosystem/lookatni-file-markers/internal/module"
+	gl "github.com/kubex-ecosystem/lookatni-file-markers/internal/module/logger"
 )
 
 var logger l.Logger

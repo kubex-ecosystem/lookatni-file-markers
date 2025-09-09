@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/rafa-mori/lookatni-file-markers/internal/metadata"
-	"github.com/rafa-mori/lookatni-file-markers/internal/parser"
+	"github.com/kubex-ecosystem/lookatni-file-markers/internal/metadata"
+	"github.com/kubex-ecosystem/lookatni-file-markers/internal/parser"
 )
 
 // AdaptiveParser handles multiple marker formats based on metadata.

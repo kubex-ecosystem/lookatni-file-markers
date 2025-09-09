@@ -73,7 +73,7 @@ For development or advanced CLI usage:
 
 ```bash
 # Clone the repository
-git clone https://github.com/rafa-mori/lookatni-file-markers.git
+git clone https://github.com/kubex-ecosystem/lookatni-file-markers.git
 cd lookatni-file-markers
 
 # Install dependencies
@@ -146,8 +146,8 @@ Create `.vscode/settings.json` in your workspace:
 
 ### Getting Help
 
-- **GitHub Issues**: [Report bugs](https://github.com/rafa-mori/lookatni-file-markers/issues)
-- **Discussions**: [Ask questions](https://github.com/rafa-mori/lookatni-file-markers/discussions)
+- **GitHub Issues**: [Report bugs](https://github.com/kubex-ecosystem/lookatni-file-markers/issues)
+- **Discussions**: [Ask questions](https://github.com/kubex-ecosystem/lookatni-file-markers/discussions)
 - **Documentation**: [Browse guides](../guide/commands.md)
 
 ## Next Steps

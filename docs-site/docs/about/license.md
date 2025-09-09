@@ -112,7 +112,7 @@ While not required by the MIT License, we appreciate attribution when you use Lo
 This project uses LookAtni File Markers
 Copyright (c) 2025 Rafael Mori
 Licensed under the MIT License
-https://github.com/rafa-mori/lookatni-file-markers
+https://github.com/kubex-ecosystem/lookatni-file-markers
 ```
 
 ### For Documentation
@@ -122,7 +122,7 @@ If you're documenting your use of LookAtni:
 ```markdown
 ## Acknowledgments
 
-This project uses [LookAtni File Markers](https://github.com/rafa-mori/lookatni-file-markers) 
+This project uses [LookAtni File Markers](https://github.com/kubex-ecosystem/lookatni-file-markers) 
 for project organization and file management, created by Rafael Mori and licensed under 
 the MIT License.
 ```
@@ -136,7 +136,7 @@ For academic papers or research:
   title={LookAtni File Markers: VS Code Extension for Project Organization},
   author={Rafael Mori},
   year={2025},
-  url={https://github.com/rafa-mori/lookatni-file-markers},
+  url={https://github.com/kubex-ecosystem/lookatni-file-markers},
   note={MIT License}
 }
 ```
@@ -208,7 +208,7 @@ The software is provided "as is" without warranty. The authors are not liable fo
 
 For license-related questions or concerns:
 
-- **GitHub Issues**: [Create an issue](https://github.com/rafa-mori/lookatni-file-markers/issues) for licensing questions
+- **GitHub Issues**: [Create an issue](https://github.com/kubex-ecosystem/lookatni-file-markers/issues) for licensing questions
 - **Email**: Contact the maintainers through GitHub
 - **Legal Compliance**: For enterprise legal compliance questions, create a GitHub issue with the "legal" label
 
@@ -242,6 +242,6 @@ The MIT License does not grant rights to use the LookAtni name or associated tra
 
 The MIT License provides a simple, permissive framework that allows you to use LookAtni File Markers with confidence in virtually any context. Whether you're building open-source projects, commercial applications, or enterprise solutions, the MIT License ensures you have the freedom to innovate while maintaining minimal compliance obligations.
 
-For the most up-to-date license information, always refer to the LICENSE file in the [official repository](https://github.com/rafa-mori/lookatni-file-markers).
+For the most up-to-date license information, always refer to the LICENSE file in the [official repository](https://github.com/kubex-ecosystem/lookatni-file-markers).
 
 **Remember**: While the MIT License is permissive, always consult with your legal team for enterprise use cases or if you have specific compliance requirements.

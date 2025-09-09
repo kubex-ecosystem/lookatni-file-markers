@@ -1,4 +1,4 @@
-# ![LookAtni File Markers](https://raw.githubusercontent.com/rafa-mori/lookatni-file-markers/refs/heads/main/resources/top_banner.png)
+# ![LookAtni File Markers](https://raw.githubusercontent.com/kubex-ecosystem/lookatni-file-markers/refs/heads/main/resources/top_banner.png)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
 [![VSCode](https://img.shields.io/badge/VSCode-Marketplace-blue?style=flat-square&logo=visual-studio-code&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=rafa-mori.lookatni-file-markers)
@@ -268,7 +268,7 @@ Customize visual markers in your `settings.json`:
 **Love LookAtni File Markers?**
 
 - ⭐ **Rate us** on the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=rafa-mori.lookatni-file-markers)!
-- 💡 **Got ideas?** [Open an issue](https://github.com/rafa-mori/lookatni-file-markers/issues) or submit a PR 😉
+- 💡 **Got ideas?** [Open an issue](https://github.com/kubex-ecosystem/lookatni-file-markers/issues) or submit a PR 😉
 - 🐛 **Found a bug?** Let us know and we'll fix it fast!
 - 💬 **Share your workflow** - we'd love to see how you use LookAtni!
 
@@ -278,16 +278,16 @@ MIT License - see LICENSE file for details.
 
 ## 🔗 Links
 
-- **Repository**: [GitHub](https://github.com/rafa-mori/lookatni-file-markers)
+- **Repository**: [GitHub](https://github.com/kubex-ecosystem/lookatni-file-markers)
 - **License**: [MIT](LICENSE)
 - **Documentation**: [Docs](https://rafa-mori.github.io/lookatni-file-markers/)
-- **Issues**: [Report Issues](https://github.com/rafa-mori/lookatni-file-markers/issues)
-- **Contribute**: [Contributing Guide](https://github.com/rafa-mori/lookatni-file-markers/blob/main/CONTRIBUTING.md)
+- **Issues**: [Report Issues](https://github.com/kubex-ecosystem/lookatni-file-markers/issues)
+- **Contribute**: [Contributing Guide](https://github.com/kubex-ecosystem/lookatni-file-markers/blob/main/CONTRIBUTING.md)
 - **VS Code Extension**: [Marketplace](https://marketplace.visualstudio.com/items?itemName=rafa-mori.lookatni-file-markers)
 - **Author**: [Rafael Mori](https://rafa-mori.dev)
-- **LinkedIn**: [Rafael Mori](https://www.linkedin.com/in/rafa-mori/)
+- **LinkedIn**: [Rafael Mori](https://www.linkedin.com/in/kubex-ecosystem/)
 - **Twitter**: [@faelmori](https://twitter.com/faelOmori)
-- **GitHub**: [@rafa-mori](https://github.com/rafa-mori)
+- **GitHub**: [@rafa-mori](https://github.com/kubex-ecosystem)
 - **GitHub**: [@faelmori](https://github.com/faelmori)
 
 ---

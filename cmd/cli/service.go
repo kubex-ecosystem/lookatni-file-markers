@@ -3,10 +3,10 @@ package cli
 import (
 	"os"
 
-	"github.com/rafa-mori/lookatni-file-markers/internal/app"
-	"github.com/rafa-mori/lookatni-file-markers/internal/metadata"
-	gl "github.com/rafa-mori/lookatni-file-markers/internal/module/logger"
-	"github.com/rafa-mori/lookatni-file-markers/internal/vscode"
+	"github.com/kubex-ecosystem/lookatni-file-markers/internal/app"
+	"github.com/kubex-ecosystem/lookatni-file-markers/internal/metadata"
+	gl "github.com/kubex-ecosystem/lookatni-file-markers/internal/module/logger"
+	"github.com/kubex-ecosystem/lookatni-file-markers/internal/vscode"
 	"github.com/spf13/cobra"
 )
 

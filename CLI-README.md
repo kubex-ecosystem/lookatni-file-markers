@@ -88,9 +88,9 @@ lookatni extract code.txt ./project
 
 ## 🔗 Useful Links
 
-- [Complete Documentation](https://github.com/rafa-mori/lookatni-file-markers)
+- [Complete Documentation](https://github.com/kubex-ecosystem/lookatni-file-markers)
 - [VS Code Extension](https://marketplace.visualstudio.com/items?itemName=rafa-mori.lookatni-file-markers)
-- [Examples and Tutorials](https://github.com/rafa-mori/lookatni-file-markers/tree/main/docs)
+- [Examples and Tutorials](https://github.com/kubex-ecosystem/lookatni-file-markers/tree/main/docs)
 
 ---
 

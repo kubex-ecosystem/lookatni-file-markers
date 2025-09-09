@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	l "github.com/rafa-mori/logz"
-	manifest "github.com/rafa-mori/lookatni-file-markers/internal/module/info"
+	l "github.com/kubex-ecosystem/logz"
+	manifest "github.com/kubex-ecosystem/lookatni-file-markers/internal/module/info"
 )
 
 type GLog[T any] interface {

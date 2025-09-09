@@ -154,7 +154,7 @@ LookAtni: Extract Files → project-markers.txt → ./restored-project
 <div class="cta-buttons" markdown>
   [Get Started :material-rocket:](getting-started/installation.md){ .md-button .md-button--primary }
   [View Examples :material-lightbulb:](examples/react-sharing.md){ .md-button }
-  [GitHub Repository :material-github:](https://github.com/rafa-mori/lookatni-file-markers){ .md-button }
+  [GitHub Repository :material-github:](https://github.com/kubex-ecosystem/lookatni-file-markers){ .md-button }
 </div>
 
 ---

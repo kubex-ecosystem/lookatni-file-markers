@@ -7,7 +7,7 @@
   "aliases": [
     "lookatniCli"
   ],
-  "repository": "https://github.com/rafa-mori/lookatni-file-markers",
+  "repository": "https://github.com/kubex-ecosystem/lookatni-file-markers",
   "homepage": "https://lookatni.rafa-mori.dev/",
   "description": "Kubex - LookAtni File Markers: A meta-framework for handling file markers, entire projects composition/decomposition, and much more.",
   "main": "cmd/main.go",

@@ -18,7 +18,7 @@ Comprehensive guide for developers who want to contribute to LookAtni File Marke
 
 ```bash
 # Clone the repository
-git clone https://github.com/rafa-mori/lookatni-file-markers.git
+git clone https://github.com/kubex-ecosystem/lookatni-file-markers.git
 cd lookatni-file-markers
 
 # Install dependencies

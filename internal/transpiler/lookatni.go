@@ -23,7 +23,7 @@ import (
 
 	"github.com/gomarkdown/markdown/parser"
 
-	gl "github.com/rafa-mori/lookatni-file-markers/internal/module/logger"
+	gl "github.com/kubex-ecosystem/lookatni-file-markers/internal/module/logger"
 )
 
 type mdFileContainer struct {
