@@ -423,7 +423,6 @@
     "lint": "eslint src",
     "test": "vscode-test",
     "prepublishOnly": "npm run build",
-    "postinstall": "node -e \"try{require('./bin/lookatni.js')}catch(e){console.log('LookAtni CLI ready for use!')}\"",
     "lookatni": "tsx src/scripts/cli.ts",
     "lookatni:extract": "tsx src/scripts/extractFiles.ts",
     "lookatni:generate": "tsx src/scripts/generateMarkers.ts",
