@@ -11,7 +11,7 @@
 
 ## 🚀 **LookAtni File Markers**
 
-The **first VS Code extension** that combines **AI code extraction** and **visual file organization** to revolutionize your development workflow!
+The **first VS Code extension** that combines **AI code extraction** and **visual file organization** to enhance your development workflow!
 > A powerful tool designed to enhance your coding experience by allowing you to manage files and code snippets efficiently. It provides a seamless way to extract AI-generated code into structured projects, organize files visually, and validate project integrity.
 
 ## Table of Contents

@@ -1,6 +1,6 @@
 # 🚀 LookAtni Build Scripts Distribution System
 
-## Visão Revolucionária
+## Visão Inovadora
 
 Imagine nunca mais precisar duplicar scripts de build entre projetos. Com o LookAtni Build Scripts Distribution System, todos os scripts de automação ficam centralizados em um único arquivo distribuído via CDN.
 
@@ -157,7 +157,7 @@ cd projeto
 
 ## Conclusão
 
-O LookAtni Build Scripts Distribution System não é apenas uma otimização - é uma **revolução na gestão de infraestrutura de build**.
+O LookAtni Build Scripts Distribution System não é apenas uma otimização - é uma **inovação na gestão de infraestrutura de build**.
 
 **Eliminamos o problema na raiz**: em vez de sincronizar mudanças entre N repositórios, centralizamos a fonte da verdade e distribuímos sob demanda.
 

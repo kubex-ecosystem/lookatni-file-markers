@@ -13,7 +13,7 @@
 
 ## LookAtni File Markers - CLI Tools
 
-🚀 **Revolutionary file marker system for automatic code extraction and generation**
+🚀 **Advanced file marker system for automatic code extraction and generation**
 
 ---
 
