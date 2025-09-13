@@ -1,0 +1,76 @@
+# VS Code specific files
+.vscode/
+*.vsix
+
+# Build output
+out/
+src/test/
+
+# Development files
+.eslintrc.json
+esbuild.js
+tsconfig.json
+tsconfig.cli.json
+
+# Test files
+test/
+**/*.test.ts
+**/*.test.js
+
+# Documentation build
+docs-site/
+
+# Backup files
+bkp/
+
+# CI/CD
+azure-pipelines.yml
+.github/
+
+# Development dependencies
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Temporary files
+.tmp/
+.temp/
+
+# IDE files
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Package files
+*.tgz
+*.zip
+*.tar.gz
+*.tar.bz2

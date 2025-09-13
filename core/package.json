@@ -1,0 +1,54 @@
+{
+  "name": "lookatni-core",
+  "description": "Core library for LookAtni file markers - generate, extract and validate project markers",
+  "version": "1.1.0",
+  "main": "./dist/lib/index.js",
+  "types": "./dist/lib/index.d.ts",
+  "engines": {
+    "vscode": "^1.22.0",
+    "node": "^22.0.0"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/lib/index.js",
+      "require": "./dist/lib/index.js",
+      "types": "./dist/lib/index.d.ts"
+    }
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "clean": "rm -rf dist/",
+    "test": "npm run build && node dist/test/index.js",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "keywords": [
+    "file-markers",
+    "code-sharing",
+    "project-management",
+    "lookatni",
+    "code-extraction",
+    "project-bundling"
+  ],
+  "author": "Kubex Ecosystem",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kubex-ecosystem/lookatni-file-markers.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/kubex-ecosystem/lookatni-file-markers/issues"
+  },
+  "homepage": "https://github.com/kubex-ecosystem/lookatni-file-markers#readme",
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "@types/node": "^22.0.0"
+  },
+  "dependencies": {}
+}

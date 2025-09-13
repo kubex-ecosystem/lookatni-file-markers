@@ -1,0 +1,57 @@
+**🔍 Empolgado por compartilhar minha mais recente criação: LookAtni File Markers!**
+
+Se você já sofreu para extrair trechos específicos do código para montar tutoriais, documentação técnica ou conteúdo didático, esta extensão VSCode foi feita pra você:
+
+🧠 **Como funciona**
+Com apenas um comentário especial:
+
+```ts
+//␜/ docs/start.md /␜//
+```
+
+você marca um trecho que pode ser **navegado visualmente**, **extraído para arquivos externos**, **validado**, **reordenado** e **sincronizado**, tudo automaticamente. O melhor? Sem sair do editor. 📦
+
+📸 **Veja no GIF abaixo** como isso é simples e eficaz. (confira o GIF nos comentários)
+
+---
+
+### ✨ Principais benefícios
+
+* **Documentação automática** – mantenha exemplos sempre atualizados
+* **Educação e tutoriais** – monte aulas com código real
+* **Code review mais ágil** – destaque trechos importantes para colegas
+* **Integração em CI/CD** – pipelines que extraem ou validam estrutura com markers
+
+---
+
+### 🚀 Como usar hoje
+
+Disponível no Marketplace VSCode:
+
+```bash
+ext install rafa-mori.lookatni-file-markers
+```
+
+CLI + validações *coming soon* — roadmap já em andamento.
+
+---
+
+### 🎯 Por que estou compartilhando
+
+Atualmente estou **aberto a novas oportunidades** na área de desenvolvimento de ferramentas, automação e infra dev. Se você:
+
+* valoriza produtividade e autonomia no código
+* já trabalhou com tooling, CLI ou extensões developer-focused
+* busca alguém que entrega valor técnico com foco em DX
+
+…vamos conversar! 😊
+
+Adoraria trocar ideias sobre possibilidades de colaboração, posições abertas ou parcerias. 💡
+
+---
+
+### 📣 Quer testar?
+
+Veja o GIF, instale a extensão e me marca caso queira discutir detalhes técnicos ou implementar algo parecido nas suas pipelines!
+
+#OpenToWork #VSCode #DevTools #DeveloperExperience #Automation #OpenSource
