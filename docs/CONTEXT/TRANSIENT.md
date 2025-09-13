@@ -4,6 +4,9 @@ Este arquivo é um espaço reservado para armazenar conversas, ideias ou informa
 
 ## CONTEXTO TRANSIENT
 
-Cara, crei isso aqui pra gente manter uma organização possibilidade de comunicação um pouco mais dinâmica e fluida, sem a necessidade de para as iterações e discussões mais profundas.
+O CLI que havíamos corrigido têm essas coisas abaixo também como "extras". Consegue dar uma olhada?
 
-Além de ser uma pasta controlada por nós pra sumarizar o contexto e coisas quepermitam a gente continuar isso em outros chats caso esse fique pesado.
+extension/lookatni.go
+extension/lookatni-pipe-extract.js
+extension/lookatni-api-server.js
+extension/pipe-extract.js

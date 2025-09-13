@@ -1,0 +1,32 @@
+{
+  "name": "lookatni-file-markers",
+  "version": "1.2.0",
+  "description": "LookAtni File Markers - Advanced file organization with unique markers",
+  "main": "index.js",
+  "bin": {
+    "lookatni": "./bin/lookatni.js"
+  },
+  "files": [
+    "bin/",
+    "binaries/",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "keywords": [
+    "file-markers",
+    "code-organization",
+    "project-management",
+    "development-tools",
+    "cli"
+  ],
+  "author": "Rafael Mori <faelmori@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kubex-ecosystem/lookatni-file-markers.git"
+  },
+  "homepage": "https://github.com/kubex-ecosystem/lookatni-file-markers#readme",
+  "preferGlobal": true
+}

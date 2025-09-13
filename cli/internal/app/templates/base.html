@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Interview Prep</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      margin: 2rem;
+      line-height: 1.6;
+    }
+
+    pre,
+    code {
+      background: #f6f8fa;
+      padding: .2rem .4rem;
+      border-radius: 4px;
+    }
+
+    a {
+      color: #0b69c7;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.25;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    kx-prompt-block {
+      display: block;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px;
+      margin: 16px 0;
+      background: #f9fafb;
+    }
+
+    .kx-field {
+      margin: 8px 0;
+    }
+
+    .kx-field label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .kx-field input,
+    .kx-field select,
+    .kx-field textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    .kx-controls {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .kx-controls button {
+      background: #0b69c7;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .kx-controls button.secondary {
+      background: #6b7280;
+    }
+
+    .kx-controls button:hover {
+      opacity: .9;
+    }
+
+    .kx-controls button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .preview {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 4px;
+      padding: 12px;
+      margin-top: 8px;
+      font-family: monospace;
+      font-size: 13px;
+      white-space: pre-wrap;
+      min-height: 60px;
+    }
+
+    .loading {
+      color: #6b7280;
+      font-style: italic;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    {{.Content}}
+  </div>
+  <script>
+    // Interactive functionality for prompt blocks
+    document.addEventListener('DOMContentLoaded', function () {
+      initializePromptBlocks();
+    });
+
+    function initializePromptBlocks() {
+      const promptBlocks = document.querySelectorAll('kx-prompt-block');
+
+      promptBlocks.forEach(block => {
+        const runButton = block.querySelector('button.run');
+        const preview = block.querySelector('.preview');
+        const fields = block.querySelectorAll('kx-field');
+
+        // Initialize field inputs
+        fields.forEach(field => {
+          const name = field.getAttribute('name');
+          const type = field.getAttribute('type');
+          const values = JSON.parse(field.getAttribute('values') || '[]');
+
+          createFieldInput(field, name, type, values);
+        });
+
+        // Handle run button click
+        if (runButton) {
+          runButton.addEventListener('click', function () {
+            executePrompt(block, preview);
+          });
+        }
+      });
+    }
+
+    function createFieldInput(field, name, type, values) {
+      const label = document.createElement('label');
+      label.textContent = name.charAt(0).toUpperCase() + name.slice(1);
+
+      let input;
+      if (type === 'select' && values.length > 0) {
+        input = document.createElement('select');
+        input.name = name;
+
+        values.forEach(value => {
+          const option = document.createElement('option');
+          option.value = value;
+          option.textContent = value;
+          input.appendChild(option);
+        });
+      } else if (type === 'textarea') {
+        input = document.createElement('textarea');
+        input.name = name;
+        input.rows = 3;
+      } else {
+        input = document.createElement('input');
+        input.type = type === 'text' ? 'text' : type;
+        input.name = name;
+        if (values.length > 0) {
+          input.placeholder = values[0];
+        }
+      }
+
+      field.appendChild(label);
+      field.appendChild(input);
+    }
+
+    function executePrompt(block, preview) {
+      const runButton = block.querySelector('button.run');
+      const template = block.getAttribute('data-template');
+      const defaults = JSON.parse(block.getAttribute('data-defaults') || '{}');
+
+      // Disable button and show loading
+      runButton.disabled = true;
+      runButton.textContent = 'Running...';
+      preview.textContent = 'Generating response...';
+      preview.className = 'preview loading';
+
+      // Gather field values
+      const values = {};
+      const inputs = block.querySelectorAll('input, select, textarea');
+      inputs.forEach(input => {
+        values[input.name] = input.value;
+      });
+
+      // Process template
+      let processedTemplate = template;
+      Object.keys(values).forEach(key => {
+        const regex = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
+        processedTemplate = processedTemplate.replace(regex, values[key]);
+      });
+
+      // Simulate API call (replace with actual MCP integration)
+      setTimeout(() => {
+        preview.className = 'preview';
+        preview.textContent = `Processed Prompt:\n\n${processedTemplate}\n\n--- Response would appear here via MCP ---`;
+
+        runButton.disabled = false;
+        runButton.textContent = 'Run with MCP';
+      }, 1500);
+    }
+  </script>
+</body>
+
+</html>

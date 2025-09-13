@@ -1,0 +1,38 @@
+// Package cli provides command-line interface utilities.
+package cli
+
+import (
+	"os"
+	"strings"
+)
+
+var banners = []string{
+	`
+ __                         __        ______    __              __
+|  \                       |  \      /      \  |  \            |  \
+| ▓▓       ______   ______ | ▓▓   __|  ▓▓▓▓▓▓\_| ▓▓_   _______  \▓▓
+| ▓▓      /      \ /      \| ▓▓  /  \ ▓▓__| ▓▓   ▓▓ \ |       \|  \
+| ▓▓     |  ▓▓▓▓▓▓\  ▓▓▓▓▓▓\ ▓▓_/  ▓▓ ▓▓    ▓▓\▓▓▓▓▓▓ | ▓▓▓▓▓▓▓\ ▓▓
+| ▓▓     | ▓▓  | ▓▓ ▓▓  | ▓▓ ▓▓   ▓▓| ▓▓▓▓▓▓▓▓ | ▓▓ __| ▓▓  | ▓▓ ▓▓
+| ▓▓_____| ▓▓__/ ▓▓ ▓▓__/ ▓▓ ▓▓▓▓▓▓\| ▓▓  | ▓▓ | ▓▓|  \ ▓▓  | ▓▓ ▓▓
+| ▓▓     \\▓▓    ▓▓\▓▓    ▓▓ ▓▓  \▓▓\ ▓▓  | ▓▓  \▓▓  ▓▓ ▓▓  | ▓▓ ▓▓
+ \▓▓▓▓▓▓▓▓ \▓▓▓▓▓▓  \▓▓▓▓▓▓ \▓▓   \▓▓\▓▓   \▓▓   \▓▓▓▓ \▓▓   \▓▓\▓▓
+`,
+}
+
+func GetDescriptions(descriptionArg []string, hideBanner bool) map[string]string {
+	var description, banner string
+	if descriptionArg != nil {
+		if strings.Contains(strings.Join(os.Args[0:], ""), "-h") {
+			description = descriptionArg[0]
+		} else {
+			description = descriptionArg[1]
+		}
+	} else {
+		description = ""
+	}
+	if !hideBanner {
+		banner = banners[0]
+	}
+	return map[string]string{"banner": banner, "description": description}
+}

@@ -111,7 +111,7 @@ class MarkerValidator {
     async validateFile(markerPath) {
         this.logger.info(`Validating marker file: ${markerPath}`);
         try {
-            const fs = await Promise.resolve().then(() => __importStar(require('fs')));
+            const fs = await import('fs');
             if (!fs.existsSync(markerPath)) {
                 return {
                     isValid: false,
