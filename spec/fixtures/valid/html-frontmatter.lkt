@@ -1,0 +1,11 @@
+---
+lookatni:
+  version: v1
+  pattern: <!-- FILE: {filename} -->
+---
+<!-- FILE: README.md -->
+# Hello
+
+<!-- FILE: src/index.js -->
+console.log('ok')
+

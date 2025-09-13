@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Logger } from '../utils/logger';
-import { MarkerParser } from '../utils/markerParser';
+import { validateWithCore } from '../utils/coreBridge';
 
 export class ShowStatisticsCommand {
     public readonly commandId = 'lookatni-file-markers.showStatistics';
@@ -63,14 +63,19 @@ export class ShowStatisticsCommand {
     }
     
     private async analyzeMarkedFile(filePath: string): Promise<void> {
-        const parser = new MarkerParser(this.logger);
-        
         const results = await vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
             title: 'Analyzing marked file...',
             cancellable: false
         }, async () => {
-            return parser.parseMarkedFile(filePath);
+            const res = await validateWithCore(filePath);
+            return {
+                totalMarkers: res.statistics.totalMarkers,
+                totalFiles: res.statistics.totalFiles,
+                totalBytes: res.statistics.totalBytes,
+                errors: res.errors.map((e: any) => ({ line: e.line ?? 0, message: e.message })),
+                markers: [] // not available via validator; keep empty for now
+            };
         });
         
         // Get file stats
@@ -154,42 +159,7 @@ export class ShowStatisticsCommand {
         }
         
         // File type analysis
-        if (stats.markers && stats.markers.length > 0) {
-            const fileTypes: { [key: string]: number } = {};
-            const fileSizes: { name: string; size: number }[] = [];
-            
-            stats.markers.forEach((marker: any) => {
-                const ext = path.extname(marker.filename).toLowerCase() || 'no-extension';
-                fileTypes[ext] = (fileTypes[ext] || 0) + 1;
-                
-                fileSizes.push({
-                    name: marker.filename,
-                    size: Buffer.byteLength(marker.content, 'utf-8')
-                });
-            });
-            
-            // Show file types
-            this.outputChannel.appendLine('');
-            this.outputChannel.appendLine('=== FILE TYPES DISTRIBUTION ===');
-            const sortedTypes = Object.entries(fileTypes)
-                .sort(([,a], [,b]) => b - a);
-            
-            sortedTypes.forEach(([ext, count]) => {
-                const percentage = (count / stats.totalFiles * 100).toFixed(1);
-                this.outputChannel.appendLine(`${ext}: ${count} files (${percentage}%)`);
-            });
-            
-            // Show largest files
-            this.outputChannel.appendLine('');
-            this.outputChannel.appendLine('=== LARGEST FILES ===');
-            const largestFiles = fileSizes
-                .sort((a, b) => b.size - a.size)
-                .slice(0, 10);
-            
-            largestFiles.forEach(file => {
-                this.outputChannel.appendLine(`📄 ${file.name}: ${this.formatBytes(file.size)}`);
-            });
-        }
+        // File type distribution requires per-file data; omitted until core exposes it without private APIs
         
         // Show efficiency metrics
         this.outputChannel.appendLine('');

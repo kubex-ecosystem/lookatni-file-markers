@@ -4,7 +4,7 @@ export declare class MarkerValidator {
     private config;
     private customRules;
     private readonly FS_CHAR;
-    private readonly markerRegex;
+    private markerRegex;
     constructor(config?: ValidatorConfig);
     /**
      * Validate marker content
@@ -30,6 +30,8 @@ export declare class MarkerValidator {
      * Parse marker content (similar to extractor but focused on validation)
      */
     private parseMarkers;
+    private detectFSChar;
+    private buildMarkerRegex;
     /**
      * Finalize a marker being parsed
      */

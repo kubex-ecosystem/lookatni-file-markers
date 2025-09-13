@@ -189,6 +189,10 @@ class MarkerGenerator {
         header += `Total Files: ${totalFiles}\n`;
         header += `Source: ${sourcePath}\n`;
         header += `Generator: lookatni-core v1.1.0\n`;
+        header += `MarkerSpec: v1\n`;
+        header += `FS: 28\n`;
+        header += `MarkerTokens: //\\x1C/ <path> /\\x1C//\n`;
+        header += `Encoding: utf-8\n`;
         // Add custom metadata
         if (Object.keys(customMetadata).length > 0) {
             header += `\nCustom Metadata:\n`;

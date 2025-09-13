@@ -21,7 +21,6 @@ export class MarkerExtractor {
 
   // ASCII 28 (File Separator) character for invisible markers
   private readonly FS_CHAR = String.fromCharCode(28);
-  private readonly markerRegex: RegExp;
 
   constructor(config?: ExtractorConfig) {
     this.config = {
@@ -32,7 +31,6 @@ export class MarkerExtractor {
     };
 
     this.logger = new Logger('extractor');
-    this.markerRegex = new RegExp(`^\\/\\/${this.FS_CHAR.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\/ (.+?) \\/${this.FS_CHAR.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\/\\/$`);
   }
 
   /**
@@ -198,6 +196,12 @@ export class MarkerExtractor {
     const markers: ParsedMarker[] = [];
     const errors: Array<{ line: number; message: string }> = [];
 
+    // Detect FS char dynamically (fallback to default)
+    // Detect config via frontmatter or fallback to FS autodetect
+    const cfg = this.parseFrontmatter(lines);
+    const detectedFS = this.detectFSChar(lines) || this.FS_CHAR;
+    const markerRegex = cfg?.regex || this.buildMarkerRegex(detectedFS);
+
     let currentMarker: Partial<ParsedMarker> | null = null;
     let contentLines: string[] = [];
 
@@ -205,7 +209,7 @@ export class MarkerExtractor {
       const line = lines[i];
       const lineNumber = i + 1;
 
-      const match = line.match(this.markerRegex);
+      const match = line.match(markerRegex);
 
       if (match) {
         // Save previous marker if exists
@@ -323,5 +327,46 @@ export class MarkerExtractor {
     this.logger.debug(`Extracted: ${outputPath} (${marker.content.length} chars)`);
 
     return true;
+  }
+
+  private detectFSChar(lines: string[]): string | null {
+    // Match any control char (0x00-0x1F) as FS and require same char on both sides using a backreference
+    const generic = /^\/\/([\x00-\x1F])\/ (.+?) \/\1\/\/$/;
+    for (const line of lines) {
+      const m = line.match(generic);
+      if (m) {
+        return m[1];
+      }
+    }
+    return null;
+  }
+
+  private buildMarkerRegex(fsChar: string): RegExp {
+    const esc = fsChar.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp(`^\\/\\/${esc}\\/ (.+?) \\/${esc}\\/\\/$`);
+  }
+
+  private parseFrontmatter(lines: string[]): { regex: RegExp } | null {
+    if (lines.length < 3) return null;
+    if (lines[0].trim() !== '---') return null;
+    let i = 1;
+    const meta: any = {};
+    for (; i < lines.length; i++) {
+      const ln = lines[i];
+      if (ln.trim() === '---') { i++; break; }
+      if (ln.trim() === 'lookatni:') continue;
+      const m = ln.match(/^\s{2}([a-zA-Z_]+):\s*(.*)$/);
+      if (m) { meta[m[1]] = m[2]; }
+    }
+    if (meta.pattern && String(meta.pattern).includes('{filename}')) {
+      const patt = String(meta.pattern).replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\{filename\}/g, '(.+?)');
+      return { regex: new RegExp(`^${patt}$`) };
+    }
+    if (meta.start && meta.end) {
+      const s = String(meta.start).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const e = String(meta.end).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      return { regex: new RegExp(`^${s} (.+?) ${e}$`) };
+    }
+    return null;
   }
 }

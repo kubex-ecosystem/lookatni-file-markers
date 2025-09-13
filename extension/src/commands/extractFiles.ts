@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Logger } from '../utils/logger';
-import { MarkerParser } from '../utils/markerParser';
+import { extractWithCore } from '../utils/coreBridge';
 
 export class ExtractFilesCommand {
     public readonly commandId = 'lookatni-file-markers.extractFiles';
@@ -32,13 +32,17 @@ export class ExtractFilesCommand {
                 return;
             }
             
-            const parser = new MarkerParser(this.logger);
             const results = await vscode.window.withProgress({
                 location: vscode.ProgressLocation.Notification,
                 title: 'Extracting files...',
                 cancellable: false
             }, async () => {
-                return parser.extractFiles(markedFile, destFolder, options);
+                const res = await extractWithCore(markedFile, destFolder, options as any, this.logger);
+                return {
+                    success: res.success,
+                    extractedFiles: res.extractedFiles,
+                    errors: res.errors
+                };
             });
             
             this.showResults(results, destFolder);

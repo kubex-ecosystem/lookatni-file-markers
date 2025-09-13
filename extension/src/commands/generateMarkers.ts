@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Logger } from '../utils/logger';
-import { MarkerGenerator } from '../utils/markerGenerator';
+import { generateWithCore } from '../utils/coreBridge';
 
 export class GenerateMarkersCommand {
     public readonly commandId = 'lookatni-file-markers.generateMarkers';
@@ -35,19 +35,17 @@ export class GenerateMarkersCommand {
                 return;
             }
             
-            // Generate markers
-            const generator = new MarkerGenerator(this.logger);
+            // Generate markers using core (fallback to legacy util)
             const results = await vscode.window.withProgress({
                 location: vscode.ProgressLocation.Notification,
                 title: 'Generating markers...',
                 cancellable: false
             }, async (progress) => {
-                return generator.generateMarkers(sourceFolder, outputFile, options, (current, total) => {
-                    progress.report({
-                        increment: (100 / total),
-                        message: `Processing ${current}/${total} files...`
-                    });
+                await generateWithCore(sourceFolder, outputFile, options, (pct) => {
+                    progress.report({ increment: 0, message: `${pct}%` });
                 });
+                // Build minimal summary (we can enrich via validator later)
+                return { sourceFolder, totalFiles: 0, totalBytes: 0, skippedFiles: [], fileTypes: {} };
             });
             
             // Show results
@@ -124,7 +122,8 @@ export class GenerateMarkersCommand {
     
     private async getOutputFile(sourceFolder: string): Promise<string | undefined> {
         const baseName = path.basename(sourceFolder);
-        const defaultName = `${baseName}-lookatni.txt`;
+        // Temporary dual extension for visibility in editors: .lkt.txt
+        const defaultName = `${baseName}-lookatni.lkt.txt`;
         
         const result = await vscode.window.showInputBox({
             prompt: 'Enter output file name',

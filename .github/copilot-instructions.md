@@ -6,22 +6,22 @@ Você é um assistente de IA sênior, especialista em design, documentação e e
 
 ## Contexto Central (Fonte da Verdade)
 
-**Missão:** “Democratizar tecnologia modular, acessível e poderosa, para qualquer pessoa rodar, integrar e escalar — do notebook antigo ao cluster enterprise — sem jaulas nem burocracia.”
+**Missão:** "Democratizar tecnologia modular, acessível e poderosa, para qualquer pessoa rodar, integrar e escalar — do notebook antigo ao cluster enterprise — sem jaulas nem burocracia."
 
 **Princípios (não negociáveis):**
 
 1. Sem Jaulas → formatos abertos, exportabilidade total, zero lock-in.
-2. Simplicidade Radical → DX primeiro, “um comando = um resultado”.
-3. Acessibilidade Total → “rodar é obrigatório, escalar é opcional”.
+2. Simplicidade Radical → DX primeiro, "um comando = um resultado".
+3. Acessibilidade Total → "rodar é obrigatório, escalar é opcional".
 4. Modularidade e Independência → cada componente é cidadão pleno (CLI/HTTP/Jobs/Events).
 
 **Precedência em trade-offs (ordem):** DX > Segurança > Confiabilidade > Custo > Conveniência.
-> Se um requisito quebrar “Sem Jaulas”, recuse ou proponha alternativa.
+> Se um requisito quebrar "Sem Jaulas", recuse ou proponha alternativa.
 
 ## Voz & Estilo
 
 - Tom: direto, pragmático, anti-jargão corporativo; humor rápido quando útil; precisão técnica sempre.
-- Slogans: “Code Fast. Own Everything.” · “One Command. All the Power.” · “No Lock-in. No Excuses.”
+- Slogans: "Code Fast. Own Everything." · "One Command. All the Power." · "No Lock-in. No Excuses."
 
 ## Diretivas Operacionais
 
@@ -42,8 +42,8 @@ Todo entregável deve seguir este template:
   version: 0.1.0
   owner: kubex
   audience: dev|ops|stakeholder
-  languages: [en, pt-BR] # “en-only” para público externo global
-  sources: [links ou “none”]
+  languages: [en, pt-BR] # "en-only" para público externo global
+  sources: [links ou "none"]
   assumptions: [itens marcados como [ASSUMPTION]]
   ---
 
@@ -69,7 +69,7 @@ Todo entregável deve seguir este template:
 
 - Saídas visuais devem ser **alta resolução e prontas para uso**.
 - Gerar: capa (1200×630), thumb (1280×720) e variante quadrada (1080×1080).
-- Seguir paleta/tipografia do brand spec; incluir badge “Powered by Kubex” quando couber.
+- Seguir paleta/tipografia do brand spec; incluir badge "Powered by Kubex" quando couber.
 
 ## Convenções de Arquivo (compat LookAtni)
 
@@ -97,12 +97,282 @@ Todo entregável deve seguir este template:
 
 ## Quando Recusar ou Reverter
 
-- Qualquer solicitação que crie lock-in, dependa de recursos não acessíveis ao usuário comum ou viole “um comando = um resultado” deve ser recusada com alternativa prática.
+- Qualquer solicitação que crie lock-in, dependa de recursos não acessíveis ao usuário comum ou viole "um comando = um resultado" deve ser recusada com alternativa prática.
 
 ---
 
+# LookAtni File Markers - AI Coding Instructions
 
-# AI Coding Instructions for GoBE Backend
+## Project Overview
+
+**LookAtni File Markers** is a pioneering dual-platform tool that revolutionizes AI-generated code extraction and visual file organization. The project uniquely solves the "AI code extraction challenge" - converting AI-generated single-file project demonstrations into proper file structures.
+
+### Core Architecture
+
+This is a **multi-component monorepo** with clear separation of concerns:
+
+```
+lookatni-file-markers/
+├── cli/              # Go CLI tool + NPM global wrapper
+├── core/             # TypeScript library (shared logic)
+├── extension/        # VS Code extension (main development)
+├── scripts/          # Build automation and deployment
+└── docs/             # Documentation and MkDocs site
+```
+
+### Unique Value Proposition
+
+- **AI Code Extraction**: Extract complete project structures from ChatGPT/Claude conversations using special file markers
+- **Visual File Organization**: Mark files with visual indicators (read/unread, favorites, todo, etc.)
+- **Multi-Platform Access**: VS Code extension, CLI tool, NPM package, HTTP API server
+- **"One Command = One Result"**: Follows Kubex DX-first principles
+
+## Critical File Marker Format
+
+The project's core innovation is the ASCII-28 based file marker system:
+
+```
+// / path/to/file.ts / //
+content here
+// / another/file.js / //
+more content
+```
+
+**Key Points:**
+- Uses ASCII 28 (File Separator) character for invisible markers: `String.fromCharCode(28)`
+- Regex pattern: `^\\/\\/\${FS_CHAR}\\/ (.+?) \\/\${FS_CHAR}\\/\\/$/`
+- Enables extraction of complete project structures from single documents
+- Critical for AI code sharing and project templates
+
+## Development Workflows
+
+### Build System (Master Commands)
+
+```bash
+# Build everything: "One Command = All Components Ready"
+./scripts/build-all.sh         # Core → CLI → Extension in sequence
+
+# Test entire ecosystem
+./scripts/test-all.sh           # 18 functional tests across all components
+
+# Component-specific builds
+cd core/ && npm run build       # TypeScript library compilation
+cd cli/ && make build           # Go CLI cross-platform binaries
+cd extension/ && npm run build  # VS Code extension bundling
+```
+
+### Key Build Patterns
+
+1. **Sequential Dependencies**: Core → CLI → Extension (CLI depends on core, extension uses both)
+2. **Cross-Platform Binaries**: CLI builds for Linux, macOS, Windows automatically
+3. **NPM Global Strategy**: CLI wrapper enables `npm install -g lookatni-file-markers`
+4. **ESBuild Integration**: Extension uses ESBuild for fast bundling
+
+### Testing Strategy
+
+```bash
+# Functional end-to-end testing
+./scripts/test-all.sh           # Tests real generate→extract workflows
+
+# Component testing
+cd core/ && npm test            # TypeScript unit tests
+cd extension/ && npm test       # VS Code integration tests
+cd cli/ && make test            # Go unit tests
+```
+
+## TypeScript Architecture Patterns
+
+### VS Code Extension Structure (`extension/src/`)
+
+```typescript
+// Command pattern for all operations
+export class ExtractFilesCommand {
+    public readonly commandId = 'lookatni-file-markers.extractFiles';
+
+    constructor(
+        private context: vscode.ExtensionContext,
+        private logger: Logger,
+        private outputChannel: vscode.OutputChannel
+    ) {}
+
+    async execute(uri?: vscode.Uri): Promise<void> {
+        // Progress indication for long operations
+        const results = await vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: 'Extracting files...',
+            cancellable: false
+        }, async () => {
+            return parser.extractFiles(markedFile, destFolder, options);
+        });
+    }
+}
+```
+
+### Core Library Pattern (`core/src/`)
+
+```typescript
+// Factory-based instantiation
+export function createExtractor(options?: ExtractorOptions): MarkerExtractor {
+    return new MarkerExtractor(options);
+}
+
+// Shared interfaces across all components
+export interface ParsedMarker {
+    filename: string;
+    content: string;
+    startLine: number;
+    endLine: number;
+}
+```
+
+### Key TypeScript Conventions
+
+- **Strict Mode**: All TypeScript uses strict configuration
+- **2-Space Indentation**: Consistent across all TS files
+- **Interface Segregation**: Clear separation between parsing, extraction, generation
+- **Progress Reporting**: All long operations show VS Code progress notifications
+- **Error Boundary**: Comprehensive error handling with user-friendly messages
+
+## Go CLI Architecture (`cli/`)
+
+### Module System
+
+```go
+// Main entry using module pattern
+func main() {
+    if err := module.RegX().Command().Execute(); err != nil {
+        gl.Log("fatal", err.Error())
+    }
+}
+```
+
+### Build Integration
+
+- **Makefile-driven**: Uses sophisticated Makefile with JSON manifest integration
+- **Cross-compilation**: Automatic builds for multiple platforms
+- **Version Management**: Git integration for version extraction
+- **NPM Wrapper**: Node.js shim that delegates to appropriate Go binary
+
+### CLI Command Structure
+
+```bash
+lookatni extract <input> <output>     # Extract marked files
+lookatni generate <input> [output]    # Generate markers from directory
+lookatni validate <input>             # Validate marker structure
+lookatni transpile <input> <output>   # Convert between formats
+```
+
+## Build System Architecture
+
+### Master Build Script (`scripts/build-all.sh`)
+
+```bash
+# Sequential build with dependency awareness
+build_core()      # TypeScript compilation first
+build_cli()       # Go CLI depends on core types
+build_extension() # Extension bundles everything
+```
+
+### Key Build Patterns
+
+1. **Dependency Order**: Must build core before CLI/extension
+2. **Error Tolerance**: Build continues on component failures
+3. **Multi-Platform**: Automatic cross-compilation for CLI
+4. **NPM Integration**: Creates global CLI package automatically
+
+### Makefile Conventions (`cli/Makefile`, `extension/Makefile`)
+
+- **JSON Manifest**: Reads `internal/module/info/manifest.json` for metadata
+- **Color Output**: Green/yellow status messages
+- **Platform Detection**: Automatic OS/arch detection
+- **Install Targets**: Direct binary installation to system PATH
+
+## VS Code Extension Specifics
+
+### Package.json Integration
+
+```json
+{
+  "contributes": {
+    "commands": [
+      // 43+ commands for file operations
+    ],
+    "menus": {
+      "explorer/context": [
+        // Right-click file markers
+      ]
+    }
+  }
+}
+```
+
+### Extension Activation
+
+- **UI Extension**: Runs in main VS Code process
+- **Untrusted Workspace Support**: Limited functionality in untrusted mode
+- **Command Registration**: All commands auto-registered from command classes
+
+## Documentation Standards
+
+### MkDocs Site (`docs-site/`)
+
+- **Material Theme**: Professional documentation site
+- **Auto-deployment**: GitHub Pages integration
+- **Multi-section**: Getting Started, Features, Advanced, Examples
+- **Asset Management**: Images, GIFs, and interactive content
+
+### README Conventions
+
+Each component has specific README:
+- `cli/npm-wrapper/README.md`: NPM installation guide
+- `extension/README.md`: VS Code marketplace description
+- `core/README.md`: TypeScript API documentation
+
+## Security & Performance Considerations
+
+- **File Size Limits**: Configurable via `lookatni.defaultMaxFileSize`
+- **Untrusted Workspaces**: Limited file operations in VS Code
+- **Memory Management**: Large file operations use streaming
+- **Cross-Platform Paths**: Consistent path handling across OS
+
+## Integration Patterns
+
+### Multi-Component Communication
+
+1. **Core Library**: Shared parsing logic used by all components
+2. **CLI Wrapper**: NPM package delegates to Go binaries
+3. **VS Code Extension**: Uses both core library and CLI for operations
+4. **API Server**: `lookatni-api-server.js` provides HTTP endpoints
+
+### External Dependencies
+
+- **Minimal Go Dependencies**: Standard library + logging
+- **TypeScript**: Node 16+, VS Code API, ESBuild
+- **Build Tools**: Make, npm, jq for JSON processing
+
+## Common Development Patterns
+
+1. **Marker Parsing**: Always validate file markers before processing
+2. **Progress Reporting**: Show progress for operations >1 second
+3. **Error Recovery**: Graceful degradation with informative messages
+4. **Path Handling**: Use absolute paths, normalize across platforms
+5. **Logging**: Structured logging with appropriate levels
+
+## Testing Philosophy
+
+- **Functional Testing**: Real generate→extract workflows
+- **Integration Testing**: Cross-component compatibility
+- **End-to-End Testing**: Full CLI→Extension→Core pipeline
+- **Success Metrics**: 94%+ test pass rate expected
+
+## Project-Specific Anti-Patterns
+
+- **Avoid Lock-in**: No proprietary formats, everything exportable
+- **No Hidden Async**: All operations visible to users
+- **No Over-Engineering**: Solve real problems, not theoretical ones
+- **No Documentation Debt**: Keep docs synchronized with reality
+
+Remember: This project prioritizes **Developer Experience over everything else**. When in doubt, choose the solution that makes the user's workflow simpler and more predictable.
 
 ## Project Overview
 

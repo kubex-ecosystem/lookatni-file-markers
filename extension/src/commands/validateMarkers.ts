@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { Logger } from '../utils/logger';
-import { MarkerParser } from '../utils/markerParser';
+import { validateWithCore } from '../utils/coreBridge';
 
 export class ValidateMarkersCommand {
     public readonly commandId = 'lookatni-file-markers.validateMarkers';
@@ -22,14 +22,19 @@ export class ValidateMarkersCommand {
                 return;
             }
             
-            // Validate markers
-            const parser = new MarkerParser(this.logger);
+            // Validate markers (prefer core)
             const validation = await vscode.window.withProgress({
                 location: vscode.ProgressLocation.Notification,
                 title: 'Validating markers...',
                 cancellable: false
             }, async () => {
-                return parser.validateMarkers(markedFile);
+                const res = await validateWithCore(markedFile);
+                // Normalize to legacy shape expected by UI
+                const allErrors = [
+                    ...(res.errors || []).map((e: any) => ({ line: e.line, message: e.message, severity: 'error' })),
+                    ...(res.warnings || []).map((e: any) => ({ line: e.line, message: e.message, severity: 'warning' })),
+                ];
+                return { isValid: res.isValid, errors: allErrors, statistics: res.statistics };
             });
             
             // Show results

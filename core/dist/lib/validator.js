@@ -69,7 +69,9 @@ class MarkerValidator {
                 fileTypes: {}
             }
         };
-        // Parse markers
+        // Parse markers (auto-detect FS char per content)
+        const detectedFS = this.detectFSChar(markerContent.split('\n')) || this.FS_CHAR;
+        this.markerRegex = this.buildMarkerRegex(detectedFS);
         const parseResults = this.parseMarkers(markerContent);
         result.statistics.totalMarkers = parseResults.totalMarkers;
         result.statistics.totalFiles = parseResults.totalFiles;
@@ -81,6 +83,35 @@ class MarkerValidator {
             line: e.line,
             severity: 'error'
         })));
+        // No markers at all → invalid structure
+        if (parseResults.totalMarkers === 0) {
+            result.errors.push({
+                type: 'structure',
+                message: 'No markers found in content',
+                severity: 'error'
+            });
+        }
+        // Strict mode: flag malformed marker-like lines that don't match the canonical regex
+        if (this.config.strictMode) {
+            const startToken = `//${this.FS_CHAR}/`;
+            const endToken = `/${this.FS_CHAR}//`;
+            const lines = markerContent.split('\n');
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const hasFS = line.includes(this.FS_CHAR);
+                const looksLikeStart = line.includes(startToken);
+                const looksLikeEnd = line.includes(endToken);
+                const looksLikeMarker = looksLikeStart || looksLikeEnd || (hasFS && line.includes('//'));
+                if (looksLikeMarker && !this.markerRegex.test(line)) {
+                    result.errors.push({
+                        type: 'structure',
+                        message: 'Malformed marker line (strict mode)',
+                        line: i + 1,
+                        severity: 'error'
+                    });
+                }
+            }
+        }
         // Validate individual markers
         this.validateMarkers(parseResults.markers, result);
         // Run custom validation rules
@@ -227,6 +258,19 @@ class MarkerValidator {
             errors,
             markers
         };
+    }
+    detectFSChar(lines) {
+        const generic = /^\/\/([\x00-\x1F])\/ (.+?) \/\1\/\/$/;
+        for (const line of lines) {
+            const m = line.match(generic);
+            if (m)
+                return m[1];
+        }
+        return null;
+    }
+    buildMarkerRegex(fsChar) {
+        const esc = fsChar.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return new RegExp(`^\\/\\/${esc}\\/ (.+?) \\/${esc}\\/\\/$`);
     }
     /**
      * Finalize a marker being parsed

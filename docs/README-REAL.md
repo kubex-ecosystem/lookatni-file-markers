@@ -149,6 +149,8 @@ lookatni-file-markers/
 │   ├── test-all.sh     # Comprehensive tests
 │   └── create-npm-wrapper.sh
 └── docs/               # 📖 Documentação real
+└── spec/               # 📐 Marker Spec v1 + fixtures (fonte da verdade)
+└── tools/              # 🛠️ Utilitários de pipe e HTTP API (opcionais)
 ```
 
 ---
@@ -160,6 +162,7 @@ lookatni-file-markers/
 - **ASCII 28** (File Separator) - invisível e conflict-free
 - **Formato**: `//\x1C/ path/file.js /\x1C//`
 - **Preserva**: estrutura, timestamps, metadata
+ - **Spec**: ver `spec/marker-v1.md` e `spec/fixtures/`
 
 ### **CLI Go Engine**
 
@@ -176,9 +179,15 @@ lookatni-file-markers/
 
 ### **VS Code Extension**
 
-- **Comandos**: 43 comandos implementados
+- **Comandos**: comandos principais prontos (Extract, Generate, Validate)
 - **UI**: Status bar, explorer, visual markers
-- **Integration**: Usa CLI Go como backend
+- **Integração**: Agora consome o `core` (TS) para extração/geração/validação, removendo duplicação
+
+### **Tools (opcionais)**
+
+- `tools/lookatni-pipe-extract.js`: extrai um arquivo via STDIN → STDOUT
+- `tools/pipe-extract.js`: extrai todos os arquivos para um diretório
+- `tools/lookatni-api-server.js`: serve scripts via HTTP de um bundle `.lkt`
 
 ---
 

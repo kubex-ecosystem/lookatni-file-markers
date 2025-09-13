@@ -82,7 +82,8 @@ type ExtractRequest struct {
 
 // ValidateRequest represents a marker validation request.
 type ValidateRequest struct {
-	MarkedFile string `json:"markedFile"`
+    MarkedFile string `json:"markedFile"`
+    Strict     bool   `json:"strict"`
 }
 
 // TranspileRequest represents a Markdown transpilation request.
@@ -144,7 +145,7 @@ func (s *Server) handleValidate(w http.ResponseWriter, r *http.Request) {
 
 	s.logger.Log("debug", "Validate request: %s", req.MarkedFile)
 
-	result, err := s.parser.ValidateMarkers(req.MarkedFile)
+    result, err := s.parser.ValidateMarkers(req.MarkedFile, req.Strict)
 	if err != nil {
 		s.sendError(w, fmt.Sprintf("Validation failed: %v", err), http.StatusInternalServerError)
 		return

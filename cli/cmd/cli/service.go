@@ -76,7 +76,8 @@ func extractCommand() *cobra.Command {
 
 // validateCommand handles marker validation.
 func validateCommand() *cobra.Command {
-	var debug bool
+    var debug bool
+    var strict bool
 
 	var validateCmd = &cobra.Command{
 		Use:   "validate <marked-file>",
@@ -87,22 +88,27 @@ func validateCommand() *cobra.Command {
 			"Validate markers in a consolidated LookAtni file",
 			"Validate markers in consolidated file",
 		}, false),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if debug {
-				gl.SetDebug(true)
-			}
-			markedFile := args[0]
+        RunE: func(cmd *cobra.Command, args []string) error {
+            if debug {
+                gl.SetDebug(true)
+            }
+            markedFile := args[0]
 
 			// Initialize app
 			cliApp := app.New(nil)
 
-			return cliApp.Run([]string{"validate", markedFile})
-		},
-	}
+            opts := []string{"validate", markedFile}
+            if strict {
+                opts = append(opts, "--strict")
+            }
+            return cliApp.Run(opts)
+        },
+    }
 
-	validateCmd.Flags().BoolP("debug", "D", false, "Enable debug logging")
+    validateCmd.Flags().BoolP("debug", "D", false, "Enable debug logging")
+    validateCmd.Flags().BoolVar(&strict, "strict", false, "Enable strict validation (flag malformed marker-like lines)")
 
-	return validateCmd
+    return validateCmd
 }
 
 // generateCommand handles project consolidation (directory -> marked file).
@@ -142,11 +148,19 @@ func generateCommand() *cobra.Command {
 				options = append(options, "--exclude", pattern)
 			}
 
-			// TODO: Handle custom marker options when adaptive parser is fully implemented
-			_ = markerPreset
-			_ = markerStart
-			_ = markerEnd
-			_ = markerPattern
+            // Pass marker customization flags to app if provided
+            if markerPreset != "" {
+                options = append(options, "--marker-preset", markerPreset)
+            }
+            if markerStart != "" {
+                options = append(options, "--marker-start", markerStart)
+            }
+            if markerEnd != "" {
+                options = append(options, "--marker-end", markerEnd)
+            }
+            if markerPattern != "" {
+                options = append(options, "--marker-pattern", markerPattern)
+            }
 
 			return cliApp.Run(options)
 		},

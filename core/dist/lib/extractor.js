@@ -49,7 +49,6 @@ class MarkerExtractor {
             ...config
         };
         this.logger = new logger_1.Logger('extractor');
-        this.markerRegex = new RegExp(`^\\/\\/${this.FS_CHAR.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\/ (.+?) \\/${this.FS_CHAR.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\/\\/$`);
     }
     /**
      * Extract files from marker content to target directory
@@ -186,12 +185,15 @@ class MarkerExtractor {
         const lines = content.split('\n');
         const markers = [];
         const errors = [];
+        // Detect FS char dynamically (fallback to default)
+        const detectedFS = this.detectFSChar(lines) || this.FS_CHAR;
+        const markerRegex = this.buildMarkerRegex(detectedFS);
         let currentMarker = null;
         let contentLines = [];
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
             const lineNumber = i + 1;
-            const match = line.match(this.markerRegex);
+            const match = line.match(markerRegex);
             if (match) {
                 // Save previous marker if exists
                 if (currentMarker) {
@@ -284,6 +286,21 @@ class MarkerExtractor {
         fs.writeFileSync(outputPath, marker.content, 'utf-8');
         this.logger.debug(`Extracted: ${outputPath} (${marker.content.length} chars)`);
         return true;
+    }
+    detectFSChar(lines) {
+        // Match any control char (0x00-0x1F) as FS and require same char on both sides using a backreference
+        const generic = /^\/\/([\x00-\x1F])\/ (.+?) \/\1\/\/$/;
+        for (const line of lines) {
+            const m = line.match(generic);
+            if (m) {
+                return m[1];
+            }
+        }
+        return null;
+    }
+    buildMarkerRegex(fsChar) {
+        const esc = fsChar.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return new RegExp(`^\\/\\/${esc}\\/ (.+?) \\/${esc}\\/\\/$`);
     }
 }
 exports.MarkerExtractor = MarkerExtractor;

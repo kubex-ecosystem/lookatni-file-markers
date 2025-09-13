@@ -91,7 +91,12 @@ export class MarkerGenerator {
       preserveTimestamps: options?.preserveTimestamps ?? true,
       customMetadata: options?.customMetadata ?? {},
       validateBeforeGeneration: options?.validateBeforeGeneration ?? false,
-      progressCallback: options?.progressCallback ?? (() => { })
+      progressCallback: options?.progressCallback ?? (() => { }),
+      markerPreset: options?.markerPreset ?? '',
+      markerStart: options?.markerStart ?? '',
+      markerEnd: options?.markerEnd ?? '',
+      markerPattern: options?.markerPattern ?? '',
+      includeFrontmatter: options?.includeFrontmatter ?? false
     };
 
     const result: GenerationResult = {
@@ -130,8 +135,10 @@ export class MarkerGenerator {
 
     this.logger.info(`Processing ${filesToProcess.length} files after filtering`);
 
-    // Create marker content
-    let content = this.createHeader(sourcePath, filesToProcess.length, opts.customMetadata);
+    // Create marker content: optional frontmatter + header
+    let content = '';
+    content += this.buildFrontmatter(opts);
+    content += this.createHeader(sourcePath, filesToProcess.length, opts.customMetadata);
 
     // Process each file
     for (let i = 0; i < filesToProcess.length; i++) {
@@ -202,6 +209,10 @@ export class MarkerGenerator {
     header += `Total Files: ${totalFiles}\n`;
     header += `Source: ${sourcePath}\n`;
     header += `Generator: lookatni-core v1.1.0\n`;
+    header += `MarkerSpec: v1\n`;
+    header += `FS: 28\n`;
+    header += `MarkerTokens: //\\x1C/ <path> /\\x1C//\n`;
+    header += `Encoding: utf-8\n`;
 
     // Add custom metadata
     if (Object.keys(customMetadata).length > 0) {
@@ -223,7 +234,9 @@ export class MarkerGenerator {
     const fileContent = fs.readFileSync(filePath, { encoding: options.encoding as BufferEncoding });
     const stats = fs.statSync(filePath);
 
-    let output = `//${this.FS_CHAR}/ ${relativePath} /${this.FS_CHAR}//\n`;
+    // Build marker line (supports custom config)
+    const markerLine = this.buildMarkerLine(relativePath, options);
+    let output = `${markerLine}\n`;
 
     // Add metadata if requested
     if (options.includeMetadata) {
@@ -241,5 +254,41 @@ export class MarkerGenerator {
 
     output += '\n';
     return output;
+  }
+
+  private buildFrontmatter(options: Required<GenerationOptions>): string {
+    if (!options.includeFrontmatter) return '';
+    const cfg: Record<string, any> = { version: 'v1' };
+    if (options.markerPattern) cfg.pattern = options.markerPattern;
+    if (options.markerStart) cfg.start = options.markerStart;
+    if (options.markerEnd) cfg.end = options.markerEnd;
+    if (options.markerPreset) cfg.preset = options.markerPreset;
+    const lines = ['---', 'lookatni:'];
+    for (const [k, v] of Object.entries(cfg)) {
+      lines.push(`  ${k}: ${String(v)}`);
+    }
+    lines.push('---');
+    return lines.join('\n') + '\n';
+  }
+
+  private buildMarkerLine(relPath: string, options: Required<GenerationOptions>): string {
+    if (options.markerPattern && options.markerPattern.includes('{filename}')) {
+      return options.markerPattern.replace('{filename}', relPath);
+    }
+    if (options.markerStart && options.markerEnd) {
+      return `${options.markerStart} ${relPath} ${options.markerEnd}`;
+    }
+    switch ((options.markerPreset || '').toLowerCase()) {
+      case 'html':
+        return `<!-- FILE: ${relPath} -->`;
+      case 'markdown':
+        return `[//]: # (FILE: ${relPath})`;
+      case 'code':
+        return `// === FILE: ${relPath} ===`;
+      case 'visual':
+        return `🔥🔥🔥 FILE: ${relPath} 🔥🔥🔥`;
+      default:
+        return `//${this.FS_CHAR}/ ${relPath} /${this.FS_CHAR}//`;
+    }
   }
 }

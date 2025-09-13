@@ -9,6 +9,8 @@ import (
 	"strings"
 
 	l "github.com/kubex-ecosystem/logz"
+	"github.com/kubex-ecosystem/lookatni-file-markers/internal/adaptive"
+	"github.com/kubex-ecosystem/lookatni-file-markers/internal/metadata"
 	"github.com/kubex-ecosystem/lookatni-file-markers/internal/integration"
 	"github.com/kubex-ecosystem/lookatni-file-markers/internal/module/logger"
 	"github.com/kubex-ecosystem/lookatni-file-markers/internal/parser"
@@ -140,17 +142,24 @@ func (a *App) extractCommand(args []string) error {
 
 // validateCommand handles marker validation.
 func (a *App) validateCommand(args []string) error {
-	if len(args) == 0 {
-		return fmt.Errorf("usage: validate <marked-file>")
-	}
+    if len(args) == 0 {
+        return fmt.Errorf("usage: validate <marked-file> [--strict]")
+    }
 
-	markedFile := args[0]
-	a.logger.Log("info", fmt.Sprintf("Validating markers in %s", markedFile))
+    markedFile := args[0]
+    strict := false
+    for _, arg := range args[1:] {
+        if arg == "--strict" {
+            strict = true
+        }
+    }
 
-	result, err := a.parser.ValidateMarkers(markedFile)
-	if err != nil {
-		return fmt.Errorf("validation failed: %w", err)
-	}
+    a.logger.Log("info", fmt.Sprintf("Validating markers in %s (strict=%v)", markedFile, strict))
+
+    result, err := a.parser.ValidateMarkers(markedFile, strict)
+    if err != nil {
+        return fmt.Errorf("validation failed: %w", err)
+    }
 
 	if result.IsValid {
 		a.logger.Log("success", "All markers are valid!")
@@ -308,14 +317,23 @@ func (a *App) generateCommand(args []string) error {
 	sourceDir := args[0]
 	outputFile := args[1]
 
-	// Parse exclude patterns from args
-	var excludePatterns []string
-	for i := 2; i < len(args); i++ {
-		if args[i] == "--exclude" && i+1 < len(args) {
-			excludePatterns = append(excludePatterns, args[i+1])
-			i++ // Skip next argument since it's the pattern
-		}
-	}
+    // Parse flags from args
+    var excludePatterns []string
+    var markerPreset, markerStart, markerEnd, markerPattern string
+    for i := 2; i < len(args); i++ {
+        switch args[i] {
+        case "--exclude":
+            if i+1 < len(args) { excludePatterns = append(excludePatterns, args[i+1]); i++ }
+        case "--marker-preset":
+            if i+1 < len(args) { markerPreset = args[i+1]; i++ }
+        case "--marker-start":
+            if i+1 < len(args) { markerStart = args[i+1]; i++ }
+        case "--marker-end":
+            if i+1 < len(args) { markerEnd = args[i+1]; i++ }
+        case "--marker-pattern":
+            if i+1 < len(args) { markerPattern = args[i+1]; i++ }
+        }
+    }
 
 	// Default exclude patterns
 	if len(excludePatterns) == 0 {
@@ -326,7 +344,36 @@ func (a *App) generateCommand(args []string) error {
 
 	a.logger.Log("info", fmt.Sprintf("Generating marked file from %s to %s", sourceDir, outputFile))
 
-	result, err := a.parser.GenerateFromDirectory(sourceDir, outputFile, excludePatterns)
+    // If custom marker parameters provided, use adaptive generator
+    if markerPreset != "" || markerStart != "" || markerEnd != "" || markerPattern != "" {
+        ap := adaptive.New()
+        // Compose config
+        var cfg metadata.MarkerConfig
+        if markerPreset != "" {
+            presets := metadata.GetPresetConfigs()
+            if p, ok := presets[markerPreset]; ok { cfg = p.Config } else { cfg = metadata.GetDefaultConfig() }
+        } else {
+            cfg = metadata.GetDefaultConfig()
+        }
+        if markerPattern != "" { cfg.Pattern = markerPattern }
+        if markerStart != "" { cfg.Start = markerStart }
+        if markerEnd != "" { cfg.End = markerEnd }
+
+        res, err := ap.GenerateFromDirectory(sourceDir, outputFile, excludePatterns, &cfg)
+        if err != nil { return fmt.Errorf("generation failed (adaptive): %w", err) }
+        // Map to log summary
+        if len(res.Errors) > 0 {
+            a.logger.Log("warn", "Generation completed with warnings:")
+            for _, e := range res.Errors { a.logger.Log("warn", "   %s", e) }
+        }
+        a.logger.Log("success", "Successfully generated marked file:")
+        a.logger.Log("success", fmt.Sprintf("   📁 %d files processed", res.TotalFiles))
+        a.logger.Log("success", fmt.Sprintf("   📊 %d bytes written", res.TotalBytes))
+        a.logger.Log("success", fmt.Sprintf("   📄 Output: %s", outputFile))
+        return nil
+    }
+
+    result, err := a.parser.GenerateFromDirectory(sourceDir, outputFile, excludePatterns)
 	if err != nil {
 		return fmt.Errorf("generation failed: %w", err)
 	}

@@ -3,7 +3,6 @@ export declare class MarkerExtractor {
     private logger;
     private config;
     private readonly FS_CHAR;
-    private readonly markerRegex;
     constructor(config?: ExtractorConfig);
     /**
      * Extract files from marker content to target directory
@@ -33,5 +32,7 @@ export declare class MarkerExtractor {
      * Extract a single file
      */
     private extractSingleFile;
+    private detectFSChar;
+    private buildMarkerRegex;
 }
 //# sourceMappingURL=extractor.d.ts.map

@@ -1,0 +1,8 @@
+/// README.md ///
+# Sample Project
+
+Hello from LookAtni.
+
+/// src/index.js ///
+console.log('ok');
+

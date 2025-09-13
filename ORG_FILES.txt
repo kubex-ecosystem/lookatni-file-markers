@@ -2,8 +2,12 @@
 ├── cli
 ├── core
 ├── docs
+├── docs-site
 ├── extension
 ├── ORG_FILES.txt
-└── scripts
+├── scripts
+├── spec
+├── test-core.js
+└── tools
 
-6 directories, 1 file
+9 directories, 2 files

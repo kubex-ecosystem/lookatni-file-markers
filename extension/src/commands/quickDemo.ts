@@ -2,8 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Logger } from '../utils/logger';
-import { MarkerGenerator } from '../utils/markerGenerator';
-import { MarkerParser } from '../utils/markerParser';
+import { generateWithCore, extractWithCore, validateWithCore } from '../utils/coreBridge';
 
 export class QuickDemoCommand {
     public readonly commandId = 'lookatni-file-markers.quickDemo';
@@ -219,7 +218,6 @@ This content belongs to README.md
     }
     
     private async generateDemoMarkers(demoPath: string): Promise<string> {
-        const generator = new MarkerGenerator(this.logger);
         const outputFile = path.join(demoPath, 'demo-marked.txt');
         
         const options = {
@@ -229,28 +227,27 @@ This content belongs to README.md
         
         this.outputChannel.appendLine('\n=== GENERATING MARKERS ===');
         
-        const results = await vscode.window.withProgress({
+        await vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
             title: 'Generating demo markers...',
             cancellable: false
         }, async (progress) => {
-            return generator.generateMarkers(demoPath, outputFile, options, (current, total) => {
-                progress.report({
-                    increment: (100 / total),
-                    message: `Processing ${current}/${total} files...`
-                });
+            await generateWithCore(demoPath, outputFile, options, (pct) => {
+                progress.report({ increment: 0, message: `${pct}%` });
             });
+            return;
         });
-        
-        this.outputChannel.appendLine(`✅ Generated markers for ${results.totalFiles} files`);
-        this.outputChannel.appendLine(`📊 Total size: ${this.formatBytes(results.totalBytes)}`);
+
+        // Use validator to summarize
+        const validation = await validateWithCore(outputFile);
+        this.outputChannel.appendLine(`✅ Generated markers for ${validation.statistics.totalFiles} files`);
+        this.outputChannel.appendLine(`📊 Total size: ${this.formatBytes(validation.statistics.totalBytes)}`);
         this.outputChannel.appendLine(`📄 Output: ${outputFile}`);
         
         return outputFile;
     }
     
     private async extractDemoFiles(markedFile: string, demoPath: string): Promise<void> {
-        const parser = new MarkerParser(this.logger);
         const extractPath = path.join(demoPath, 'extracted');
         
         this.outputChannel.appendLine('\n=== EXTRACTING FILES ===');
@@ -260,11 +257,8 @@ This content belongs to README.md
             title: 'Extracting demo files...',
             cancellable: false
         }, async () => {
-            return parser.extractFiles(markedFile, extractPath, {
-                overwrite: true,
-                createDirs: true,
-                dryRun: false
-            });
+            const res = await extractWithCore(markedFile, extractPath, { overwrite: true, createDirs: true, dryRun: false }, this.logger);
+            return { extractedFiles: res.extractedFiles, errors: res.errors };
         });
         
         this.outputChannel.appendLine(`✅ Extracted ${results.extractedFiles.length} files`);

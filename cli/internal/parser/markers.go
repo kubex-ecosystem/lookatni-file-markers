@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 )
 
 // ParsedMarker represents a single file marker found in source.
@@ -59,16 +60,10 @@ type MarkerParser struct {
 
 // New creates a new MarkerParser instance.
 func New() *MarkerParser {
-	fsChar := string(rune(28)) // ASCII 28 File Separator
-
-	// Create regex pattern: //FS/ filename /FS//
+	fsChar := string(rune(28)) // default FS = ASCII 28
 	pattern := fmt.Sprintf(`^\/\/%s\/ (.+?) \/%s\/\/$`, regexp.QuoteMeta(fsChar), regexp.QuoteMeta(fsChar))
 	markerRegex := regexp.MustCompile(pattern)
-
-	return &MarkerParser{
-		fsChar:      fsChar,
-		markerRegex: markerRegex,
-	}
+	return &MarkerParser{fsChar: fsChar, markerRegex: markerRegex}
 }
 
 // ParseMarkedFile parses a file containing LookAtni markers.
@@ -84,48 +79,53 @@ func (mp *MarkerParser) ParseMarkedFile(filePath string) (*ParseResults, error) 
 
 // ParseMarkedReader parses markers from a reader.
 func (mp *MarkerParser) ParseMarkedReader(reader io.Reader, sourceName string) (*ParseResults, error) {
-	results := &ParseResults{
-		Errors:  make([]ParseError, 0),
-		Markers: make([]ParsedMarker, 0),
+	results := &ParseResults{Errors: make([]ParseError, 0), Markers: make([]ParsedMarker, 0)}
+
+	// Read all lines first to allow FS detection
+	var lines []string
+	bufScanner := bufio.NewScanner(reader)
+	for bufScanner.Scan() {
+		lines = append(lines, bufScanner.Text())
+	}
+	if err := bufScanner.Err(); err != nil {
+		return nil, fmt.Errorf("error reading %s: %w", sourceName, err)
 	}
 
-	scanner := bufio.NewScanner(reader)
-	lineNumber := 0
+	// Detect FS char dynamically using backreference
+	generic := regexp.MustCompile(`^//([\x00-\x1F])/ (.+?) /1//$`)
+	detected := ""
+	for _, line := range lines {
+		if m := generic.FindStringSubmatch(line); m != nil {
+			detected = m[1]
+			break
+		}
+	}
+	if detected != "" {
+		mp.fsChar = detected
+		mp.markerRegex = regexp.MustCompile(fmt.Sprintf(`^\/\/%s\/ (.+?) \/%s\/\/$`, regexp.QuoteMeta(detected), regexp.QuoteMeta(detected)))
+	}
 
+	lineNumber := 0
 	var currentMarker *ParsedMarker
 	var currentContent strings.Builder
 
-	for scanner.Scan() {
+	for _, line := range lines {
 		lineNumber++
-		line := scanner.Text()
-
-		// Check if this line is a marker
 		if match := mp.markerRegex.FindStringSubmatch(line); match != nil {
-			// Save previous marker if exists
 			if currentMarker != nil {
 				mp.finalizeMarker(currentMarker, &currentContent, results, lineNumber-1)
 			}
-
-			// Start new marker
 			filename := strings.TrimSpace(match[1])
 			if filename == "" {
-				results.Errors = append(results.Errors, ParseError{
-					Line:     lineNumber,
-					Message:  "Empty filename in marker",
-					Severity: "error",
-				})
+				results.Errors = append(results.Errors, ParseError{Line: lineNumber, Message: "Empty filename in marker", Severity: "error"})
+				currentMarker = nil
+				currentContent.Reset()
 				continue
 			}
-
-			currentMarker = &ParsedMarker{
-				Filename:  filename,
-				StartLine: lineNumber,
-			}
+			currentMarker = &ParsedMarker{Filename: filename, StartLine: lineNumber}
 			currentContent.Reset()
 			results.TotalMarkers++
-
 		} else if currentMarker != nil {
-			// Add content to current marker
 			if currentContent.Len() > 0 {
 				currentContent.WriteByte('\n')
 			}
@@ -133,13 +133,8 @@ func (mp *MarkerParser) ParseMarkedReader(reader io.Reader, sourceName string) (
 		}
 	}
 
-	// Finalize last marker
 	if currentMarker != nil {
 		mp.finalizeMarker(currentMarker, &currentContent, results, lineNumber)
-	}
-
-	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("error reading %s: %w", sourceName, err)
 	}
 
 	return results, nil
@@ -221,7 +216,7 @@ func (mp *MarkerParser) ExtractFiles(markedFilePath, outputDir string, options E
 }
 
 // ValidateMarkers validates markers in a file and returns detailed information.
-func (mp *MarkerParser) ValidateMarkers(filePath string) (*ValidationResults, error) {
+func (mp *MarkerParser) ValidateMarkers(filePath string, strict bool) (*ValidationResults, error) {
 	parseResults, err := mp.ParseMarkedFile(filePath)
 	if err != nil {
 		return nil, err
@@ -241,6 +236,26 @@ func (mp *MarkerParser) ValidateMarkers(filePath string) (*ValidationResults, er
 	// Convert parse errors
 	for _, parseErr := range parseResults.Errors {
 		validation.Errors = append(validation.Errors, ValidationError(parseErr))
+	}
+
+	// Strict mode: flag malformed marker-like lines that don't match canonical regex
+	if strict {
+		startToken := fmt.Sprintf("//%s/", mp.fsChar)
+		endToken := fmt.Sprintf("/%s//", mp.fsChar)
+		file, err := os.Open(filePath)
+		if err == nil {
+			defer file.Close()
+			scanner := bufio.NewScanner(file)
+			lineNo := 0
+			for scanner.Scan() {
+				lineNo++
+				line := scanner.Text()
+				looksLike := strings.Contains(line, startToken) || strings.Contains(line, endToken) || (strings.Contains(line, mp.fsChar) && strings.Contains(line, "//"))
+				if looksLike && !mp.markerRegex.MatchString(line) {
+					validation.Errors = append(validation.Errors, ValidationError{Line: lineNo, Message: "Malformed marker line (strict mode)", Severity: "error"})
+				}
+			}
+		}
 	}
 
 	// Check for duplicates and validation issues
@@ -264,6 +279,11 @@ func (mp *MarkerParser) ValidateMarkers(filePath string) (*ValidationResults, er
 		if count > 1 {
 			validation.DuplicateFilenames = append(validation.DuplicateFilenames, filename)
 		}
+	}
+
+	// No markers at all -> invalid
+	if parseResults.TotalMarkers == 0 {
+		validation.IsValid = false
 	}
 
 	// Update validity
@@ -334,25 +354,16 @@ type GenerateResults struct {
 
 // GenerateFromDirectory consolidates a directory into a marked file.
 func (mp *MarkerParser) GenerateFromDirectory(sourceDir, outputFile string, excludePatterns []string) (*GenerateResults, error) {
-	result := &GenerateResults{
-		Success: true,
-		Errors:  []string{},
-	}
+	result := &GenerateResults{Success: true, Errors: []string{}}
 
 	// Check if source directory exists
 	if _, err := os.Stat(sourceDir); os.IsNotExist(err) {
 		return nil, fmt.Errorf("source directory does not exist: %s", sourceDir)
 	}
 
-	// Create output file
-	outFile, err := os.Create(outputFile)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create output file: %w", err)
-	}
-	defer outFile.Close()
-
-	// Walk directory tree
-	err = filepath.Walk(sourceDir, func(path string, info os.FileInfo, err error) error {
+	// First pass: collect files respecting excludes
+	fileList := []string{}
+	err := filepath.Walk(sourceDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			result.Errors = append(result.Errors, fmt.Sprintf("Error accessing %s: %v", path, err))
 			return nil // Continue walking
@@ -370,54 +381,73 @@ func (mp *MarkerParser) GenerateFromDirectory(sourceDir, outputFile string, excl
 			return nil
 		}
 
-		// Check exclusion patterns
+		// Check exclusion patterns (glob and substring contains)
 		for _, pattern := range excludePatterns {
 			if matched, _ := filepath.Match(pattern, filepath.Base(relPath)); matched {
-				return nil // Skip this file
+				return nil
 			}
 			if matched, _ := filepath.Match(pattern, relPath); matched {
-				return nil // Skip this file
+				return nil
 			}
-		}
-
-		// Read file content
-		content, err := os.ReadFile(path)
-		if err != nil {
-			result.Errors = append(result.Errors, fmt.Sprintf("Failed to read %s: %v", relPath, err))
-			return nil
-		}
-
-		// Write marker in format //FS/ filename /FS//
-		fsChar := string(rune(28)) // ASCII 28 File Separator
-		// Write marker
-		marker := fmt.Sprintf("//%s/ %s /%s//\n", fsChar, relPath, fsChar)
-		if _, err := outFile.WriteString(marker); err != nil {
-			result.Errors = append(result.Errors, fmt.Sprintf("Failed to write marker for %s: %v", relPath, err))
-			return nil
-		}
-
-		// Write content
-		if _, err := outFile.Write(content); err != nil {
-			result.Errors = append(result.Errors, fmt.Sprintf("Failed to write content for %s: %v", relPath, err))
-			return nil
-		}
-
-		// Ensure content ends with newline
-		if len(content) > 0 && content[len(content)-1] != '\n' {
-			if _, err := outFile.WriteString("\n"); err != nil {
-				result.Errors = append(result.Errors, fmt.Sprintf("Failed to write newline for %s: %v", relPath, err))
+			if strings.Contains(relPath, pattern) {
 				return nil
 			}
 		}
-
-		result.TotalFiles++
-		result.TotalBytes += int64(len(content)) + int64(len(marker))
-
+		fileList = append(fileList, relPath)
 		return nil
 	})
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to walk directory: %w", err)
+	}
+
+	// Create output file and write header with real count
+	outFile, err := os.Create(outputFile)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create output file: %w", err)
+	}
+	defer outFile.Close()
+
+	fsChar := string(rune(28))
+	header := fmt.Sprintf("//%s/ PROJECT_INFO /%s//\n", fsChar, fsChar)
+	header += fmt.Sprintf("Project: %s\n", filepath.Base(sourceDir))
+	header += fmt.Sprintf("Generated: %s\n", nowISO8601())
+	header += fmt.Sprintf("Total Files: %d\n", len(fileList))
+	header += fmt.Sprintf("Source: %s\n", sourceDir)
+	header += "Generator: lookatni-cli v1.1.0\n"
+	header += "MarkerSpec: v1\n"
+	header += "FS: 28\n"
+	header += "MarkerTokens: //\\x1C/ <path> /\\x1C//\n"
+	header += "Encoding: utf-8\n\n"
+	if _, err := outFile.WriteString(header); err != nil {
+		return nil, fmt.Errorf("failed to write header: %w", err)
+	}
+	result.TotalBytes += int64(len(header))
+
+	for _, relPath := range fileList {
+		abs := filepath.Join(sourceDir, relPath)
+		content, err := os.ReadFile(abs)
+		if err != nil {
+			result.Errors = append(result.Errors, fmt.Sprintf("Failed to read %s: %v", relPath, err))
+			continue
+		}
+		marker := fmt.Sprintf("//%s/ %s /%s//\n", fsChar, relPath, fsChar)
+		if _, err := outFile.WriteString(marker); err != nil {
+			result.Errors = append(result.Errors, fmt.Sprintf("Failed to write marker for %s: %v", relPath, err))
+			continue
+		}
+		if _, err := outFile.Write(content); err != nil {
+			result.Errors = append(result.Errors, fmt.Sprintf("Failed to write content for %s: %v", relPath, err))
+			continue
+		}
+		if len(content) > 0 && content[len(content)-1] != '\n' {
+			if _, err := outFile.WriteString("\n"); err != nil {
+				result.Errors = append(result.Errors, fmt.Sprintf("Failed to write newline for %s: %v", relPath, err))
+				continue
+			}
+			result.TotalBytes++
+		}
+		result.TotalFiles++
+		result.TotalBytes += int64(len(content)) + int64(len(marker))
 	}
 
 	if len(result.Errors) > 0 {
@@ -425,4 +455,8 @@ func (mp *MarkerParser) GenerateFromDirectory(sourceDir, outputFile string, excl
 	}
 
 	return result, nil
+}
+
+func nowISO8601() string {
+	return time.Now().UTC().Format(time.RFC3339)
 }
