@@ -1,4 +1,4 @@
----
+<!-- ---
 title: "LookAtni File Markers - Documentação REAL"
 version: 1.2.0
 owner: kubex
@@ -6,7 +6,7 @@ audience: dev
 languages: [pt-BR, en]
 sources: ["Testes funcionais realizados", "Código fonte validado"]
 assumptions: []
----
+--- -->
 
 # 🚀 LookAtni File Markers - PROJETO REAL
 
@@ -128,7 +128,7 @@ curl -s http://localhost:3000/api/scripts/build.sh | bash
 
 ## 🛠️ **ARQUITETURA REAL**
 
-```
+```plaintext
 lookatni-file-markers/
 ├── cli/                 # 🔧 CLI Go (engine principal)
 │   ├── cmd/            # Comandos Cobra
