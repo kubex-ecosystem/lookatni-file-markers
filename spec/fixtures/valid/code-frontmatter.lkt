@@ -1,0 +1,12 @@
+---
+lookatni:
+  version: v1
+  start: // === FILE:
+  end: ===
+---
+// === FILE: main.go ===
+package main
+
+// === FILE: lib/util.go ===
+package lib
+

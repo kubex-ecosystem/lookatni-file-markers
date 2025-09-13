@@ -16,6 +16,9 @@ function requireCore() {
   const validator = core.createValidator ? core.createValidator({ strictMode: true }) : new core.MarkerValidator({ strictMode: true });
   const cases = [
     { file: 'spec/fixtures/valid/simple-two-files.lkt', expectValid: true },
+    { file: 'spec/fixtures/valid/html-frontmatter.lkt', expectValid: true },
+    { file: 'spec/fixtures/valid/markdown-frontmatter.lkt', expectValid: true },
+    { file: 'spec/fixtures/valid/code-frontmatter.lkt', expectValid: true },
     { file: 'spec/fixtures/invalid/empty-filename.lkt', expectValid: false },
     { file: 'spec/fixtures/edge/duplicate-filenames.lkt', expectValid: true }, // duplicates are warnings
   ];
