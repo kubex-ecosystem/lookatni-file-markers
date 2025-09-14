@@ -472,6 +472,11 @@ create_archive() {
     mv "${_binary_without_suffix}" "${_binary_name}"
   fi
 
+  if [[ ! -d "${_root_dir}/../extension/dist" ]]; then
+    mkdir -p "${_root_dir}/../extension/dist"
+  fi
+  cp -a "${_binary_name}" "${_root_dir}/../extension/dist/${_binary_name}" 2>/dev/null || true
+
   cd - >/dev/null || true
 }
 

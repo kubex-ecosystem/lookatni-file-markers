@@ -32,9 +32,15 @@ function tryRunGo() {
   const exe = osPart === 'windows' ? '.exe' : '';
   const name = `lookatni-file-markers_${osPart}_${archPart}${exe}`;
   const candidate = join(base, name);
-  // Dev fallback: repo-local CLI binary
+  // Dev fallback 1: repo-root dist/ (novo padrão Go)
+  const rootDist = resolve(__dirname, '..', '..', 'dist', name);
+  // Dev fallback 2: bin local do CLI
   const devCandidate = resolve(__dirname, '..', '..', 'cli', 'bin', `lookatni${exe}`);
-  const pathToRun = existsSync(candidate) ? candidate : (existsSync(devCandidate) ? devCandidate : null);
+  const pathToRun = existsSync(candidate)
+    ? candidate
+    : (existsSync(rootDist)
+        ? rootDist
+        : (existsSync(devCandidate) ? devCandidate : null));
   if (!pathToRun) return false;
 
   const child = spawn(pathToRun, process.argv.slice(2), { stdio: 'inherit' });

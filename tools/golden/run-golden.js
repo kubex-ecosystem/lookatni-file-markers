@@ -24,8 +24,13 @@ function platformTriple() {
 function findGoCLI() {
   const { osPart, archPart } = platformTriple();
   const exe = osPart === 'windows' ? '.exe' : '';
-  const p = resolve(__dirname, '..', '..', 'extension', 'dist', `lookatni-file-markers_${osPart}_${archPart}${exe}`);
-  return existsSync(p) ? p : null;
+  const inExt = resolve(__dirname, '..', '..', 'extension', 'dist', `lookatni-file-markers_${osPart}_${archPart}${exe}`);
+  if (existsSync(inExt)) return inExt;
+  const inRoot = resolve(__dirname, '..', '..', 'dist', `lookatni-file-markers_${osPart}_${archPart}${exe}`);
+  if (existsSync(inRoot)) return inRoot;
+  const inCliBin = resolve(__dirname, '..', '..', 'cli', 'bin', `lookatni${exe}`);
+  if (existsSync(inCliBin)) return inCliBin;
+  return null;
 }
 
 function run(cmd, args, cwd) {
@@ -79,4 +84,3 @@ async function main() {
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });
-
