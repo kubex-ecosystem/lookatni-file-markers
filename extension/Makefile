@@ -43,7 +43,7 @@ BINARY_NAME := $(ROOT_DIR)dist/$(APP_NAME)
 else
 BINARY_NAME := $(ROOT_DIR)dist/$(BINARY_NAME)
 endif
-CMD_DIR := $(ROOT_DIR)cmd
+CMD_DIR := $(ROOT_DIR)cli/cmd
 
 # Define the color codes
 COLOR_GREEN := \033[32m

@@ -32,9 +32,12 @@ function tryRunGo() {
   const exe = osPart === 'windows' ? '.exe' : '';
   const name = `lookatni-file-markers_${osPart}_${archPart}${exe}`;
   const candidate = join(base, name);
-  if (!existsSync(candidate)) return false;
+  // Dev fallback: repo-local CLI binary
+  const devCandidate = resolve(__dirname, '..', '..', 'cli', 'bin', `lookatni${exe}`);
+  const pathToRun = existsSync(candidate) ? candidate : (existsSync(devCandidate) ? devCandidate : null);
+  if (!pathToRun) return false;
 
-  const child = spawn(candidate, process.argv.slice(2), { stdio: 'inherit' });
+  const child = spawn(pathToRun, process.argv.slice(2), { stdio: 'inherit' });
   child.on('exit', (code) => process.exit(code || 0));
   child.on('error', (err) => {
     console.error('⚠️ Failed to run Go CLI, falling back to TS:', err.message);

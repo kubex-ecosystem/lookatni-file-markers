@@ -8,12 +8,12 @@
     "lookatniCli"
   ],
   "repository": "https://github.com/kubex-ecosystem/lookatni-file-markers",
-  "homepage": "https://lookatni.rafa-mori.dev/",
+  "homepage": "https://lookatni.kubex.world/",
   "description": "Kubex - LookAtni File Markers: A meta-framework for handling file markers, entire projects composition/decomposition, and much more.",
   "main": "cmd/main.go",
   "bin": "lookatniCli",
   "author": "Rafael Mori <faelmori@gmail.com>",
-  "organization": "rafa-mori",
+  "organization": "kubex-ecosystem",
   "license": "MIT",
   "keywords": [
     "lookatni",
