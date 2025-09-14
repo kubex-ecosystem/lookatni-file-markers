@@ -79,11 +79,20 @@ extra:
 
   generator: false
 
+extra_images:
+  - assets/images/og-image.png
+  - assets/images/favicon.png
+  - assets/images/favicon_b.png
+  - assets/images/top_banner_md_a0.png
+  - assets/images/top_banner_md_a1.png
+  - assets/images/top_banner_md_b0.png
+  - assets/images/top_banner_md_b1.png
+
 extra_css:
-  - stylesheets/extra.css
+  - assets/stylesheets/extra.css
 
 extra_javascript:
-  - javascripts/extra.js
+  - assets/javascripts/extra.js
 
 markdown_extensions:
   - abbr
@@ -166,7 +175,7 @@ nav:
       - Architecture: advanced/architecture.md
       - Development: advanced/development.md
   - Examples:
-      - React Project Sharing: examples/react-sharing.md
+      - React Project Sharing: examples/sharing.md
       - Backup & Restore: examples/backup-restore.md
       - CI/CD Integration: examples/cicd.md
       - Educational Use: examples/education.md

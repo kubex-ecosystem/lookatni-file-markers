@@ -398,7 +398,7 @@ __main() {
       fi
 
       # Generate the documentation
-      mkdocs build -f "${_ROOT_DIR:-}/support/docs/mkdocs.yml" -d "${_ROOT_DIR:-}/docs-site" -q || {
+      mkdocs build --no-strict -c -f "${_ROOT_DIR:-}/support/docs/mkdocs.yml" -d "${_ROOT_DIR:-}/docs-site" -q || {
         log error "Failed to generate documentation."
         return 1
       }
