@@ -266,7 +266,7 @@ This content belongs to README.md
         
         if (results.errors.length > 0) {
             this.outputChannel.appendLine('⚠️ Errors:');
-            results.errors.forEach(error => {
+            results.errors.forEach((error: string) => {
                 this.outputChannel.appendLine(`  • ${error}`);
             });
         }

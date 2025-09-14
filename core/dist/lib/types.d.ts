@@ -17,6 +17,16 @@ export interface GenerationOptions {
     validateBeforeGeneration?: boolean;
     /** Progress callback */
     progressCallback?: (progress: GenerationProgress) => void;
+    /** Marker preset (e.g., html, markdown, code) */
+    markerPreset?: string;
+    /** Custom marker start token */
+    markerStart?: string;
+    /** Custom marker end token */
+    markerEnd?: string;
+    /** Custom marker pattern with {filename} placeholder */
+    markerPattern?: string;
+    /** Include YAML frontmatter with marker config */
+    includeFrontmatter?: boolean;
 }
 export interface GenerationProgress {
     /** Current file being processed */

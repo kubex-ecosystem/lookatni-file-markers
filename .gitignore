@@ -74,3 +74,4 @@ internal/services/server/build/*
 !internal/services/server/build/style.css
 docs-site/site/
 cli/bin/
+**/tmp_examples/*

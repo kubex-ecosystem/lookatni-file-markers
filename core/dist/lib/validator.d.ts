@@ -30,6 +30,7 @@ export declare class MarkerValidator {
      * Parse marker content (similar to extractor but focused on validation)
      */
     private parseMarkers;
+    private parseFrontmatter;
     private detectFSChar;
     private buildMarkerRegex;
     /**

@@ -94,7 +94,12 @@ class MarkerGenerator {
             preserveTimestamps: options?.preserveTimestamps ?? true,
             customMetadata: options?.customMetadata ?? {},
             validateBeforeGeneration: options?.validateBeforeGeneration ?? false,
-            progressCallback: options?.progressCallback ?? (() => { })
+            progressCallback: options?.progressCallback ?? (() => { }),
+            markerPreset: options?.markerPreset ?? '',
+            markerStart: options?.markerStart ?? '',
+            markerEnd: options?.markerEnd ?? '',
+            markerPattern: options?.markerPattern ?? '',
+            includeFrontmatter: options?.includeFrontmatter ?? false
         };
         const result = {
             sourceFolder: sourcePath,
@@ -125,8 +130,10 @@ class MarkerGenerator {
             result.skippedFiles.push(...binarySkipped);
         }
         this.logger.info(`Processing ${filesToProcess.length} files after filtering`);
-        // Create marker content
-        let content = this.createHeader(sourcePath, filesToProcess.length, opts.customMetadata);
+        // Create marker content: optional frontmatter + header
+        let content = '';
+        content += this.buildFrontmatter(opts);
+        content += this.createHeader(sourcePath, filesToProcess.length, opts.customMetadata);
         // Process each file
         for (let i = 0; i < filesToProcess.length; i++) {
             const filePath = filesToProcess[i];
@@ -210,7 +217,9 @@ class MarkerGenerator {
         const relativePath = path.relative(sourcePath, filePath);
         const fileContent = fs.readFileSync(filePath, { encoding: options.encoding });
         const stats = fs.statSync(filePath);
-        let output = `//${this.FS_CHAR}/ ${relativePath} /${this.FS_CHAR}//\n`;
+        // Build marker line (supports custom config)
+        const markerLine = this.buildMarkerLine(relativePath, options);
+        let output = `${markerLine}\n`;
         // Add metadata if requested
         if (options.includeMetadata) {
             output += `// Size: ${stats.size} bytes\n`;
@@ -224,6 +233,45 @@ class MarkerGenerator {
         }
         output += '\n';
         return output;
+    }
+    buildFrontmatter(options) {
+        if (!options.includeFrontmatter)
+            return '';
+        const cfg = { version: 'v1' };
+        if (options.markerPattern)
+            cfg.pattern = options.markerPattern;
+        if (options.markerStart)
+            cfg.start = options.markerStart;
+        if (options.markerEnd)
+            cfg.end = options.markerEnd;
+        if (options.markerPreset)
+            cfg.preset = options.markerPreset;
+        const lines = ['---', 'lookatni:'];
+        for (const [k, v] of Object.entries(cfg)) {
+            lines.push(`  ${k}: ${String(v)}`);
+        }
+        lines.push('---');
+        return lines.join('\n') + '\n';
+    }
+    buildMarkerLine(relPath, options) {
+        if (options.markerPattern && options.markerPattern.includes('{filename}')) {
+            return options.markerPattern.replace('{filename}', relPath);
+        }
+        if (options.markerStart && options.markerEnd) {
+            return `${options.markerStart} ${relPath} ${options.markerEnd}`;
+        }
+        switch ((options.markerPreset || '').toLowerCase()) {
+            case 'html':
+                return `<!-- FILE: ${relPath} -->`;
+            case 'markdown':
+                return `[//]: # (FILE: ${relPath})`;
+            case 'code':
+                return `// === FILE: ${relPath} ===`;
+            case 'visual':
+                return `🔥🔥🔥 FILE: ${relPath} 🔥🔥🔥`;
+            default:
+                return `//${this.FS_CHAR}/ ${relPath} /${this.FS_CHAR}//`;
+        }
     }
 }
 exports.MarkerGenerator = MarkerGenerator;

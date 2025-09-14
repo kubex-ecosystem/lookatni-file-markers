@@ -69,9 +69,16 @@ class MarkerValidator {
                 fileTypes: {}
             }
         };
-        // Parse markers (auto-detect FS char per content)
-        const detectedFS = this.detectFSChar(markerContent.split('\n')) || this.FS_CHAR;
-        this.markerRegex = this.buildMarkerRegex(detectedFS);
+        // Parse markers (try frontmatter, then auto-detect FS)
+        const lines = markerContent.split('\n');
+        const cfg = this.parseFrontmatter(lines);
+        if (cfg?.regex) {
+            this.markerRegex = cfg.regex;
+        }
+        else {
+            const detectedFS = this.detectFSChar(lines) || this.FS_CHAR;
+            this.markerRegex = this.buildMarkerRegex(detectedFS);
+        }
         const parseResults = this.parseMarkers(markerContent);
         result.statistics.totalMarkers = parseResults.totalMarkers;
         result.statistics.totalFiles = parseResults.totalFiles;
@@ -93,15 +100,15 @@ class MarkerValidator {
         }
         // Strict mode: flag malformed marker-like lines that don't match the canonical regex
         if (this.config.strictMode) {
-            const startToken = `//${this.FS_CHAR}/`;
-            const endToken = `/${this.FS_CHAR}//`;
+            const startToken = cfg?.startToken || `//${this.FS_CHAR}/`;
+            const endToken = cfg?.endToken || `/${this.FS_CHAR}//`;
             const lines = markerContent.split('\n');
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i];
                 const hasFS = line.includes(this.FS_CHAR);
                 const looksLikeStart = line.includes(startToken);
                 const looksLikeEnd = line.includes(endToken);
-                const looksLikeMarker = looksLikeStart || looksLikeEnd || (hasFS && line.includes('//'));
+                const looksLikeMarker = looksLikeStart || looksLikeEnd || (cfg?.regex ? (cfg?.hintToken ? line.includes(cfg.hintToken) : false) : (hasFS && line.includes('//')));
                 if (looksLikeMarker && !this.markerRegex.test(line)) {
                     result.errors.push({
                         type: 'structure',
@@ -258,6 +265,48 @@ class MarkerValidator {
             errors,
             markers
         };
+    }
+    parseFrontmatter(lines) {
+        if (lines.length < 3)
+            return null;
+        if (lines[0].trim() !== '---')
+            return null;
+        let i = 1;
+        const meta = {};
+        for (; i < lines.length; i++) {
+            const ln = lines[i];
+            if (ln.trim() === '---') {
+                i++;
+                break;
+            }
+            if (ln.trim() === 'lookatni:')
+                continue;
+            const m = ln.match(/^\s{2}([a-zA-Z_]+):\s*(.*)$/);
+            if (m) {
+                meta[m[1]] = m[2];
+            }
+        }
+        let regex;
+        let startToken;
+        let endToken;
+        let hintToken;
+        if (meta.pattern && String(meta.pattern).includes('{filename}')) {
+            const patt = String(meta.pattern).replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\{filename\}/g, '(.+?)');
+            regex = new RegExp(`^${patt}$`);
+            // heuristic hint
+            hintToken = String(meta.pattern).split('{filename}')[0]?.trim() || '<pattern>';
+        }
+        else if (meta.start && meta.end) {
+            const s = String(meta.start).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const e = String(meta.end).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            regex = new RegExp(`^${s} (.+?) ${e}$`);
+            startToken = String(meta.start);
+            endToken = String(meta.end);
+            hintToken = startToken;
+        }
+        if (regex)
+            return { regex, startToken, endToken, hintToken };
+        return null;
     }
     detectFSChar(lines) {
         const generic = /^\/\/([\x00-\x1F])\/ (.+?) \/\1\/\/$/;

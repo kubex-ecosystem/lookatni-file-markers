@@ -33,5 +33,7 @@ export declare class MarkerGenerator {
      * Process a single file
      */
     private processFile;
+    private buildFrontmatter;
+    private buildMarkerLine;
 }
 //# sourceMappingURL=generator.d.ts.map

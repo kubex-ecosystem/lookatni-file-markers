@@ -1,9 +1,17 @@
-import { ExtractionOptions, ExtractionResult, ExtractorConfig, FileInfo, MarkerMetadata } from './types';
+import { ExtractionOptions, ExtractionResult, ExtractorConfig, FileInfo, MarkerMetadata, ParseResults } from './types';
 export declare class MarkerExtractor {
     private logger;
     private config;
     private readonly FS_CHAR;
     constructor(config?: ExtractorConfig);
+    /**
+     * Public: Parse marker content into structured results
+     */
+    parse(content: string): ParseResults;
+    /**
+     * Public: Parse a marker file from disk
+     */
+    parseFile(markerPath: string): ParseResults;
     /**
      * Extract files from marker content to target directory
      */
@@ -34,5 +42,6 @@ export declare class MarkerExtractor {
     private extractSingleFile;
     private detectFSChar;
     private buildMarkerRegex;
+    private parseFrontmatter;
 }
 //# sourceMappingURL=extractor.d.ts.map

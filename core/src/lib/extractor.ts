@@ -34,6 +34,24 @@ export class MarkerExtractor {
   }
 
   /**
+   * Public: Parse marker content into structured results
+   */
+  public parse(content: string): ParseResults {
+    return this.parseMarkers(content);
+  }
+
+  /**
+   * Public: Parse a marker file from disk
+   */
+  public parseFile(markerPath: string): ParseResults {
+    if (!fs.existsSync(markerPath)) {
+      throw new Error(`Marker file does not exist: ${markerPath}`);
+    }
+    const content = fs.readFileSync(markerPath, 'utf-8');
+    return this.parse(content);
+  }
+
+  /**
    * Extract files from marker content to target directory
    */
   async extract(

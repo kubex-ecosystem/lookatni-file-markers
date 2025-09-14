@@ -51,6 +51,22 @@ class MarkerExtractor {
         this.logger = new logger_1.Logger('extractor');
     }
     /**
+     * Public: Parse marker content into structured results
+     */
+    parse(content) {
+        return this.parseMarkers(content);
+    }
+    /**
+     * Public: Parse a marker file from disk
+     */
+    parseFile(markerPath) {
+        if (!fs.existsSync(markerPath)) {
+            throw new Error(`Marker file does not exist: ${markerPath}`);
+        }
+        const content = fs.readFileSync(markerPath, 'utf-8');
+        return this.parse(content);
+    }
+    /**
      * Extract files from marker content to target directory
      */
     async extract(markerContent, targetPath, options) {
@@ -186,8 +202,10 @@ class MarkerExtractor {
         const markers = [];
         const errors = [];
         // Detect FS char dynamically (fallback to default)
+        // Detect config via frontmatter or fallback to FS autodetect
+        const cfg = this.parseFrontmatter(lines);
         const detectedFS = this.detectFSChar(lines) || this.FS_CHAR;
-        const markerRegex = this.buildMarkerRegex(detectedFS);
+        const markerRegex = cfg?.regex || this.buildMarkerRegex(detectedFS);
         let currentMarker = null;
         let contentLines = [];
         for (let i = 0; i < lines.length; i++) {
@@ -301,6 +319,37 @@ class MarkerExtractor {
     buildMarkerRegex(fsChar) {
         const esc = fsChar.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         return new RegExp(`^\\/\\/${esc}\\/ (.+?) \\/${esc}\\/\\/$`);
+    }
+    parseFrontmatter(lines) {
+        if (lines.length < 3)
+            return null;
+        if (lines[0].trim() !== '---')
+            return null;
+        let i = 1;
+        const meta = {};
+        for (; i < lines.length; i++) {
+            const ln = lines[i];
+            if (ln.trim() === '---') {
+                i++;
+                break;
+            }
+            if (ln.trim() === 'lookatni:')
+                continue;
+            const m = ln.match(/^\s{2}([a-zA-Z_]+):\s*(.*)$/);
+            if (m) {
+                meta[m[1]] = m[2];
+            }
+        }
+        if (meta.pattern && String(meta.pattern).includes('{filename}')) {
+            const patt = String(meta.pattern).replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\{filename\}/g, '(.+?)');
+            return { regex: new RegExp(`^${patt}$`) };
+        }
+        if (meta.start && meta.end) {
+            const s = String(meta.start).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const e = String(meta.end).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            return { regex: new RegExp(`^${s} (.+?) ${e}$`) };
+        }
+        return null;
     }
 }
 exports.MarkerExtractor = MarkerExtractor;

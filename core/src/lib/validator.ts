@@ -93,7 +93,7 @@ export class MarkerValidator {
         const hasFS = line.includes(this.FS_CHAR);
         const looksLikeStart = line.includes(startToken);
         const looksLikeEnd = line.includes(endToken);
-        const looksLikeMarker = looksLikeStart || looksLikeEnd || (cfg?.regex ? line.includes(cfg.hintToken) : (hasFS && line.includes('//')));
+        const looksLikeMarker = looksLikeStart || looksLikeEnd || (cfg?.regex ? (cfg?.hintToken ? line.includes(cfg.hintToken) : false) : (hasFS && line.includes('//')));
         if (looksLikeMarker && !this.markerRegex.test(line)) {
           result.errors.push({
             type: 'structure',

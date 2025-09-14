@@ -1,7 +1,7 @@
 {
   "name": "lookatni-core",
   "description": "Core library for LookAtni file markers - generate, extract and validate project markers",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "main": "./dist/lib/index.js",
   "types": "./dist/lib/index.d.ts",
   "engines": {
@@ -21,8 +21,8 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc --watch",
+    "build": "node ../extension/node_modules/typescript/bin/tsc -p tsconfig.json",
+    "watch": "node ../extension/node_modules/typescript/bin/tsc -p tsconfig.json --watch",
     "clean": "rm -rf dist/",
     "test": "npm run build && node dist/test/index.js",
     "prepublishOnly": "npm run clean && npm run build"

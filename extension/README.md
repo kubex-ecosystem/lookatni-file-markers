@@ -14,6 +14,11 @@
 The **first VS Code extension** that combines **AI code extraction** and **visual file organization** to enhance your development workflow!
 > A powerful tool designed to enhance your coding experience by allowing you to manage files and code snippets efficiently. It provides a seamless way to extract AI-generated code into structured projects, organize files visually, and validate project integrity.
 
+### Modes at a Glance
+- VS Code Extension: Visual markers, commands, UI.
+- CLI: Global or local command-line tooling for automation.
+- Node Library: Programmatic API via `lookatni-core` (also re-exported at `lookatni-file-markers/lib`).
+
 ## Table of Contents
 
 - [🏆 The Golden Tip: AI-Generated Code Made Easy](#-the-golden-tip-ai-generated-code-made-easy)
@@ -156,6 +161,35 @@ Install from [VS Code Marketplace](https://marketplace.visualstudio.com/items?it
 
 ```bash
 ext install rafa-mori.lookatni-file-markers
+```
+
+### 🧰 Node.js Library (via this package)
+
+- For convenience, this package re-exports the core Node API under the `lib` subpath.
+- Ideal when you already depend on the extension/CLI and want programmatic access too.
+
+```ts
+// Re-exported helpers (proxy to lookatni-core)
+import { 
+  parseMarkers, parseMarkersFromFile,
+  generateMarkers,
+  validateMarkers, validateMarkerFile
+} from 'lookatni-file-markers/lib';
+
+const result = parseMarkers(markersText);
+console.log(result.totalFiles, result.markers[0].filename);
+```
+
+For direct library usage (recommended for pure Node projects), depend on `lookatni-core`:
+
+```bash
+npm install lookatni-core
+```
+
+```ts
+import { createExtractor } from 'lookatni-core';
+const extractor = createExtractor();
+const parsed = extractor.parse(markersText);
 ```
 
 ## 🚀 Quick Start
