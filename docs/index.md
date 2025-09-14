@@ -1,15 +1,18 @@
-# 🚀 Welcome to the LookAtni Revolution
+# 🚀 Welcome to the LookAtni Project
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/rafa-mori/lookatni-file-markers/refs/heads/main/resources/top_banner.png" alt="LookAtni File Markers" style="max-width: 100%; height: auto; margin: 2rem 0;">
+  <img src="assets/images/top_banner_md_b0.png" alt="LookAtni File Markers" style="max-width: 100%; height: auto; margin: 2rem 0;">
 </div>
+<!-- <div align="center">
+  <img src="https://raw.githubusercontent.com/kubex-ecosystem/lookatni-file-markers/refs/heads/main/docs/top_banner_md_a0.png" alt="LookAtni File Markers" style="max-width: 100%; height: auto; margin: 2rem 0;">
+</div> -->
 
 ## Transform Your Code Organization
 
 **LookAtni File Markers** revolutionizes how you organize, share, and manage code projects. Say goodbye to complex zip files and hello to elegant, portable code markers.
 
 !!! success "🎯 **What Makes LookAtni Special?**"
-    
+
     Transform any codebase into a **single, portable text file** with unique markers that preserve complete project structure, file relationships, and metadata.
 
 ## ⚡ Quick Preview
@@ -26,7 +29,7 @@ LookAtni: Extract Files → project-markers.txt → ./restored-project
 
 <div class="grid cards" markdown>
 
--   📁 **Smart File Organization**
+- 📁 **Smart File Organization**
 
     ---
 
@@ -34,7 +37,7 @@ LookAtni: Extract Files → project-markers.txt → ./restored-project
 
     [:octicons-arrow-right-24: Learn more](features/generation.md)
 
--   📥 **One-Click Extraction**
+- 📥 **One-Click Extraction**
 
     ---
 
@@ -42,7 +45,7 @@ LookAtni: Extract Files → project-markers.txt → ./restored-project
 
     [:octicons-arrow-right-24: Extraction Guide](features/extraction.md)
 
--   ✅ **Built-in Validation**
+- ✅ **Built-in Validation**
 
     ---
 
@@ -50,7 +53,7 @@ LookAtni: Extract Files → project-markers.txt → ./restored-project
 
     [:octicons-arrow-right-24: Validation System](features/validation.md)
 
--   👁️ **Visual Markers**
+- 👁️ **Visual Markers**
 
     ---
 
@@ -58,7 +61,7 @@ LookAtni: Extract Files → project-markers.txt → ./restored-project
 
     [:octicons-arrow-right-24: Visual Features](features/visual-markers.md)
 
--   🔧 **Powerful CLI**
+- 🔧 **Powerful CLI**
 
     ---
 
@@ -66,7 +69,7 @@ LookAtni: Extract Files → project-markers.txt → ./restored-project
 
     [:octicons-arrow-right-24: CLI Documentation](features/cli-tools.md)
 
--   ⚙️ **Highly Configurable**
+- ⚙️ **Highly Configurable**
 
     ---
 
@@ -83,7 +86,7 @@ LookAtni: Extract Files → project-markers.txt → ./restored-project
 </div>
 
 !!! tip "📹 **Perfect for Recording**"
-    
+
     Built-in **Automated Demo** mode creates perfect demonstrations for tutorials, presentations, and educational content.
 
 ## 🏃‍♂️ Get Started in 60 Seconds
@@ -113,21 +116,21 @@ LookAtni: Extract Files → project-markers.txt → ./restored-project
 <div class="grid" markdown>
 
 !!! example "💼 **Professional Development**"
-    
+
     - **Code Reviews**: Share clean, organized code snippets
     - **Documentation**: Include runnable examples in docs
     - **Portfolio**: Showcase projects without repositories
     - **Collaboration**: Share project slices with team members
 
 !!! example "🎓 **Education & Training**"
-    
+
     - **Tutorials**: Distribute complete project files
     - **Assignments**: Package student submissions
     - **Workshops**: Share hands-on coding exercises
     - **Online Courses**: Include downloadable project files
 
 !!! example "🔧 **DevOps & Automation**"
-    
+
     - **CI/CD**: Automate project packaging
     - **Deployment**: Package configurations and scripts
     - **Backup**: Create portable project snapshots
@@ -138,18 +141,18 @@ LookAtni: Extract Files → project-markers.txt → ./restored-project
 <!-- ## 💬 What Developers Say
 
 !!! quote "Amazing tool! Finally, a clean way to share React projects without the node_modules nightmare."
-    
+
     **Sarah Chen** - Frontend Developer
 
 !!! quote "LookAtni saved hours of work packaging samples for our coding bootcamp."
-    
+
     **Marcus Rodriguez** - Technical Instructor
 
 !!! quote "The TypeScript CLI integration is perfect for our deployment pipeline."
-    
+
     **Alex Thompson** - DevOps Engineer -->
 
-## 🚀 Ready to Join the Revolution?
+## 🚀 Ready to Join the Project?
 
 <div class="cta-buttons" markdown>
   [Get Started :material-rocket:](getting-started/installation.md){ .md-button .md-button--primary }

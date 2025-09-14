@@ -76,3 +76,7 @@ internal/services/server/build/*
 docs-site
 cli/bin/
 **/tmp_examples/*
+support/docs/new_docs/
+support/docs/old_docs/
+support/docs/patch/
+

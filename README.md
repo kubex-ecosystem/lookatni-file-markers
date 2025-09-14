@@ -1,4 +1,4 @@
-# ![LookAtni File Markers](https://raw.githubusercontent.com/kubex-ecosystem/lookatni-file-markers/refs/heads/main/resources/top_banner.png)
+# ![LookAtni File Markers](https://raw.githubusercontent.com/kubex-ecosystem/lookatni-file-markers/refs/heads/main/docs/top_banner_md_b0.png)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
 [![VSCode](https://img.shields.io/badge/VSCode-Marketplace-blue?style=flat-square&logo=visual-studio-code&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=rafa-mori.lookatni-file-markers)
