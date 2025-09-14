@@ -224,6 +224,17 @@ jobs:
             make build-cli "${OS:-}" "${ARCH:-}"
           done
 
+      - name: Setup Node.js (for validation)
+        if: steps.version-check.outputs.continue == 'true'
+        uses: actions/setup-node@v4
+        with:
+            node-version: '22'
+
+      - name: Validate All (Core/CLI/Extension + Golden)
+        if: steps.version-check.outputs.continue == 'true'
+        run: |
+            make validate
+
       - name: Verify Build Artifacts
         if: steps.version-check.outputs.continue == 'true'
         run: |

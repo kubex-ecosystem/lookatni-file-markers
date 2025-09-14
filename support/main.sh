@@ -325,6 +325,36 @@ __main() {
       log success "All tests passed successfully."
       ;;
 
+    validate|VALIDATE|-v|-V)
+      log info "Running validate command..."
+      if ! check_dependencies; then
+        log error "Required dependencies are missing. Please install them and try again." true
+        return 1
+      fi
+
+      if ! validate_versions; then
+        log error "Some dependencies do not meet the required versions. Please update them and try again." true
+        return 1
+      fi
+
+      local _validate_all_script="${_ROOT_DIR:-}/tools/validate_all.sh"
+      if [[ -f "${_validate_all_script:-}" ]]; then
+        # shellcheck disable=SC1090
+        source "${_validate_all_script:-}" || {
+          log error "Failed to source ${_validate_all_script:-}. Please ensure it exists and is readable." true
+          return 1
+        }
+        if ! validate_all "$@"; then
+          log error "Validation script reported issues. Please check the output for details." true
+          return 1
+        fi
+      else
+        log warn "Validation script not found at ${_validate_all_script:-}. Skipping additional validations." true
+      fi
+
+      log success "All required dependencies are installed."
+      ;;
+
     # BUILD-DOCS
     # Build documentation for the project
     build-docs|BUILD-DOCS|-bdc|-BDC)

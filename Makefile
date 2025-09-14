@@ -97,6 +97,10 @@ test-cli:
 	@bash $(INSTALL_SCRIPT) test $(ARGS)
 	$(shell exit 0)
 
+validate:
+	@bash $(INSTALL_SCRIPT) validate $(ARGS)
+	$(shell exit 0)
+
 # Platform-specific targets (prevent wildcard capture)
 linux:
 	@echo "Process finished for platform: linux"
