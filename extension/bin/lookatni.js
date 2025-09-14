@@ -1,39 +1,75 @@
 #!/usr/bin/env node
 
 /**
- * LookAtni CLI - Global executable
- * This is the main entry point when installing as a global npm package
+ * LookAtni CLI - Global executable (dispatcher)
+ * Prefers native Go binary when present/compatible; falls back to TS CLI.
  */
 
-const { resolve } = require('path');
+const { resolve, join } = require('path');
 const { existsSync } = require('fs');
 const { spawn, fork } = require('child_process');
 
-// Function to execute the CLI
-function executeCLI() {
-  // Use compiled JavaScript version
+function platformTriple() {
+  const os = process.platform;
+  const arch = process.arch;
+  let osPart = '';
+  if (os === 'linux') osPart = 'linux';
+  else if (os === 'darwin') osPart = 'darwin';
+  else if (os === 'win32') osPart = 'windows';
+  else osPart = os;
+
+  let archPart = '';
+  if (arch === 'x64') archPart = 'amd64';
+  else if (arch === 'arm64') archPart = 'arm64';
+  else archPart = arch;
+
+  return { osPart, archPart };
+}
+
+function tryRunGo() {
+  const { osPart, archPart } = platformTriple();
+  const base = resolve(__dirname, '..', 'dist');
+  const exe = osPart === 'windows' ? '.exe' : '';
+  const name = `lookatni-file-markers_${osPart}_${archPart}${exe}`;
+  const candidate = join(base, name);
+  if (!existsSync(candidate)) return false;
+
+  const child = spawn(candidate, process.argv.slice(2), { stdio: 'inherit' });
+  child.on('exit', (code) => process.exit(code || 0));
+  child.on('error', (err) => {
+    console.error('⚠️ Failed to run Go CLI, falling back to TS:', err.message);
+    runTS();
+  });
+  return true;
+}
+
+function runTS() {
   const distCli = resolve(__dirname, '..', 'dist', 'scripts', 'cli.js');
-  
-  if (existsSync(distCli)) {
-    // Fork the CLI script as a child process
-    const child = fork(distCli, process.argv.slice(2), {
-      stdio: 'inherit'
-    });
-    
-    child.on('exit', (code) => {
-      process.exit(code || 0);
-    });
-    
-    child.on('error', (error) => {
-      console.error('❌ Error executing LookAtni CLI:', error.message);
-      process.exit(1);
-    });
-  } else {
-    console.error('❌ LookAtni CLI not found. Please run `npm run build` first.');
+  if (!existsSync(distCli)) {
+    console.error('❌ LookAtni TS CLI not found. Please run `npm run build` first.');
     console.error('Looking for:', distCli);
     process.exit(1);
   }
+  const child = fork(distCli, process.argv.slice(2), { stdio: 'inherit' });
+  child.on('exit', (code) => process.exit(code || 0));
+  child.on('error', (error) => {
+    console.error('❌ Error executing LookAtni TS CLI:', error.message);
+    process.exit(1);
+  });
 }
 
-// Execute the CLI
-executeCLI();
+function main() {
+  const force = process.env.LOOKATNI_CLI_IMPL; // 'go' | 'ts'
+  if (force === 'go') {
+    if (!tryRunGo()) runTS();
+    return;
+  }
+  if (force === 'ts') {
+    runTS();
+    return;
+  }
+  // Default: prefer Go when present
+  if (!tryRunGo()) runTS();
+}
+
+main();

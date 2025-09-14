@@ -8,6 +8,10 @@ BINARY_NAME=lookatni
 BUILD_DIR=bin
 VERSION=$(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
 LDFLAGS=-ldflags "-X main.version=$(VERSION)"
+GITHUB_REF=$(shell echo $$GITHUB_REF)
+MAIN_COMMIT=$(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+MAIN_DATE=$(shell date +%Y-%m-%d)
+MAIN_PKG_PATH=$(shell go list -m)
 
 # Comando padrão
 help: ## Mostra esta ajuda
@@ -19,7 +23,8 @@ help: ## Mostra esta ajuda
 build: ## Compila o CLI Go
 	@echo "🔨 Compilando LookAtni CLI..."
 	@mkdir -p $(BUILD_DIR)
-	go build $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME) ./cmd/main.go
+	go build -ldflags "-s -w -X main.version=$(GITHUB_REF#refs/tags/) -X main.commit=$(MAIN_COMMIT) -X main.date=$(MAIN_DATE)" -trimpath -o $(BUILD_DIR)/$(BINARY_NAME) ./cmd/main.go
+	@upx --best --lzma $(BUILD_DIR)/$(BINARY_NAME) --no-progress --no-color -qqq || true
 	@echo "✅ Build completo: $(BUILD_DIR)/$(BINARY_NAME)"
 
 clean: ## Remove arquivos de build

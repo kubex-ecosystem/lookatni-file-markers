@@ -1,4 +1,3 @@
-// Package parser provides marker parsing functionality for LookAtni File Markers.
 package parser
 
 import (
@@ -58,12 +57,17 @@ type MarkerParser struct {
 	markerRegex *regexp.Regexp
 }
 
-// New creates a new MarkerParser instance.
-func New() *MarkerParser {
+// NewParser creates a new MarkerParser instance.
+func NewParser() *MarkerParser {
 	fsChar := string(rune(28)) // default FS = ASCII 28
 	pattern := fmt.Sprintf(`^\/\/%s\/ (.+?) \/%s\/\/$`, regexp.QuoteMeta(fsChar), regexp.QuoteMeta(fsChar))
 	markerRegex := regexp.MustCompile(pattern)
 	return &MarkerParser{fsChar: fsChar, markerRegex: markerRegex}
+}
+
+// New creates a new MarkerParser instance.
+func New() *MarkerParser {
+	return NewParser()
 }
 
 // ParseMarkedFile parses a file containing LookAtni markers.

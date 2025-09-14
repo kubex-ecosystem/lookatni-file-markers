@@ -22,3 +22,17 @@ curl -s http://localhost:3000/api/list | jq
 ```
 
 Great for demos, CI and reproducible one-liners.
+
+## Node Reexports
+
+Se você já depende do pacote da extensão/CLI e quer apenas alguns helpers da API, pode importar por:
+
+```ts
+import { parseMarkers } from 'lookatni-file-markers/lib';
+```
+
+Para uso dedicado em Node (projetos TS/JS), prefira instalar a lib:
+
+```bash
+npm install lookatni-core
+```

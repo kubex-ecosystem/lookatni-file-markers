@@ -40,3 +40,37 @@ O validador e o extrator autodetectam o separador e respeitam o header.
 ## Strict Mode
 
 `--strict` sinaliza linhas “quase-marcadores” que não respeitam a regex canônica e considera “zero marcadores” como inválido. Útil para depurar formatação involuntária.
+
+## TS vs Go (Qual usar?)
+
+| Aspecto        | Go (binário)                   | TypeScript (npm)                  |
+|----------------|--------------------------------|-----------------------------------|
+| Performance    | Excelente startup/IO           | Muito boa para projetos médios    |
+| Dependências   | Nenhuma (binário estático)     | Node.js/Runtime                   |
+| Integração     | CI/DevOps, ambientes fechados  | VS Code/Node, libs e scripts      |
+| DX/Manutenção  | Build cross‑platform           | Tipagem/Tests/Release npm simples |
+
+Recomendação:
+- Use Go em pipelines/CI ou para projetos grandes e ambientes sem Node.
+- Use TS quando integrar com VS Code/Node, ou precisar de API programática (lookatni-core).
+
+## Dispatcher (npm bin)
+
+O executável `lookatni` publicado no npm prefere o binário Go quando encontrado para o seu sistema (`dist/lookatni-file-markers_<os>_<arch>`). Se não estiver disponível, ele faz fallback automático para o CLI em TypeScript.
+
+Forçar escolha:
+```bash
+LOOKATNI_CLI_IMPL=go lookatni generate ./src out.txt   # força Go
+LOOKATNI_CLI_IMPL=ts  lookatni generate ./src out.txt   # força TS
+```
+
+## Paridade (Golden Tests)
+
+Mantemos paridade entre TS e Go com testes de ouro. No repositório:
+
+```bash
+node tools/golden/run-golden.js
+# Gera com TS e (se disponível) com Go, e compara estatísticas via lookatni-core
+```
+
+O objetivo é garantir que, dada a mesma entrada, ambos produzam saídas equivalentes.

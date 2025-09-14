@@ -11,13 +11,13 @@ Transform single documents into full project structures, and back — with invis
 - Share runnable project slices without archives.
 - Perfect for tutorials, reviews and CI pipelines.
 
-## What You Get
+## What You Get (3 modos)
 
-- Marker Spec v1 (portable, ASCII 28).
-- Core library (TypeScript) with Extractor/Generator/Validator.
-- CLI (Go) cross-platform.
-- VS Code extension integrated with the Core.
-- Tools for pipes and HTTP.
+- Core (Node Library): `lookatni-core` — API programática para gerar, extrair, validar e fazer parse.
+- VS Code Extension: experiência visual e comandos.
+- CLI (Go): automação e CI/CD.
+
+O formato usa separador invisível (ASCII 28), autodetectado pelos parsers.
 
 Get started in minutes:
 
@@ -28,3 +28,20 @@ lookatni generate ./my-project project.lkt.txt
 # Extract back into a directory
 lookatni extract project.lkt.txt ./restored
 ```
+
+Or use the Node library directly:
+
+```ts
+import { parseMarkersFromFile, generateMarkers } from 'lookatni-core';
+
+const parsed = parseMarkersFromFile('./project.lkt.txt');
+console.log(parsed.totalFiles);
+
+const gen = await generateMarkers('./src');
+console.log(gen.totalFiles);
+```
+
+Contribute and collaborate:
+
+- GitHub: open issues, discussions, PRs
+- Docs “Node Library” → quickstart e API overview
