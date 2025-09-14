@@ -30,15 +30,30 @@ function tryRunGo() {
   const { osPart, archPart } = platformTriple();
   const base = resolve(__dirname, '..', 'dist');
   const exe = osPart === 'windows' ? '.exe' : '';
-  const name = `lookatni-file-markers_${osPart}_${archPart}${exe}`;
-  const candidate = join(base, name);
+  const names = [
+    // primary (npm dist convention)
+    `lookatni-file-markers_${osPart}_${archPart}${exe}`,
+    // alt name from Go build (bin name from manifest)
+    `lookatniCli_${osPart}_${archPart}${exe}`
+  ];
+  let candidate = null;
+  for (const n of names) {
+    const p = join(base, n);
+    if (existsSync(p)) { candidate = p; break; }
+  }
   // Dev fallback 1: repo-root dist/ (novo padrão Go)
-  const rootDist = resolve(__dirname, '..', '..', 'dist', name);
+  let rootDist = null;
+  if (!candidate) {
+    for (const n of names) {
+      const p = resolve(__dirname, '..', '..', 'dist', n);
+      if (existsSync(p)) { rootDist = p; break; }
+    }
+  }
   // Dev fallback 2: bin local do CLI
   const devCandidate = resolve(__dirname, '..', '..', 'cli', 'bin', `lookatni${exe}`);
-  const pathToRun = existsSync(candidate)
+  const pathToRun = candidate
     ? candidate
-    : (existsSync(rootDist)
+    : (rootDist
         ? rootDist
         : (existsSync(devCandidate) ? devCandidate : null));
   if (!pathToRun) return false;

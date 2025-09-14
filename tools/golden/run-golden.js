@@ -24,10 +24,17 @@ function platformTriple() {
 function findGoCLI() {
   const { osPart, archPart } = platformTriple();
   const exe = osPart === 'windows' ? '.exe' : '';
-  const inExt = resolve(__dirname, '..', '..', 'extension', 'dist', `lookatni-file-markers_${osPart}_${archPart}${exe}`);
-  if (existsSync(inExt)) return inExt;
-  const inRoot = resolve(__dirname, '..', '..', 'dist', `lookatni-file-markers_${osPart}_${archPart}${exe}`);
-  if (existsSync(inRoot)) return inRoot;
+  const candidates = [
+    // extension/dist
+    resolve(__dirname, '..', '..', 'extension', 'dist', `lookatni-file-markers_${osPart}_${archPart}${exe}`),
+    resolve(__dirname, '..', '..', 'extension', 'dist', `lookatniCli_${osPart}_${archPart}${exe}`),
+    // root dist
+    resolve(__dirname, '..', '..', 'dist', `lookatni-file-markers_${osPart}_${archPart}${exe}`),
+    resolve(__dirname, '..', '..', 'dist', `lookatniCli_${osPart}_${archPart}${exe}`)
+  ];
+  for (const p of candidates) {
+    if (existsSync(p)) return p;
+  }
   const inCliBin = resolve(__dirname, '..', '..', 'cli', 'bin', `lookatni${exe}`);
   if (existsSync(inCliBin)) return inCliBin;
   return null;
