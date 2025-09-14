@@ -247,8 +247,8 @@ jobs:
             echo "os=${OS:-}" >> $GITHUB_OUTPUT
             echo "arch=${ARCH:-}" >> $GITHUB_OUTPUT
 
-            if [[ ! $(basename pwd) != "dist" ]]; then
-              ls -la $(git rev-parse --show-toplevel)/cli/dist/
+            if [[ $(basename $(pwd)) != "dist" ]]; then
+              ls -la $(git rev-parse --show-toplevel)/cli/dist/ || exit 1
               cd $(git rev-parse --show-toplevel)/cli/dist || exit 1
             fi
 
@@ -447,7 +447,7 @@ jobs:
           gh release create "${VERSION:-}" \
             ./release-assets/* \
             --title "${MODULE_NAME:-} ${VERSION:-}" \
-            --notes-file RELEASE_NOTES.md \
+            --notes-file cli/RELEASE_NOTES.md \
             ${{ contains(needs.build.outputs.version, '-') && '--prerelease' || '' }}
 
           echo "✅ Release created successfully!"
