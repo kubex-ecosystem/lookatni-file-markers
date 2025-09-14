@@ -73,6 +73,6 @@ docs/prompt/
 support/docs/site/
 internal/services/server/build/*
 !internal/services/server/build/style.css
-docs-site/site/
+docs-site
 cli/bin/
 **/tmp_examples/*

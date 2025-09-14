@@ -361,9 +361,10 @@ __main() {
     # Build documentation for the project
     build-docs|BUILD-DOCS|-bdc|-BDC)
       log info "Generating Documentation..."
+      _ROOT_DIR="$(git rev-parse --show-toplevel)"
 
       cd "${_ROOT_DIR:-}/docs" || {
-        log error "Failed to change directory to ${_ROOT_DIR:-}"
+        log error "Failed to change directory to ${_ROOT_DIR:-}/docs"
         return 1
       }
 
@@ -378,18 +379,26 @@ __main() {
         fi
 
         # Validate if .venv exists
-
         if [[ ! -d ".venv" ]]; then
           uv --no-progress --quiet venv
-          . .venv/bin/activate
+        fi
+
+        . .venv/bin/activate || {
+          log error "Failed to activate virtual environment."
+          return 1
+        }
+
+        if [[ -f "${_ROOT_DIR:-}/support/docs/requirements.txt" ]]; then
           uv --no-progress --quiet pip install -r "${_ROOT_DIR:-}/support/docs/requirements.txt"
+        elif [[ -f "${_ROOT_DIR:-}/support/docs/pyproject.toml" ]]; then
+          uv --no-progress --quiet sync --project="${_ROOT_DIR:-}/support/docs/pyproject.toml"
         else
-          . .venv/bin/activate
+          log warn "No requirements.txt or pyproject.toml found for documentation dependencies. Proceeding without installing additional packages."
         fi
       fi
 
       # Generate the documentation
-      mkdocs build -f "${_ROOT_DIR:-}/support/docs/mkdocs.yml" -d "${_ROOT_DIR:-}/dist/docs" -q || {
+      mkdocs build -f "${_ROOT_DIR:-}/support/docs/mkdocs.yml" -d "${_ROOT_DIR:-}/docs-site" -q || {
         log error "Failed to generate documentation."
         return 1
       }
@@ -401,6 +410,8 @@ __main() {
     # Serve the generated documentation
     serve-docs|SERVE-DOCS|-sdc|-SDC)
       log info "Serving Documentation..."
+      _ROOT_DIR="$(git rev-parse --show-toplevel)"
+
       cd "${_ROOT_DIR:-}/docs" || {
         log error "Failed to change directory to ${_ROOT_DIR:-}/docs"
         return 1
@@ -436,6 +447,8 @@ __main() {
 
     pub-docs|PUB-DOCS|-pd|-PD)
       log info "Publishing Documentation..."
+      _ROOT_DIR="$(git rev-parse --show-toplevel)"
+
       cd "${_ROOT_DIR:-}/docs" || {
         log error "Failed to change directory to ${_ROOT_DIR:-}/docs"
         return 1

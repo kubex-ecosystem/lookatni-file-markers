@@ -15,6 +15,7 @@ The **first VS Code extension** that combines **AI code extraction** and **visua
 > A powerful tool designed to enhance your coding experience by allowing you to manage files and code snippets efficiently. It provides a seamless way to extract AI-generated code into structured projects, organize files visually, and validate project integrity.
 
 ### Modes at a Glance
+
 - VS Code Extension: Visual markers, commands, UI.
 - CLI: Global or local command-line tooling for automation.
 - Node Library: Programmatic API via `lookatni-core` (also re-exported at `lookatni-file-markers/lib`).
@@ -170,7 +171,7 @@ ext install rafa-mori.lookatni-file-markers
 
 ```ts
 // Re-exported helpers (proxy to lookatni-core)
-import { 
+import {
   parseMarkers, parseMarkersFromFile,
   generateMarkers,
   validateMarkers, validateMarkerFile
@@ -295,7 +296,7 @@ Customize visual markers in your `settings.json`:
 
 ## 🎥 See It In Action
 
-![![LookAtni File Markers Demo](docs/demo/demo_md.gif)](docs/demo/demo_md.gif)
+![![LookAtni File Markers Demo](demo/demo_md.gif)](demo/demo_md.gif)
 
 ## 🤝 Community
 
