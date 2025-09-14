@@ -338,13 +338,15 @@ __main() {
       fi
 
       local _validate_all_script="${_ROOT_DIR:-}/tools/validate_all.sh"
+      local _current_args=("$@")
+
       if [[ -f "${_validate_all_script:-}" ]]; then
-        # shellcheck disable=SC1090
-        source "${_validate_all_script:-}" || {
-          log error "Failed to source ${_validate_all_script:-}. Please ensure it exists and is readable." true
-          return 1
-        }
-        if ! validate_all "$@"; then
+        local _validate_all_cmd=(
+          "$(get_current_shell)" # Use the same shell as the current scripts
+          "${_validate_all_script}"
+          "${_current_args[@]:-}"
+        )
+        if ! "${_validate_all_cmd[@]}"; then
           log error "Validation script reported issues. Please check the output for details." true
           return 1
         fi

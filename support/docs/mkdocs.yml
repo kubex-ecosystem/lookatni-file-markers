@@ -1,119 +1,61 @@
 site_name: LookAtni File Markers
-site_url: https://rafa-mori.github.io/lookatni-file-markers/
-site_description: "Meta-framework for building and managing file markers"
-site_author: "Rafael Mori"
-
-repo_name: "kubex-ecosystem/lookatni-file-markers"
+site_url: https://lookatni.kubex.world
 repo_url: https://github.com/kubex-ecosystem/lookatni-file-markers
-
 theme:
   name: material
-  palette:
-    primary: "indigo"
-    accent: "indigo"
+  language: en
   features:
     - navigation.tabs
-    - navigation.top
-    - navigation.instant
-    - navigation.expand
     - navigation.sections
-    - navigation.tracking
-    - navigation.tabs.sticky
-    - navigation.tabs.sticky.scroll
-    - navigation.tabs.sticky.scroll.offset: 64
-    - navigation.tabs.sticky.scroll.offset.mobile: 0
-    - navigation.tabs.sticky.scroll.offset.desktop: 64
-    - navigation.tabs.sticky.scroll.offset.tablet: 64
+    - navigation.top
     - search.highlight
-    - search.share
-    - search.suggest
-  font:
-    text: Roboto
-    code: Roboto Mono
-  icon:
-    repo: fontawesome/brands/github
-
-markdown_extensions:
-  - admonition
-  - codehilite:
-      linenums: true
-  - toc:
-      permalink: True
-      title: On this page
-  - attr_list
-  - def_list
-  - footnotes
-  - md_in_html
-  - smarty
-  - tables
-  - pymdownx.arithmatex:
-      generic: true
-  - pymdownx.betterem:
-      smart_enable: all
-  - pymdownx.caret
-  - pymdownx.details
-  - pymdownx.highlight:
-      anchor_linenums: true
-  - pymdownx.inlinehilite
-  - pymdownx.keys
-  - pymdownx.magiclink:
-      repo_url_shorthand: true
-      user: rafa-mori
-      repo: lookatni-file-markers
-  - pymdownx.mark
-  - pymdownx.smartsymbols
-  - pymdownx.superfences:
-      custom_fences:
-        - name: mermaid
-          class: mermaid
-          format: pymdownx.superfences.fence_code_format
-  - pymdownx.tabbed:
-      alternate_style: true
-  - pymdownx.tasklist:
-      custom_checkbox: true
-  - pymdownx.tilde
-
-nav:
-  - Home: index.md
-  - Documentation:
-      - Getting Started:
-          - README: README.en.md
-          - Installation: INSTALL.md
-          - AI Integration: INSTALL_AI.md
-      - User Guide:
-          - README (Portuguese): README.pt-BR.md
-  - Community:
-      - Contributing: CONTRIBUTING.md
-      - Code of Conduct: CODE_OF_CONDUCT.md
-      - Support: SUPPORT.md
-      - Authors: AUTHORS.md
-  - Project Info:
-      - License: LICENSE
-      - Notice: NOTICE.md
-      - Security Policy: SECURITY.md
-      - Changelog: CHANGELOG.md
-
+    - content.code.copy
+    - content.action.edit
+  palette:
+    - scheme: default
+      primary: deep purple
+      accent: purple
+    - scheme: slate
+      primary: deep purple
+      accent: purple
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
 extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/kubex-ecosystem/lookatni-file-markers
-      name: LookAtni File Markers on GitHub
-    - icon: fontawesome/brands/linkedin
-      link: https://www.linkedin.com/in/kubex-ecosystem/
-      name: Rafael Mori on LinkedIn
-    - icon: fontawesome/brands/twitter
-      link: https://twitter.com/faelOmori
-      name: Rafael Mori on Twitter
-  version:
-    provider: mike
-  analytics:
-    provider: google
-    property: ${G-7HLY17F3DK}
-# plugins:
-#   - search:
-#       lang: en
-#   - git-revision-date-localized:
-#       type: datetime
-#       timezone: America/Sao_Paulo
-#       locale: en
-#       fallback_to_build_date: true
+  generator: false
+markdown_extensions:
+  - admonition
+  - footnotes
+  - toc:
+      permalink: true
+  - attr_list
+  - def_list
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - pymdownx.emoji
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quickstart.md
+      - Node Library: getting-started/node-library.md
+  - Features:
+      - Markers: features/markers.md
+      - Marker Profiles: features/profiles.md
+      - CLI: features/cli.md
+      - VS Code Extension: features/extension.md
+      - Tools: features/tools.md
+  - Guide:
+      - Configuration: guide/configuration.md
+      - Workflows: guide/workflows.md
+  - Community:
+      - Contributing: community/contributing.md
+      - Style Guide: community/style-guide.md
+      - Roadmap: community/roadmap.md
+  - Examples:
+      - React Sharing: examples/react.md
+      - Fixtures: examples/fixtures.md

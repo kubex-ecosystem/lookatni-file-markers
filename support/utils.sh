@@ -87,17 +87,31 @@ clear_screen() {
 }
 
 get_current_shell() {
-  local shell_proc
-  shell_proc=$(cat /proc/$$/comm)
+  local shell_proc=""
+  if [[ -r "/proc/$$/comm" ]]; then
+    shell_proc="$(cat /proc/$$/comm)"
+  fi
+
+  # Se não deu para ler /proc (ex.: macOS), cai para $SHELL
+
+  if [[ -z "$shell_proc" ]]; then
+    printf '%s\n' "${SHELL##*/:-bash}"
+    return 0
+  fi
+
   case "${0##*/}" in
     ${shell_proc}*)
       local shebang
-      shebang=$(head -1 "$0")
-      printf '%s\n' "${shebang##*/}"
-      ;;
+      shebang="$(head -n 1 -- "$0" 2>/dev/null || true)"
+      # Extrai apenas o executável do shebang (último token do path)
+      shebang="${shebang##*/}"
+      # Normaliza env patterns (ex.: env bash -> bash)
+      shebang="${shebang#env }"
+      printf '%s\n' "$shebang"
+    ;;
     *)
       printf '%s\n' "$shell_proc"
-      ;;
+    ;;
   esac
 }
 
