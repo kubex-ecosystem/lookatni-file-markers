@@ -74,20 +74,40 @@ async function main() {
 
   // Parse & compare
   const pTs = core.parseMarkers(readFileSync(outTs, 'utf-8'));
-  let summary = {
-    ts: { files: pTs.totalFiles, bytes: pTs.totalBytes }
-  };
+  let report = {};
+  report.ts = { files: pTs.totalFiles, rawBytes: pTs.totalBytes };
+
   if (outGo) {
     const pGo = core.parseMarkers(readFileSync(outGo, 'utf-8'));
-    summary.go = { files: pGo.totalFiles, bytes: pGo.totalBytes };
-    summary.equal = (pTs.totalFiles === pGo.totalFiles) && (pTs.totalBytes === pGo.totalBytes);
+    report.go = { files: pGo.totalFiles, rawBytes: pGo.totalBytes };
+
+    // Content-based parity (ignore header/metadata formatting):
+    const sumContent = arr => arr.reduce((s, m) => s + Buffer.byteLength(m.content || '', 'utf-8'), 0);
+    const sumTs = sumContent(pTs.markers);
+    const sumGo = sumContent(pGo.markers);
+    const filesEqual = pTs.totalFiles === pGo.totalFiles;
+    const contentEqual = filesEqual && sumTs === sumGo;
+
+    // Filename set parity
+    const set = arr => new Set(arr.map(m => m.filename));
+    const a = set(pTs.markers);
+    const b = set(pGo.markers);
+    const sameNames = filesEqual && [...a].every(x => b.has(x)) && [...b].every(x => a.has(x));
+
+    report.equal = contentEqual && sameNames;
+    report.detail = {
+      filesEqual,
+      contentBytesTs: sumTs,
+      contentBytesGo: sumGo,
+      namesEqual: sameNames
+    };
   } else {
-    summary.go = { skipped: true };
-    summary.equal = null;
+    report.go = { skipped: true };
+    report.equal = null;
   }
 
   console.log('\n[GOLDEN] Generation parity');
-  console.table(summary);
+  console.table(report);
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });
