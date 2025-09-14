@@ -42,6 +42,7 @@ nav:
   - Getting Started:
     - Installation: getting-started/installation.md
     - Quick Start: getting-started/quickstart.md
+    - Node Library: getting-started/node-library.md
   - Features:
     - Markers: features/markers.md
     - Marker Profiles: features/profiles.md

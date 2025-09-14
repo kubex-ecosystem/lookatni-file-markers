@@ -5,13 +5,9 @@ type AnyObj = Record<string, any>;
 
 function tryLoadCore(): AnyObj | null {
   try {
-    // Prefer packaged import name if eventually published
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     return require('../../core/dist/lib/index.js');
   } catch (_) {
     try {
-      // When running from repo root: extension -> ../core
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
       return require(path.join(__dirname, '..', '..', '..', 'core', 'dist', 'lib', 'index.js'));
     } catch (e) {
       return null;
@@ -38,7 +34,7 @@ export function extractWithCore(markedFile: string, destFolder: string, options:
       createDirectories: options.createDirs ?? true,
       validateChecksums: false,
       preserveTimestamps: true,
-      progressCallback: () => {},
+      progressCallback: () => { },
       conflictCallback: () => 'skip',
       dryRun: options.dryRun ?? false,
       conflictResolution: 'skip'
