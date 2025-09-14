@@ -430,10 +430,19 @@ __main() {
         # Validate if .venv exists
         if [[ ! -d ".venv" ]]; then
           uv --no-progress --quiet venv
-          . .venv/bin/activate
+        fi
+
+        . .venv/bin/activate || {
+          log error "Failed to activate virtual environment."
+          return 1
+        }
+
+        if [[ -f "${_ROOT_DIR:-}/support/docs/requirements.txt" ]]; then
           uv --no-progress --quiet pip install -r "${_ROOT_DIR:-}/support/docs/requirements.txt"
+        elif [[ -f "${_ROOT_DIR:-}/support/docs/pyproject.toml" ]]; then
+          uv --no-progress --quiet sync --project="${_ROOT_DIR:-}/support/docs/pyproject.toml"
         else
-          . .venv/bin/activate
+          log warn "No requirements.txt or pyproject.toml found for documentation dependencies. Proceeding without installing additional packages."
         fi
       fi
 
@@ -467,14 +476,23 @@ __main() {
         # Validate if .venv exists
         if [[ ! -d ".venv" ]]; then
           uv --no-progress --quiet venv
-          . .venv/bin/activate
+        fi
+
+        . .venv/bin/activate || {
+          log error "Failed to activate virtual environment."
+          return 1
+        }
+
+        if [[ -f "${_ROOT_DIR:-}/support/docs/requirements.txt" ]]; then
           uv --no-progress --quiet pip install -r "${_ROOT_DIR:-}/support/docs/requirements.txt"
+        elif [[ -f "${_ROOT_DIR:-}/support/docs/pyproject.toml" ]]; then
+          uv --no-progress --quiet sync --project="${_ROOT_DIR:-}/support/docs/pyproject.toml"
         else
-          . .venv/bin/activate
+          log warn "No requirements.txt or pyproject.toml found for documentation dependencies. Proceeding without installing additional packages."
         fi
       fi
 
-      mkdocs gh-deploy -f "${_ROOT_DIR:-}/support/docs/mkdocs.yml" -d "${_ROOT_DIR:-}/dist/docs" --force --no-history -q || {
+      mkdocs gh-deploy -f "${_ROOT_DIR:-}/support/docs/mkdocs.yml" -d "${_ROOT_DIR:-}/docs-site" --force --no-history -q || {
         log error "Failed to publish documentation."
         return 1
       }
