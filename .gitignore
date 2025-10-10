@@ -82,3 +82,4 @@ support/docs/patch/
 
 .notes/
 .codex/
+.venv-hooks
