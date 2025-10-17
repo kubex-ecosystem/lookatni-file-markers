@@ -23,6 +23,36 @@ repos:
   #       files: \.(md|mdx|rst|txt|adoc|html)$
   #       always_run: true
 
+  # - repo: local
+  #   hooks:
+  #     - id: go-mod-tidy
+  #       name: go mod tidy
+  #       language: system
+  #       entry: go mod tidy
+  #       files: \.go$
+  #       stages: [pre-push]
+  #       additional_dependencies: ["golangci-lint@v1.51.2"]
+  #       exclude: ^(tests/generated/.*$|support/.*$)
+  #       exclude_types: []
+  #       pass_filenames: false
+  #       require_serial: true
+  #       always_run: false
+
+  # - repo: local
+  #   hooks:
+  #     - id: go-fmt
+  #       name: go fmt
+  #       language: system
+  #       entry: go fmt
+  #       files: \.go$
+  #       stages: [pre-push]
+  #       additional_dependencies: ["golangci-lint@v1.51.2"]
+  #       exclude: ^(tests/generated/.*$|support/.*$)
+  #       exclude_types: []
+  #       pass_filenames: false
+  #       require_serial: true
+  #       always_run: false
+
   # -------- Hygiene --------
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
@@ -110,3 +140,37 @@ repos:
             "--redact",
             "--config=support/hooks/.gitleaks.toml",
           ]
+
+  # -------- Golang --------
+  - repo: https://github.com/golangci/golangci-lint
+    rev: v1.51.2
+    hooks:
+      - id: golangci-lint
+        args:
+          [
+            "run",
+            "--config",
+            "support/hooks/.golangci.yaml",
+            "--timeout",
+            "5m",
+            "--exclude",
+            "vendor/",
+            "--exclude",
+            "node_modules/",
+            "--exclude",
+            "dist/",
+            "--exclude",
+            "build/",
+            "--exclude",
+            "coverage/",
+          ]
+        # language: system
+        files: \.go$
+        stages: [pre-push]
+        additional_dependencies: ["golangci-lint@v1.51.2"]
+        exclude: ^(tests/generated/.*$|support/.*$)
+        exclude_types: []
+        pass_filenames: false
+        require_serial: true
+        always_run: false
+        language_version: go1.25.3
