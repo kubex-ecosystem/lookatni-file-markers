@@ -7,24 +7,23 @@ import (
 	"net/http"
 	"strconv"
 
-	l "github.com/kubex-ecosystem/logz"
-	"github.com/kubex-ecosystem/lookatni-file-markers/internal/module/logger"
+	gl "github.com/kubex-ecosystem/logz/logger"
 	"github.com/kubex-ecosystem/lookatni-file-markers/internal/parser"
 	"github.com/kubex-ecosystem/lookatni-file-markers/internal/transpiler"
 )
 
 // Server handles VS Code integration requests.
 type Server struct {
-	logger     logger.GLog[l.Logger]
+	logger     gl.Logger
 	port       int
 	parser     *parser.MarkerParser
 	transpiler *transpiler.Transpiler
 }
 
 // NewServer creates a new VS Code integration server.
-func NewServer(log logger.GLog[l.Logger], port int) *Server {
+func NewServer(log gl.Logger, port int) *Server {
 	if log == nil {
-		log = logger.GetLogger[l.Logger](nil)
+		log = gl.LoggerG
 	}
 	// Load default HTML template
 	htmlTemplate := `<!doctype html>
@@ -73,31 +72,7 @@ func (s *Server) Start() error {
 	return http.ListenAndServe(addr, handler)
 }
 
-// ExtractRequest represents a file extraction request.
-type ExtractRequest struct {
-	MarkedFile string                `json:"markedFile"`
-	OutputDir  string                `json:"outputDir"`
-	Options    parser.ExtractOptions `json:"options"`
-}
 
-// ValidateRequest represents a marker validation request.
-type ValidateRequest struct {
-    MarkedFile string `json:"markedFile"`
-    Strict     bool   `json:"strict"`
-}
-
-// TranspileRequest represents a Markdown transpilation request.
-type TranspileRequest struct {
-	Input     string `json:"input"`
-	OutputDir string `json:"outputDir"`
-}
-
-// GenerateRequest represents a directory consolidation request.
-type GenerateRequest struct {
-	SourceDir       string   `json:"sourceDir"`
-	OutputFile      string   `json:"outputFile"`
-	ExcludePatterns []string `json:"excludePatterns"`
-}
 
 // APIResponse represents a standard API response.
 type APIResponse struct {
@@ -145,7 +120,7 @@ func (s *Server) handleValidate(w http.ResponseWriter, r *http.Request) {
 
 	s.logger.Log("debug", "Validate request: %s", req.MarkedFile)
 
-    result, err := s.parser.ValidateMarkers(req.MarkedFile, req.Strict)
+	result, err := s.parser.ValidateMarkers(req.MarkedFile, req.Strict)
 	if err != nil {
 		s.sendError(w, fmt.Sprintf("Validation failed: %v", err), http.StatusInternalServerError)
 		return

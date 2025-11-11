@@ -3,11 +3,28 @@ package cli
 import (
 	"os"
 
+	gl "github.com/kubex-ecosystem/logz/logger"
 	"github.com/kubex-ecosystem/lookatni-file-markers/internal/app"
 	"github.com/kubex-ecosystem/lookatni-file-markers/internal/metadata"
-	gl "github.com/kubex-ecosystem/lookatni-file-markers/internal/module/logger"
 	"github.com/kubex-ecosystem/lookatni-file-markers/internal/vscode"
 	"github.com/spf13/cobra"
+)
+
+var (
+	debug      bool
+	overwrite  bool
+	createDirs bool
+	dryRun     bool
+	strict     bool
+)
+var (
+	input        string
+	outputDir    string
+	format       string
+	marker       string
+	exclude      []string
+	markerPreset string
+	markerStart  string
 )
 
 func ServiceCmdList() []*cobra.Command {
@@ -76,8 +93,8 @@ func extractCommand() *cobra.Command {
 
 // validateCommand handles marker validation.
 func validateCommand() *cobra.Command {
-    var debug bool
-    var strict bool
+	var debug bool
+	var strict bool
 
 	var validateCmd = &cobra.Command{
 		Use:   "validate <marked-file>",
@@ -88,27 +105,27 @@ func validateCommand() *cobra.Command {
 			"Validate markers in a consolidated LookAtni file",
 			"Validate markers in consolidated file",
 		}, false),
-        RunE: func(cmd *cobra.Command, args []string) error {
-            if debug {
-                gl.SetDebug(true)
-            }
-            markedFile := args[0]
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if debug {
+				gl.SetDebug(true)
+			}
+			markedFile := args[0]
 
 			// Initialize app
 			cliApp := app.New(nil)
 
-            opts := []string{"validate", markedFile}
-            if strict {
-                opts = append(opts, "--strict")
-            }
-            return cliApp.Run(opts)
-        },
-    }
+			opts := []string{"validate", markedFile}
+			if strict {
+				opts = append(opts, "--strict")
+			}
+			return cliApp.Run(opts)
+		},
+	}
 
-    validateCmd.Flags().BoolP("debug", "D", false, "Enable debug logging")
-    validateCmd.Flags().BoolVar(&strict, "strict", false, "Enable strict validation (flag malformed marker-like lines)")
+	validateCmd.Flags().BoolP("debug", "D", false, "Enable debug logging")
+	validateCmd.Flags().BoolVar(&strict, "strict", false, "Enable strict validation (flag malformed marker-like lines)")
 
-    return validateCmd
+	return validateCmd
 }
 
 // generateCommand handles project consolidation (directory -> marked file).
@@ -148,19 +165,19 @@ func generateCommand() *cobra.Command {
 				options = append(options, "--exclude", pattern)
 			}
 
-            // Pass marker customization flags to app if provided
-            if markerPreset != "" {
-                options = append(options, "--marker-preset", markerPreset)
-            }
-            if markerStart != "" {
-                options = append(options, "--marker-start", markerStart)
-            }
-            if markerEnd != "" {
-                options = append(options, "--marker-end", markerEnd)
-            }
-            if markerPattern != "" {
-                options = append(options, "--marker-pattern", markerPattern)
-            }
+			// Pass marker customization flags to app if provided
+			if markerPreset != "" {
+				options = append(options, "--marker-preset", markerPreset)
+			}
+			if markerStart != "" {
+				options = append(options, "--marker-start", markerStart)
+			}
+			if markerEnd != "" {
+				options = append(options, "--marker-end", markerEnd)
+			}
+			if markerPattern != "" {
+				options = append(options, "--marker-pattern", markerPattern)
+			}
 
 			return cliApp.Run(options)
 		},
@@ -178,7 +195,6 @@ func generateCommand() *cobra.Command {
 
 // transpileCommand handles Markdown to HTML transpilation.
 func transpileCommand() *cobra.Command {
-	var debug bool
 
 	short := "Convert Markdown to HTML with advanced templating"
 	long := "Convert Markdown files to HTML with prompt block DSL support and template generation."
@@ -192,21 +208,32 @@ func transpileCommand() *cobra.Command {
 			long,
 			short,
 		}, os.Getenv("LOOKATNI_HIDEBANNER") == "true"),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		Run: func(cmd *cobra.Command, args []string) {
 			if debug {
 				gl.SetDebug(true)
 			}
-			input := args[0]
-			outputDir := args[1]
-
+			if input == "" || outputDir == "" {
+				gl.Log("error", "Input file/directory and output directory must be specified")
+			}
+			if _, err := os.Stat(input); os.IsNotExist(err) {
+				gl.Log("error", "Input file/directory does not exist: %s", input)
+			}
+			if _, err := os.Stat(outputDir); os.IsNotExist(err) {
+				gl.Log("error", "Output directory does not exist: %s", outputDir)
+			}
 			// Initialize app
-			cliApp := app.New(nil)
-
-			return cliApp.Run([]string{"transpile", input, outputDir})
+			if err := app.New(nil).Run([]string{"transpile", input, outputDir}); err != nil {
+				gl.Log("error", "Transpilation failed: %v", err)
+			}
 		},
 	}
 
 	transpileCmd.Flags().BoolVarP(&debug, "debug", "D", false, "Enable debug logging")
+	transpileCmd.Flags().BoolVarP(&overwrite, "overwrite", "o", false, "Overwrite existing files in output directory")
+	transpileCmd.Flags().BoolVarP(&dryRun, "dry-run", "n", false, "Show what would be done without doing it")
+	transpileCmd.Flags().StringVarP(&input, "input", "i", "", "Input Markdown file or directory")
+	transpileCmd.Flags().StringVarP(&outputDir, "output", "d", "", "Output directory for HTML files")
+	transpileCmd.Flags().StringVarP(&format, "format", "f", "html", "Output format (html, md)")
 
 	return transpileCmd
 }

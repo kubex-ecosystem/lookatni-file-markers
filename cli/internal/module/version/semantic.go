@@ -12,11 +12,11 @@ import (
 	"time"
 
 	manifest "github.com/kubex-ecosystem/lookatni-file-markers/internal/module/info"
-	"github.com/kubex-ecosystem/lookatni-file-markers/internal/module/logger"
+	"github.com/kubex-ecosystem/logz/logger"
 	"github.com/spf13/cobra"
 )
 
-var gl = logger.GetLogger[ServiceImpl](nil)
+var gl = logger.LoggerG.GetLogger()
 var (
 	info manifest.Manifest
 	vrs  Service

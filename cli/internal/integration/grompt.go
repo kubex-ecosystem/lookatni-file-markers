@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/kubex-ecosystem/grompt"
-	gl "github.com/kubex-ecosystem/lookatni-file-markers/internal/module/logger"
+	gl "github.com/kubex-ecosystem/logz/logger"
 )
 
 // GromptIntegration provides prompt engineering capabilities for LookAtni
@@ -21,7 +21,7 @@ func NewGromptIntegration() *GromptIntegration {
 
 	return &GromptIntegration{
 		engine: engine,
-		config: config,
+		// config: config,
 	}
 }
 

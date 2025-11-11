@@ -1,7 +1,7 @@
 {
   "name": "lookatni-core",
   "description": "Core library for LookAtni file markers - generate, extract and validate project markers",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "main": "./dist/lib/index.js",
   "types": "./dist/lib/index.d.ts",
   "engines": {

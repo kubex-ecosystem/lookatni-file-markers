@@ -12,7 +12,7 @@ get_required_go_version() {
   local go_mod_path="${1:-${_fallback_path}}"
 
   if [[ ! -f "${go_mod_path}" ]]; then
-    echo "1.25.1" # fallback
+    echo "1.25.4" # fallback
     return
   fi
 

@@ -1,0 +1,5 @@
+/// PROJECT_INFO ///
+Project: cli
+Generated: 2025-11-11T06:23:22.362Z
+Total Files: 0
+Source: /projects/kubex/lookatni-file-markers/cli

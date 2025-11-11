@@ -1,8 +1,8 @@
 package main
 
 import (
+	gl "github.com/kubex-ecosystem/logz/logger"
 	"github.com/kubex-ecosystem/lookatni-file-markers/internal/module"
-	gl "github.com/kubex-ecosystem/lookatni-file-markers/internal/module/logger"
 )
 
 // main initializes the logger and creates a new LookAtni instance.
