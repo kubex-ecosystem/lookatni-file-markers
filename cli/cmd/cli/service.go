@@ -11,20 +11,31 @@ import (
 )
 
 var (
-	debug      bool
-	overwrite  bool
-	createDirs bool
-	dryRun     bool
-	strict     bool
+	debug       bool
+	overwrite   bool
+	createDirs  bool
+	dryRun      bool
+	strict      bool
+	interactive bool
+	blobMode    bool
+	jsonOut     bool
 )
 var (
-	input        string
-	outputDir    string
-	format       string
-	marker       string
-	exclude      []string
-	markerPreset string
-	markerStart  string
+	input         string
+	outputDir     string
+	format        string
+	marker        string
+	exclude       []string
+	markerPreset  string
+	markerStart   string
+	markerEnd     string
+	markerPattern string
+	rulesFile     string
+	provider      string
+)
+var (
+	port      int
+	threshold float64
 )
 
 func ServiceCmdList() []*cobra.Command {
@@ -41,9 +52,6 @@ func ServiceCmdList() []*cobra.Command {
 
 // extractCommand handles file extraction from marked files.
 func extractCommand() *cobra.Command {
-	var overwrite, createDirs, dryRun bool
-	var debug bool
-
 	var extractCmd = &cobra.Command{
 		Use:   "extract <marked-file> <output-dir>",
 		Short: "Extract files FROM marked content",
@@ -83,19 +91,21 @@ func extractCommand() *cobra.Command {
 		},
 	}
 
-	extractCmd.Flags().BoolVar(&overwrite, "overwrite", false, "Overwrite existing files")
-	extractCmd.Flags().BoolVar(&createDirs, "create-dirs", true, "Create directories as needed")
-	extractCmd.Flags().BoolVar(&dryRun, "dry-run", false, "Show what would be done without doing it")
+	extractCmd.Flags().BoolVarP(&overwrite, "overwrite", "o", false, "Overwrite existing files")
+	extractCmd.Flags().BoolVarP(&createDirs, "create-dirs", "c", true, "Create directories as needed")
+	extractCmd.Flags().BoolVarP(&dryRun, "dry-run", "n", false, "Show what would be done without doing it")
 	extractCmd.Flags().BoolVarP(&debug, "debug", "D", false, "Enable debug logging")
+	extractCmd.Flags().BoolVarP(&strict, "strict", "s", false, "Enable strict extraction (error on malformed markers)")
+	extractCmd.Flags().StringVarP(&marker, "marker", "m", "", "Custom marker pattern to use for extraction")
+	extractCmd.Flags().StringSliceVarP(&exclude, "exclude", "x", []string{}, "Exclude files matching pattern")
+	extractCmd.Flags().StringVarP(&markerPreset, "marker-preset", "p", "", "Use predefined marker format (html, markdown, code, visual)")
+	extractCmd.Flags().StringVarP(&markerStart, "marker-start", "s", "", "Custom marker start pattern")
 
 	return extractCmd
 }
 
 // validateCommand handles marker validation.
 func validateCommand() *cobra.Command {
-	var debug bool
-	var strict bool
-
 	var validateCmd = &cobra.Command{
 		Use:   "validate <marked-file>",
 		Short: "Validate markers in consolidated file",
@@ -130,10 +140,6 @@ func validateCommand() *cobra.Command {
 
 // generateCommand handles project consolidation (directory -> marked file).
 func generateCommand() *cobra.Command {
-	var excludePatterns []string
-	var markerPreset, markerStart, markerEnd, markerPattern string
-	var debug bool
-
 	var generateCmd = &cobra.Command{
 		Use:   "generate <source-dir> <output-file>",
 		Short: "Consolidate directory INTO marked file",
@@ -161,7 +167,7 @@ func generateCommand() *cobra.Command {
 			}
 
 			// Add exclude patterns
-			for _, pattern := range excludePatterns {
+			for _, pattern := range exclude {
 				options = append(options, "--exclude", pattern)
 			}
 
@@ -183,19 +189,21 @@ func generateCommand() *cobra.Command {
 		},
 	}
 
-	generateCmd.Flags().StringSliceVarP(&excludePatterns, "exclude", "x", []string{"*.log", "node_modules", ".git"}, "Exclude files matching pattern")
-	generateCmd.Flags().StringVarP(&markerPreset, "marker-preset", "m", "", "Use predefined marker format (html, markdown, code, visual)")
+	generateCmd.Flags().BoolVarP(&debug, "debug", "D", false, "Enable debug logging")
+	generateCmd.Flags().StringSliceVarP(&exclude, "exclude", "x", []string{}, "Exclude files matching pattern")
+	generateCmd.Flags().StringVarP(&marker, "marker", "m", "", "Custom marker pattern to use for extraction")
+	generateCmd.Flags().StringVarP(&markerPreset, "marker-preset", "p", "", "Use predefined marker format (html, markdown, code, visual)")
 	generateCmd.Flags().StringVarP(&markerStart, "marker-start", "s", "", "Custom marker start pattern")
 	generateCmd.Flags().StringVarP(&markerEnd, "marker-end", "e", "", "Custom marker end pattern")
 	generateCmd.Flags().StringVarP(&markerPattern, "marker-pattern", "p", "", "Custom marker pattern with {filename} placeholder")
-	generateCmd.Flags().BoolVarP(&debug, "debug", "D", false, "Enable debug logging")
+	generateCmd.Flags().BoolVarP(&overwrite, "overwrite", "o", false, "Overwrite existing files")
+	generateCmd.Flags().BoolVarP(&dryRun, "dry-run", "n", false, "Show what would be done without doing it")
 
 	return generateCmd
 }
 
 // transpileCommand handles Markdown to HTML transpilation.
 func transpileCommand() *cobra.Command {
-
 	short := "Convert Markdown to HTML with advanced templating"
 	long := "Convert Markdown files to HTML with prompt block DSL support and template generation."
 
@@ -240,8 +248,6 @@ func transpileCommand() *cobra.Command {
 
 // presetsCommand lists available marker presets.
 func presetsCommand() *cobra.Command {
-	var debug bool
-
 	short := "List available marker presets"
 	long := "Display all available marker presets with examples and descriptions."
 
@@ -284,9 +290,6 @@ func presetsCommand() *cobra.Command {
 
 // vscodeCommand starts the VS Code integration server.
 func vscodeCommand() *cobra.Command {
-	var port int
-	var debug bool
-
 	short := "Start VS Code integration server"
 	long := "Start the HTTP server for VS Code extension integration and communication."
 
@@ -323,9 +326,6 @@ func vscodeCommand() *cobra.Command {
 
 // refactorCommand handles AI-powered code refactoring using Grompt integration.
 func refactorCommand() *cobra.Command {
-	var rulesFile, provider, outputDir string
-	var dryRun, interactive, debug bool
-
 	short := "AI-powered code refactoring with Grompt"
 	long := `Refactor code using AI through Grompt integration.
 

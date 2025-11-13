@@ -23,7 +23,7 @@ func LoadEmbeddedConfig(initArgs kbx.InitArgs) (*LktConfig, error) {
 	return lktConfig, nil
 }
 
-func getInitArgsHardCopy(initArgs kbx.InitArgs) *kbx.InitArgs {
+func getInitArgsHardCopy(initArgs kbx.InitArgs) *kbx.KBXConfig {
 	return kbx.NewInitArgs(
 		initArgs.ConfigFile,
 		initArgs.ConfigType,
@@ -35,7 +35,7 @@ func getInitArgsHardCopy(initArgs kbx.InitArgs) *kbx.InitArgs {
 		initArgs.Cwd,
 		initArgs.TempDir,
 
-		initArgs.Name,
+		// initArgs.Name,
 		initArgs.Debug,
 		initArgs.ReleaseMode,
 		initArgs.IsConfidential,
