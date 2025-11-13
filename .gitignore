@@ -83,3 +83,15 @@ support/docs/patch/
 .notes/
 .codex/
 .venv-hooks
+
+./cli/dist/*.exe
+./cli/dist/*_linux_amd64
+./cli/dist/*_darwin_amd64
+./cli/dist/*_darwin_arm64
+./cli/dist/*_windows_amd64.exe
+./cli/dist/*_linux_arm64
+./cli/dist/*_linux_arm64.tar.gz
+./cli/dist/*_windows_amd64.tar.gz
+./cli/dist/*_darwin_arm64.tar.gz
+./cli/dist/*_darwin_amd64.tar.gz
+./cli/dist/*_linux_amd64.tar.gz
