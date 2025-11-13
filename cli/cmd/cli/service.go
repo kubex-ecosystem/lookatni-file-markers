@@ -20,12 +20,15 @@ var (
 	blobMode    bool
 	jsonOut     bool
 )
+
+var exclude = []string{}
+
 var (
-	input         string
-	outputDir     string
-	format        string
-	marker        string
-	exclude       []string
+	input     string
+	outputDir string
+	format    string
+	marker    string
+
 	markerPreset  string
 	markerStart   string
 	markerEnd     string
@@ -95,7 +98,7 @@ func extractCommand() *cobra.Command {
 	extractCmd.Flags().BoolVarP(&createDirs, "create-dirs", "c", true, "Create directories as needed")
 	extractCmd.Flags().BoolVarP(&dryRun, "dry-run", "n", false, "Show what would be done without doing it")
 	extractCmd.Flags().BoolVarP(&debug, "debug", "D", false, "Enable debug logging")
-	extractCmd.Flags().BoolVarP(&strict, "strict", "s", false, "Enable strict extraction (error on malformed markers)")
+	extractCmd.Flags().BoolVarP(&strict, "strict", "S", false, "Enable strict extraction (error on malformed markers)")
 	extractCmd.Flags().StringVarP(&marker, "marker", "m", "", "Custom marker pattern to use for extraction")
 	extractCmd.Flags().StringSliceVarP(&exclude, "exclude", "x", []string{}, "Exclude files matching pattern")
 	extractCmd.Flags().StringVarP(&markerPreset, "marker-preset", "p", "", "Use predefined marker format (html, markdown, code, visual)")
@@ -132,8 +135,8 @@ func validateCommand() *cobra.Command {
 		},
 	}
 
-	validateCmd.Flags().BoolP("debug", "D", false, "Enable debug logging")
-	validateCmd.Flags().BoolVar(&strict, "strict", false, "Enable strict validation (flag malformed marker-like lines)")
+	validateCmd.Flags().BoolVarP(&debug, "debug", "D", false, "Enable debug logging")
+	validateCmd.Flags().BoolVarP(&strict, "strict", "S", false, "Enable strict validation (flag malformed marker-like lines)")
 
 	return validateCmd
 }
@@ -192,7 +195,7 @@ func generateCommand() *cobra.Command {
 	generateCmd.Flags().BoolVarP(&debug, "debug", "D", false, "Enable debug logging")
 	generateCmd.Flags().StringSliceVarP(&exclude, "exclude", "x", []string{}, "Exclude files matching pattern")
 	generateCmd.Flags().StringVarP(&marker, "marker", "m", "", "Custom marker pattern to use for extraction")
-	generateCmd.Flags().StringVarP(&markerPreset, "marker-preset", "p", "", "Use predefined marker format (html, markdown, code, visual)")
+	generateCmd.Flags().StringVarP(&markerPreset, "marker-preset", "P", "", "Use predefined marker format (html, markdown, code, visual)")
 	generateCmd.Flags().StringVarP(&markerStart, "marker-start", "s", "", "Custom marker start pattern")
 	generateCmd.Flags().StringVarP(&markerEnd, "marker-end", "e", "", "Custom marker end pattern")
 	generateCmd.Flags().StringVarP(&markerPattern, "marker-pattern", "p", "", "Custom marker pattern with {filename} placeholder")
