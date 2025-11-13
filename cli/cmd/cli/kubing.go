@@ -12,9 +12,19 @@ import (
 )
 
 func KubingCmd() *cobra.Command {
+	short := `Kubing: Compara blocos de código entre dois projetos/arquivos.`
+	long := `Kubing: Compara blocos de código entre dois projetos/arquivos.
+Ele carrega blocos de código de um projeto/arquivo de origem e os compara com blocos de um projeto/arquivo de destino, reportando correspondências acima de um limiar de similaridade especificado.`
+
 	cmd := &cobra.Command{
-		Use:   "kubingcmp -src <origem> -dst <destino> [-blob] [-t 0.82] [--json]",
-		Short: "Compara blocos de código entre dois projetos/arquivos",
+		Use:   "kubing -src <origem> -dst <destino> [-blob] [-t 0.82] [--json]",
+		Short: short,
+		Long: long,
+		Args: cobra.NoArgs,
+		Annotations: GetDescriptions([]string{
+			short,
+			long,
+		}, false),
 		Run: func(cmd *cobra.Command, args []string) {
 			runKubingCmp(input, outputDir, blobMode, threshold, jsonOut)
 		},
