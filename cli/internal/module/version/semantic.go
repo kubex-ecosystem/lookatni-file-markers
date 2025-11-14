@@ -11,25 +11,30 @@ import (
 	"strings"
 	"time"
 
+	l "github.com/kubex-ecosystem/logz"
+	lgr "github.com/kubex-ecosystem/logz/logger"
 	manifest "github.com/kubex-ecosystem/lookatni-file-markers/internal/module/info"
-	"github.com/kubex-ecosystem/logz/logger"
 	"github.com/spf13/cobra"
 )
 
-var gl = logger.LoggerG.GetLogger()
 var (
+	gl   = lgr.LoggerG.GetLogger()
 	info manifest.Manifest
 	vrs  Service
 	err  error
 )
 
 func init() {
+
+	gl.SetConfig(l.GetLogConfig())
+
 	if info == nil {
 		info, err = manifest.GetManifest()
 		if err != nil {
 			gl.Log("error", "Failed to get manifest: "+err.Error())
 		}
 	}
+	gl.Log("debug", "Initialized version package")
 }
 
 type Service interface {
@@ -424,10 +429,10 @@ func GetLatestVersionFromGit() string {
 }
 func GetLatestVersionInfo() string {
 	if info.IsPrivate() {
-		gl.Log("error", "Cannot fetch latest version for private repositories.")
+		lgr.Log("error", "Cannot fetch latest version for private repositories.")
 		return "Cannot fetch latest version for private repositories."
 	}
-	gl.Log("info", "Latest version: "+GetLatestVersionFromGit())
+	lgr.Log("info", "Latest version: "+GetLatestVersionFromGit())
 	return "Latest version: " + GetLatestVersionFromGit()
 }
 func GetVersionInfoWithLatestAndCheck() string {
