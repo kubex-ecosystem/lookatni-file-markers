@@ -19,8 +19,8 @@ Ele carrega blocos de código de um projeto/arquivo de origem e os compara com b
 	cmd := &cobra.Command{
 		Use:   "kubing -src <origem> -dst <destino> [-blob] [-t 0.82] [--json]",
 		Short: short,
-		Long: long,
-		Args: cobra.NoArgs,
+		Long:  long,
+		Args:  cobra.NoArgs,
 		Annotations: GetDescriptions([]string{
 			short,
 			long,

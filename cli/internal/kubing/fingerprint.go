@@ -9,9 +9,9 @@ import (
 )
 
 type Match struct {
-	Source      Block
-	Target      Block
-	Similarity  float64
+	Source     Block
+	Target     Block
+	Similarity float64
 }
 
 // ExtractBlocksFromFile lê um arquivo e quebra em blocos lógicos.

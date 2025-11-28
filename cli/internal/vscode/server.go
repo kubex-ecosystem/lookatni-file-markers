@@ -7,23 +7,23 @@ import (
 	"net/http"
 	"strconv"
 
-	gl "github.com/kubex-ecosystem/logz/logger"
+	"github.com/kubex-ecosystem/logz"
 	"github.com/kubex-ecosystem/lookatni-file-markers/internal/parser"
 	"github.com/kubex-ecosystem/lookatni-file-markers/internal/transpiler"
 )
 
 // Server handles VS Code integration requests.
 type Server struct {
-	logger     gl.Logger
+	logger     *logz.LoggerZ
 	port       int
 	parser     *parser.MarkerParser
 	transpiler *transpiler.Transpiler
 }
 
 // NewServer creates a new VS Code integration server.
-func NewServer(log gl.Logger, port int) *Server {
+func NewServer(log *logz.LoggerZ, port int) *Server {
 	if log == nil {
-		log = gl.LoggerG
+		log = *logz.LoggerZ
 	}
 	// Load default HTML template
 	htmlTemplate := `<!doctype html>
@@ -71,8 +71,6 @@ func (s *Server) Start() error {
 
 	return http.ListenAndServe(addr, handler)
 }
-
-
 
 // APIResponse represents a standard API response.
 type APIResponse struct {

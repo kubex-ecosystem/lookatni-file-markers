@@ -10,10 +10,10 @@ var logger = l.GetLogger("lookatni")
 
 func init() {
 	l.SetLogger(logger)
-	// l.SetLogConfig(gl.LoggerG.GetConfig())
+	// l.SetLogConfig(logz.LoggerZ.GetConfig())
 
 	l.SetLogLevel("info")
-	// l.SetLogWriter(gl.LoggerG.GetWriter())
+	// l.SetLogWriter(logz.LoggerZ.GetWriter())
 }
 
 // main initializes the logger and creates a new LookAtni instance.

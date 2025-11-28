@@ -35,10 +35,10 @@ type ConfigScope struct {
 type ConfigBasic struct {
 	// Basic application settings
 	// Name           string `yaml:"name,omitempty" json:"name,omitempty" mapstructure:"name,omitempty"`
-	Debug          bool   `yaml:"debug,omitempty" json:"debug,omitempty" mapstructure:"debug,omitempty"`
-	ReleaseMode    bool   `yaml:"release_mode,omitempty" json:"release_mode,omitempty" mapstructure:"release_mode,omitempty"`
-	IsConfidential bool   `yaml:"is_confidential,omitempty" json:"is_confidential,omitempty" mapstructure:"is_confidential,omitempty"`
-	Background     bool   `yaml:"background,omitempty" json:"background,omitempty" mapstructure:"background,omitempty"`
+	Debug          bool `yaml:"debug,omitempty" json:"debug,omitempty" mapstructure:"debug,omitempty"`
+	ReleaseMode    bool `yaml:"release_mode,omitempty" json:"release_mode,omitempty" mapstructure:"release_mode,omitempty"`
+	IsConfidential bool `yaml:"is_confidential,omitempty" json:"is_confidential,omitempty" mapstructure:"is_confidential,omitempty"`
+	Background     bool `yaml:"background,omitempty" json:"background,omitempty" mapstructure:"background,omitempty"`
 }
 
 type ConfigNetworkSecurity struct {

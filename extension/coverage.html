@@ -214,7 +214,7 @@ type App struct {
 }
 
 // New creates a new App instance.
-func New(log *logger.Logger) *App <span class="cov0" title="0">{
+func New(log logz.LoggerZ) *App <span class="cov0" title="0">{
         // Load HTML template
         htmlTemplate, err := templatesFS.ReadFile("templates/base.html")
         if err != nil </span><span class="cov0" title="0">{
@@ -1330,7 +1330,7 @@ type Server struct {
 }
 
 // NewServer creates a new VS Code integration server.
-func NewServer(log *logger.Logger, port int) *Server <span class="cov0" title="0">{
+func NewServer(log logz.LoggerZ, port int) *Server <span class="cov0" title="0">{
         // Load default HTML template
         htmlTemplate := `&lt;!doctype html&gt;
 &lt;html lang="pt-BR"&gt;

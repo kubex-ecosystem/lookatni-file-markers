@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/kubex-ecosystem/logz"
 	gl "github.com/kubex-ecosystem/logz/logger"
 	"github.com/kubex-ecosystem/lookatni-file-markers/internal/adaptive"
 	"github.com/kubex-ecosystem/lookatni-file-markers/internal/integration"
@@ -18,7 +19,7 @@ import (
 
 // App represents the main CLI application.
 type App struct {
-	log               gl.Logger // Is already a interface, so, a pointer...
+	log               *logz.LoggerZ // Is already a interface, so, a pointer...
 	parser            *parser.MarkerParser
 	transpiler        *transpiler.Transpiler
 	gromptIntegration *integration.GromptIntegration
@@ -34,9 +35,9 @@ func init() {
 }
 
 // New creates a new App instance.
-func New(log gl.Logger) *App {
+func New(log *logz.LoggerZ) *App {
 	if log == nil {
-		log = gl.LoggerG
+		log = *logz.LoggerZ
 	}
 
 	// Load HTML template

@@ -26,8 +26,6 @@ type ParseError struct {
 	Severity string `json:"severity"` // "error", "warning"
 }
 
-
-
 // ExtractResults contains the results of file extraction.
 type ExtractResults struct {
 	Success        bool     `json:"success"`
