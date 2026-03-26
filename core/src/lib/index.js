@@ -15,7 +15,7 @@ Object.defineProperty(exports, "createGenerator", { enumerable: true, get: funct
 Object.defineProperty(exports, "createValidator", { enumerable: true, get: function () { return factory_1.createValidator; } });
 // 📊 Utility exports
 var logger_1 = require("../core/logger");
-Object.defineProperty(exports, "Logger", { enumerable: true, get: function () { return logger_1.Logger; } });
+Object.defineProperty(exports, "Logger", { enumerable: true, get: function() { return logz.LoggerZ; } });
 var scanner_1 = require("../core/scanner");
 Object.defineProperty(exports, "FileScanner", { enumerable: true, get: function () { return scanner_1.FileScanner; } });
 //# sourceMappingURL=index.js.map

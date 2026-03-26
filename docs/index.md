@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD012, MD033 -->
 # 🚀 Welcome to the LookAtni Project
 
 <div align="center">
@@ -13,7 +14,7 @@
 
 !!! success "🎯 **What Makes LookAtni Special?**"
 
-    Transform any codebase into a **single, portable text file** with unique markers that preserve complete project structure, file relationships, and metadata.
+  Transform any codebase into a **single, portable text file** with unique markers that preserve complete project structure, file relationships, and metadata.
 
 ## ⚡ Quick Preview
 
@@ -82,34 +83,34 @@ LookAtni: Extract Files → project-markers.txt → ./restored-project
 ## 🎬 See It In Action
 
 <div class="video-container" markdown>
-  <iframe width="720" height="392" src="assets/demo_md.gif" frameborder="0" allowfullscreen></iframe>
+  <iframe width="720" height="392" src="/docs/assets/demo_md.gif" frameborder="0" allowfullscreen></iframe>
 </div>
 
 !!! tip "📹 **Perfect for Recording**"
 
-    Built-in **Automated Demo** mode creates perfect demonstrations for tutorials, presentations, and educational content.
+  Built-in **Automated Demo** mode creates perfect demonstrations for tutorials, presentations, and educational content.
 
 ## 🏃‍♂️ Get Started in 60 Seconds
 
 === "Install Extension"
 
-    1. Open VS Code
-    2. Search for "LookAtni File Markers"
-    3. Click Install
-    4. Reload VS Code
+  1. Open VS Code
+  2. Search for "LookAtni File Markers"
+  3. Click Install
+  4. Reload VS Code
 
 === "Try Quick Demo"
 
-    1. Open Command Palette (`Ctrl+Shift+P`)
-    2. Type `LookAtni: Quick Demo`
-    3. Watch the magic happen! ✨
+  1. Open Command Palette (`Ctrl+Shift+P`)
+  2. Type `LookAtni: Quick Demo`
+  3. Watch the magic happen! ✨
 
 === "Generate First Markers"
 
-    1. Open your project folder
-    2. Command Palette → `LookAtni: Generate Markers`
-    3. Select source folder and output file
-    4. Share your project anywhere! 🚀
+  1. Open your project folder
+  2. Command Palette → `LookAtni: Generate Markers`
+  3. Select source folder and output file
+  4. Share your project anywhere! 🚀
 
 ## 🌍 Use Cases
 
@@ -117,24 +118,24 @@ LookAtni: Extract Files → project-markers.txt → ./restored-project
 
 !!! example "💼 **Professional Development**"
 
-    - **Code Reviews**: Share clean, organized code snippets
-    - **Documentation**: Include runnable examples in docs
-    - **Portfolio**: Showcase projects without repositories
-    - **Collaboration**: Share project slices with team members
+- **Code Reviews**: Share clean, organized code snippets
+- **Documentation**: Include runnable examples in docs
+- **Portfolio**: Showcase projects without repositories
+- **Collaboration**: Share project slices with team members
 
 !!! example "🎓 **Education & Training**"
 
-    - **Tutorials**: Distribute complete project files
-    - **Assignments**: Package student submissions
-    - **Workshops**: Share hands-on coding exercises
-    - **Online Courses**: Include downloadable project files
+- **Tutorials**: Distribute complete project files
+- **Assignments**: Package student submissions
+- **Workshops**: Share hands-on coding exercises
+- **Online Courses**: Include downloadable project files
 
 !!! example "🔧 **DevOps & Automation**"
 
-    - **CI/CD**: Automate project packaging
-    - **Deployment**: Package configurations and scripts
-    - **Backup**: Create portable project snapshots
-    - **Migration**: Move projects between environments
+- **CI/CD**: Automate project packaging
+- **Deployment**: Package configurations and scripts
+- **Backup**: Create portable project snapshots
+- **Migration**: Move projects between environments
 
 </div>
 

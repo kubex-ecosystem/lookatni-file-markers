@@ -7,38 +7,38 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Tag name for manual release (e.g., v1.0.0)'
+        description: "Tag name for manual release (e.g., v1.0.0)"
         required: false
         type: string
       debug:
-        description: 'Enable debug mode'
+        description: "Enable debug mode"
         required: false
         default: false
         type: boolean
       dry_run:
-        description: 'Enable dry run mode'
+        description: "Enable dry run mode"
         required: false
         default: false
         type: boolean
       platforms:
-        description: 'Override platforms (comma-separated, e.g., linux/amd64,windows/amd64)'
+        description: "Override platforms (comma-separated, e.g., linux/amd64,windows/amd64)"
         required: false
-        default: ''
+        default: ""
         type: string
       quiet:
-        description: 'Suppress non-error output'
+        description: "Suppress non-error output"
         required: false
         default: true
         type: boolean
       manifest_path:
-        description: 'Path to module manifest file'
+        description: "Path to module manifest file"
         required: false
-        default: 'cli/internal/module/info/manifest.json'
+        default: "cli/internal/module/info/manifest.json"
         type: string
       cli_dist:
-        description: 'Path to CLI dist directory'
+        description: "Path to CLI dist directory"
         required: false
-        default: 'cli/dist'
+        default: "cli/dist"
         type: string
 
 permissions:
@@ -166,7 +166,7 @@ jobs:
         run: |
           GO_VERSION=$(grep '^go ' $(git rev-parse --show-toplevel)/cli/go.mod | awk '{print $2}')
 
-          bash -c "$(curl -sSfL 'https://raw.githubusercontent.com/kubex-ecosystem/gosetup/main/go.sh')" -s --version "$GO_VERSION"
+          bash -c "$(curl -sSfL 'https://raw.githubusercontent.com/kubex-ecosystem/gosetup/main/go.sh')" -s install "$GO_VERSION"
 
           # Verify installation
           go version
@@ -228,12 +228,12 @@ jobs:
         if: steps.version-check.outputs.continue == 'true'
         uses: actions/setup-node@v4
         with:
-            node-version: '22'
+          node-version: "22"
 
       - name: Validate All (Core/CLI/Extension + Golden)
         if: steps.version-check.outputs.continue == 'true'
         run: |
-            make validate
+          make validate
 
       - name: Verify Build Artifacts
         if: steps.version-check.outputs.continue == 'true'
@@ -328,7 +328,7 @@ jobs:
   #       run: |
   #         GO_VERSION=$(grep '^go ' $(git rev-parse --show-toplevel)/go.mod | awk '{print $2}')
 
-  #         bash -c "$(curl -sSfL 'https://raw.githubusercontent.com/rafa-mori/gosetup/main/go.sh')" -s --version "${GO_VERSION:-1.24.5}"
+  #         bash -c "$(curl -sSfL 'https://raw.githubusercontent.com/rafa-mori/gosetup/main/go.sh')" -s install "${GO_VERSION:-1.24.5}"
 
   #         # Verify installation
   #         go version

@@ -2,27 +2,24 @@
 package app
 
 import (
-	"embed"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
-	l "github.com/kubex-ecosystem/logz"
+	"github.com/kubex-ecosystem/logz"
+	gl "github.com/kubex-ecosystem/logz/logger"
 	"github.com/kubex-ecosystem/lookatni-file-markers/internal/adaptive"
-	"github.com/kubex-ecosystem/lookatni-file-markers/internal/metadata"
 	"github.com/kubex-ecosystem/lookatni-file-markers/internal/integration"
-	"github.com/kubex-ecosystem/lookatni-file-markers/internal/module/logger"
+	"github.com/kubex-ecosystem/lookatni-file-markers/internal/metadata"
+	"github.com/kubex-ecosystem/lookatni-file-markers/internal/module/kbx"
 	"github.com/kubex-ecosystem/lookatni-file-markers/internal/parser"
 	"github.com/kubex-ecosystem/lookatni-file-markers/internal/transpiler"
 )
 
-//go:embed templates/*
-var templatesFS embed.FS
-
 // App represents the main CLI application.
 type App struct {
-	logger            logger.GLog[l.Logger] // Is already a interface, so, a pointer...
+	log               *logz.LoggerZ // Is already a interface, so, a pointer...
 	parser            *parser.MarkerParser
 	transpiler        *transpiler.Transpiler
 	gromptIntegration *integration.GromptIntegration
@@ -32,27 +29,29 @@ func init() {
 	// Initialize Grompt integration
 	gromptIntegration := integration.NewGromptIntegration()
 	providers := gromptIntegration.GetAvailableProviders()
-	logger.Log("info", fmt.Sprintf("Grompt integration initialized with %d providers", len(providers)))
+	if len(providers) > 0 {
+		gl.Log("info", fmt.Sprintf("Grompt integration initialized with %d providers", len(providers)))
+	}
 }
 
 // New creates a new App instance.
-func New(log logger.GLog[l.Logger]) *App {
+func New(log *logz.LoggerZ) *App {
 	if log == nil {
-		log = logger.GetLogger[l.Logger](nil)
+		log = *logz.LoggerZ
 	}
 
 	// Load HTML template
-	htmlTemplate, err := templatesFS.ReadFile("templates/base.html")
-	if err != nil {
-		log.Log("error", "Failed to load HTML template: %v", err)
-		// Fallback to embedded template
-		htmlTemplate = []byte(fallbackHTMLTemplate)
-	}
+	// htmlTemplate, err := templatesFS.ReadFile("templates/base.html")
+	// if err != nil {
+	// 	log.Log("error", "Failed to load HTML template: %v", err)
+	// 	// Fallback to embedded template
+	// 	htmlTemplate = []byte(fallbackHTMLTemplate)
+	// }
 
 	return &App{
-		logger:            log,
+		log:               log,
 		parser:            parser.New(),
-		transpiler:        transpiler.New(string(htmlTemplate)),
+		transpiler:        transpiler.New( /* string(htmlTemplate) */ ""),
 		gromptIntegration: integration.NewGromptIntegration(),
 	}
 }
@@ -62,7 +61,6 @@ func (a *App) Run(args []string) error {
 	if len(args) == 0 {
 		return a.showHelp()
 	}
-
 	command := args[0]
 	switch command {
 	case "extract":
@@ -72,7 +70,7 @@ func (a *App) Run(args []string) error {
 	case "generate":
 		return a.generateCommand(args[1:])
 	case "transpile":
-		return a.transpileCommand(args[1:])
+		return a.transpileCommand(args[1:]...)
 	case "refactor":
 		return a.refactorCommand(args[1:])
 	case "help":
@@ -91,7 +89,7 @@ func (a *App) extractCommand(args []string) error {
 	markedFile := args[0]
 	outputDir := args[1]
 
-	options := parser.ExtractOptions{
+	options := kbx.ExtractOptions{
 		Overwrite:  false,
 		CreateDirs: true,
 		DryRun:     false,
@@ -109,7 +107,7 @@ func (a *App) extractCommand(args []string) error {
 		}
 	}
 
-	a.logger.Log("info", fmt.Sprintf("Extracting files from %s to %s", markedFile, outputDir))
+	a.log.Log("info", fmt.Sprintf("Extracting files from %s to %s", markedFile, outputDir))
 
 	result, err := a.parser.ExtractFiles(markedFile, outputDir, options)
 	if err != nil {
@@ -117,23 +115,23 @@ func (a *App) extractCommand(args []string) error {
 	}
 
 	if len(result.Errors) > 0 {
-		a.logger.Log("warn", "Extraction completed with errors:")
+		a.log.Log("warn", "Extraction completed with errors:")
 		for _, errMsg := range result.Errors {
-			a.logger.Log("warn", "   %s", errMsg)
+			a.log.Log("warn", "   %s", errMsg)
 		}
 	}
 
 	if options.DryRun {
-		a.logger.Log("info", "[DRY RUN] Would extract %d files", len(result.ExtractedFiles))
+		a.log.Log("info", "[DRY RUN] Would extract %d files", len(result.ExtractedFiles))
 	} else {
-		a.logger.Log("success", fmt.Sprintf("Successfully extracted %d files", len(result.ExtractedFiles)))
+		a.log.Log("success", fmt.Sprintf("Successfully extracted %d files", len(result.ExtractedFiles)))
 	}
 
 	for _, file := range result.ExtractedFiles {
 		if options.DryRun {
-			a.logger.Log("debug", fmt.Sprintf("   [DRY RUN] %s", file))
+			a.log.Log("debug", fmt.Sprintf("   [DRY RUN] %s", file))
 		} else {
-			a.logger.Log("debug", fmt.Sprintf("   ✓ %s", file))
+			a.log.Log("debug", fmt.Sprintf("   ✓ %s", file))
 		}
 	}
 
@@ -142,62 +140,62 @@ func (a *App) extractCommand(args []string) error {
 
 // validateCommand handles marker validation.
 func (a *App) validateCommand(args []string) error {
-    if len(args) == 0 {
-        return fmt.Errorf("usage: validate <marked-file> [--strict]")
-    }
+	if len(args) == 0 {
+		return fmt.Errorf("usage: validate <marked-file> [--strict]")
+	}
 
-    markedFile := args[0]
-    strict := false
-    for _, arg := range args[1:] {
-        if arg == "--strict" {
-            strict = true
-        }
-    }
+	markedFile := args[0]
+	strict := false
+	for _, arg := range args[1:] {
+		if arg == "--strict" {
+			strict = true
+		}
+	}
 
-    a.logger.Log("info", fmt.Sprintf("Validating markers in %s (strict=%v)", markedFile, strict))
+	a.log.Log("info", fmt.Sprintf("Validating markers in %s (strict=%v)", markedFile, strict))
 
-    result, err := a.parser.ValidateMarkers(markedFile, strict)
-    if err != nil {
-        return fmt.Errorf("validation failed: %w", err)
-    }
+	result, err := a.parser.ValidateMarkers(markedFile, strict)
+	if err != nil {
+		return fmt.Errorf("validation failed: %w", err)
+	}
 
 	if result.IsValid {
-		a.logger.Log("success", "All markers are valid!")
+		a.log.Log("success", "All markers are valid!")
 	} else {
-		a.logger.Log("warn", "Validation issues found:")
+		a.log.Log("warn", "Validation issues found:")
 	}
 
 	if len(result.Errors) > 0 {
-		a.logger.Log("warn", "Errors:")
+		a.log.Log("warn", "Errors:")
 		for _, errMsg := range result.Errors {
-			a.logger.Log("warn", "   Line %d: %s (%s)", errMsg.Line, errMsg.Message, errMsg.Severity)
+			a.log.Log("warn", "   Line %d: %s (%s)", errMsg.Line, errMsg.Message, errMsg.Severity)
 		}
 	}
 
 	if len(result.DuplicateFilenames) > 0 {
-		a.logger.Log("warn", "Duplicate filenames:")
+		a.log.Log("warn", "Duplicate filenames:")
 		for _, dup := range result.DuplicateFilenames {
-			a.logger.Log("warn", "   %s", dup)
+			a.log.Log("warn", "   %s", dup)
 		}
 	}
 
 	if len(result.InvalidFilenames) > 0 {
-		a.logger.Log("warn", "Invalid filenames:")
+		a.log.Log("warn", "Invalid filenames:")
 		for _, invalid := range result.InvalidFilenames {
-			a.logger.Log("warn", "   %s", invalid)
+			a.log.Log("warn", "   %s", invalid)
 		}
 	}
 
 	stats := result.Statistics
-	a.logger.Log("info", "📊 Statistics:")
-	a.logger.Log("info", "   Total markers: %d", stats.TotalMarkers)
-	a.logger.Log("info", "   Empty markers: %d", stats.EmptyMarkers)
+	a.log.Log("info", "📊 Statistics:")
+	a.log.Log("info", "   Total markers: %d", stats.TotalMarkers)
+	a.log.Log("info", "   Empty markers: %d", stats.EmptyMarkers)
 
 	return nil
 }
 
 // transpileCommand handles Markdown to HTML transpilation.
-func (a *App) transpileCommand(args []string) error {
+func (a *App) transpileCommand(args ...string) error {
 	if len(args) < 2 {
 		return fmt.Errorf("usage: transpile <input-dir|file> <output-dir> [--with-prompts]")
 	}
@@ -214,7 +212,7 @@ func (a *App) transpileCommand(args []string) error {
 		}
 	}
 
-	a.logger.Log("info", fmt.Sprintf("Transpiling from %s to %s (prompts: %v)", input, outputDir, withPrompts))
+	a.log.Log("info", fmt.Sprintf("Transpiling from %s to %s (prompts: %v)", input, outputDir, withPrompts))
 
 	stat, err := os.Stat(input)
 	if err != nil {
@@ -243,7 +241,7 @@ func (a *App) transpileCommand(args []string) error {
 			filePath := filepath.Join(input, entry.Name())
 			content, err := os.ReadFile(filePath)
 			if err != nil {
-				a.logger.Log("warn", fmt.Sprintf("Failed to read %s: %v", filePath, err))
+				a.log.Log("warn", fmt.Sprintf("Failed to read %s: %v", filePath, err))
 				continue
 			}
 
@@ -251,16 +249,16 @@ func (a *App) transpileCommand(args []string) error {
 			if withPrompts && a.gromptIntegration != nil {
 				processedContent, err := a.gromptIntegration.ProcessMarkdownWithPrompts(string(content))
 				if err != nil {
-					a.logger.Log("warn", fmt.Sprintf("Grompt processing failed for %s: %v", entry.Name(), err))
+					a.log.Log("warn", fmt.Sprintf("Grompt processing failed for %s: %v", entry.Name(), err))
 				} else {
 					content = []byte(processedContent)
-					a.logger.Log("debug", fmt.Sprintf("Enhanced %s with AI processing", entry.Name()))
+					a.log.Log("debug", fmt.Sprintf("Enhanced %s with AI processing", entry.Name()))
 				}
 			}
 
 			fileInfo, err := a.transpiler.ConvertMarkdownToHTML(entry.Name(), content, outputDir)
 			if err != nil {
-				a.logger.Log("warn", "Failed to transpile %s: %v", entry.Name(), err)
+				a.log.Log("warn", "Failed to transpile %s: %v", entry.Name(), err)
 				continue
 			}
 
@@ -271,7 +269,7 @@ func (a *App) transpileCommand(args []string) error {
 				totalSize += stat.Size()
 			}
 
-			a.logger.Log("debug", fmt.Sprintf("  ✓ %s -> %s", entry.Name(), fileInfo.FileName))
+			a.log.Log("debug", fmt.Sprintf("  ✓ %s -> %s", entry.Name(), fileInfo.FileName))
 		}
 	} else {
 		// Process single file
@@ -301,10 +299,10 @@ func (a *App) transpileCommand(args []string) error {
 		if err := a.transpiler.GenerateIndex(files, totalSize, outputDir); err != nil {
 			return fmt.Errorf("failed to generate index: %w", err)
 		}
-		a.logger.Log("success", fmt.Sprintf("Generated index with %d files", len(files)))
+		a.log.Log("success", fmt.Sprintf("Generated index with %d files", len(files)))
 	}
 
-	a.logger.Log("success", fmt.Sprintf("Transpilation completed: %d files processed", len(files)))
+	a.log.Log("success", fmt.Sprintf("Transpilation completed: %d files processed", len(files)))
 	return nil
 }
 
@@ -317,23 +315,38 @@ func (a *App) generateCommand(args []string) error {
 	sourceDir := args[0]
 	outputFile := args[1]
 
-    // Parse flags from args
-    var excludePatterns []string
-    var markerPreset, markerStart, markerEnd, markerPattern string
-    for i := 2; i < len(args); i++ {
-        switch args[i] {
-        case "--exclude":
-            if i+1 < len(args) { excludePatterns = append(excludePatterns, args[i+1]); i++ }
-        case "--marker-preset":
-            if i+1 < len(args) { markerPreset = args[i+1]; i++ }
-        case "--marker-start":
-            if i+1 < len(args) { markerStart = args[i+1]; i++ }
-        case "--marker-end":
-            if i+1 < len(args) { markerEnd = args[i+1]; i++ }
-        case "--marker-pattern":
-            if i+1 < len(args) { markerPattern = args[i+1]; i++ }
-        }
-    }
+	// Parse flags from args
+	var excludePatterns []string
+	var markerPreset, markerStart, markerEnd, markerPattern string
+	for i := 2; i < len(args); i++ {
+		switch args[i] {
+		case "--exclude":
+			if i+1 < len(args) {
+				excludePatterns = append(excludePatterns, args[i+1])
+				i++
+			}
+		case "--marker-preset":
+			if i+1 < len(args) {
+				markerPreset = args[i+1]
+				i++
+			}
+		case "--marker-start":
+			if i+1 < len(args) {
+				markerStart = args[i+1]
+				i++
+			}
+		case "--marker-end":
+			if i+1 < len(args) {
+				markerEnd = args[i+1]
+				i++
+			}
+		case "--marker-pattern":
+			if i+1 < len(args) {
+				markerPattern = args[i+1]
+				i++
+			}
+		}
+	}
 
 	// Default exclude patterns
 	if len(excludePatterns) == 0 {
@@ -342,53 +355,67 @@ func (a *App) generateCommand(args []string) error {
 		}
 	}
 
-	a.logger.Log("info", fmt.Sprintf("Generating marked file from %s to %s", sourceDir, outputFile))
+	a.log.Log("info", fmt.Sprintf("Generating marked file from %s to %s", sourceDir, outputFile))
 
-    // If custom marker parameters provided, use adaptive generator
-    if markerPreset != "" || markerStart != "" || markerEnd != "" || markerPattern != "" {
-        ap := adaptive.New()
-        // Compose config
-        var cfg metadata.MarkerConfig
-        if markerPreset != "" {
-            presets := metadata.GetPresetConfigs()
-            if p, ok := presets[markerPreset]; ok { cfg = p.Config } else { cfg = metadata.GetDefaultConfig() }
-        } else {
-            cfg = metadata.GetDefaultConfig()
-        }
-        if markerPattern != "" { cfg.Pattern = markerPattern }
-        if markerStart != "" { cfg.Start = markerStart }
-        if markerEnd != "" { cfg.End = markerEnd }
+	// If custom marker parameters provided, use adaptive generator
+	if markerPreset != "" || markerStart != "" || markerEnd != "" || markerPattern != "" {
+		ap := adaptive.New()
+		// Compose config
+		var cfg metadata.MarkerConfig
+		if markerPreset != "" {
+			presets := metadata.GetPresetConfigs()
+			if p, ok := presets[markerPreset]; ok {
+				cfg = p.Config
+			} else {
+				cfg = metadata.GetDefaultConfig()
+			}
+		} else {
+			cfg = metadata.GetDefaultConfig()
+		}
+		if markerPattern != "" {
+			cfg.Pattern = markerPattern
+		}
+		if markerStart != "" {
+			cfg.Start = markerStart
+		}
+		if markerEnd != "" {
+			cfg.End = markerEnd
+		}
 
-        res, err := ap.GenerateFromDirectory(sourceDir, outputFile, excludePatterns, &cfg)
-        if err != nil { return fmt.Errorf("generation failed (adaptive): %w", err) }
-        // Map to log summary
-        if len(res.Errors) > 0 {
-            a.logger.Log("warn", "Generation completed with warnings:")
-            for _, e := range res.Errors { a.logger.Log("warn", "   %s", e) }
-        }
-        a.logger.Log("success", "Successfully generated marked file:")
-        a.logger.Log("success", fmt.Sprintf("   📁 %d files processed", res.TotalFiles))
-        a.logger.Log("success", fmt.Sprintf("   📊 %d bytes written", res.TotalBytes))
-        a.logger.Log("success", fmt.Sprintf("   📄 Output: %s", outputFile))
-        return nil
-    }
+		res, err := ap.GenerateFromDirectory(sourceDir, outputFile, excludePatterns, &cfg)
+		if err != nil {
+			return fmt.Errorf("generation failed (adaptive): %w", err)
+		}
+		// Map to log summary
+		if len(res.Errors) > 0 {
+			a.log.Log("warn", "Generation completed with warnings:")
+			for _, e := range res.Errors {
+				a.log.Log("warn", "   %s", e)
+			}
+		}
+		a.log.Log("success", "Successfully generated marked file:")
+		a.log.Log("success", fmt.Sprintf("   📁 %d files processed", res.TotalFiles))
+		a.log.Log("success", fmt.Sprintf("   📊 %d bytes written", res.TotalBytes))
+		a.log.Log("success", fmt.Sprintf("   📄 Output: %s", outputFile))
+		return nil
+	}
 
-    result, err := a.parser.GenerateFromDirectory(sourceDir, outputFile, excludePatterns)
+	result, err := a.parser.GenerateFromDirectory(sourceDir, outputFile, excludePatterns)
 	if err != nil {
 		return fmt.Errorf("generation failed: %w", err)
 	}
 
 	if len(result.Errors) > 0 {
-		a.logger.Log("warn", "Generation completed with warnings:")
+		a.log.Log("warn", "Generation completed with warnings:")
 		for _, errMsg := range result.Errors {
-			a.logger.Log("warn", fmt.Sprintf("   %s", errMsg))
+			a.log.Log("warn", fmt.Sprintf("   %s", errMsg))
 		}
 	}
 
-	a.logger.Log("success", "Successfully generated marked file:")
-	a.logger.Log("success", fmt.Sprintf("   📁 %d files processed", result.TotalFiles))
-	a.logger.Log("success", fmt.Sprintf("   📊 %d bytes written", result.TotalBytes))
-	a.logger.Log("success", fmt.Sprintf("   📄 Output: %s", outputFile))
+	a.log.Log("success", "Successfully generated marked file:")
+	a.log.Log("success", fmt.Sprintf("   📁 %d files processed", result.TotalFiles))
+	a.log.Log("success", fmt.Sprintf("   📊 %d bytes written", result.TotalBytes))
+	a.log.Log("success", fmt.Sprintf("   📄 Output: %s", outputFile))
 
 	return nil
 }
@@ -430,10 +457,10 @@ func (a *App) refactorCommand(args []string) error {
 		}
 	}
 
-	a.logger.Log("info", "🤖 Starting AI-powered refactoring...")
-	a.logger.Log("info", fmt.Sprintf("📄 Artifact: %s", artifactFile))
-	a.logger.Log("info", fmt.Sprintf("📋 Rules: %s", rulesFile))
-	a.logger.Log("info", fmt.Sprintf("🧠 Provider: %s", provider))
+	a.log.Log("info", "🤖 Starting AI-powered refactoring...")
+	a.log.Log("info", fmt.Sprintf("📄 Artifact: %s", artifactFile))
+	a.log.Log("info", fmt.Sprintf("📋 Rules: %s", rulesFile))
+	a.log.Log("info", fmt.Sprintf("🧠 Provider: %s", provider))
 
 	// Read artifact content
 	artifactContent, err := os.ReadFile(artifactFile)
@@ -444,7 +471,7 @@ func (a *App) refactorCommand(args []string) error {
 	// Read rules content
 	rulesContent, err := os.ReadFile(rulesFile)
 	if err != nil {
-		a.logger.Log("warn", fmt.Sprintf("Failed to read rules file %s, using default rules", rulesFile))
+		a.log.Log("warn", fmt.Sprintf("Failed to read rules file %s, using default rules", rulesFile))
 		rulesContent = []byte("Apply Go best practices and improve code quality")
 	}
 
@@ -453,7 +480,7 @@ func (a *App) refactorCommand(args []string) error {
 	}
 
 	// Perform refactoring using Grompt
-	a.logger.Log("info", "🔄 Processing with AI provider...")
+	a.log.Log("info", "🔄 Processing with AI provider...")
 	result, err := a.gromptIntegration.RefactorArtifact(
 		string(artifactContent),
 		string(rulesContent),
@@ -463,20 +490,20 @@ func (a *App) refactorCommand(args []string) error {
 		return fmt.Errorf("refactoring failed: %w", err)
 	}
 
-	a.logger.Log("info", "✅ Refactoring completed - ID: %s", result.ProcessingID)
+	a.log.Log("info", "✅ Refactoring completed - ID: %s", result.ProcessingID)
 
 	if dryRun {
 		// Just show suggestions
-		a.logger.Log("info", "🔍 DRY RUN - Suggestions:")
+		a.log.Log("info", "🔍 DRY RUN - Suggestions:")
 		for i, suggestion := range result.Suggestions {
-			a.logger.Log("info", "  %d. %s", i+1, suggestion)
+			a.log.Log("info", "  %d. %s", i+1, suggestion)
 		}
 		return nil
 	}
 
 	if interactive {
 		// TODO: Implement interactive mode
-		a.logger.Log("info", "🤝 Interactive mode not yet implemented, proceeding with automatic refactoring")
+		a.log.Log("info", "🤝 Interactive mode not yet implemented, proceeding with automatic refactoring")
 	}
 
 	// Save refactored content
@@ -497,8 +524,8 @@ func (a *App) refactorCommand(args []string) error {
 		return fmt.Errorf("failed to write refactored file: %w", err)
 	}
 
-	a.logger.Log("info", fmt.Sprintf("✅ Refactored artifact saved to: %s", outputFile))
-	a.logger.Log("info", fmt.Sprintf("📊 Applied %d suggestions", len(result.Suggestions)))
+	a.log.Log("info", fmt.Sprintf("✅ Refactored artifact saved to: %s", outputFile))
+	a.log.Log("info", fmt.Sprintf("📊 Applied %d suggestions", len(result.Suggestions)))
 
 	return nil
 }

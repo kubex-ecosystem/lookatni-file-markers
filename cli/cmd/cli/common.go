@@ -31,7 +31,7 @@ func GetDescriptions(descriptionArg []string, hideBanner bool) map[string]string
 	} else {
 		description = ""
 	}
-	if !hideBanner {
+	if hideBanner {
 		banner = banners[0]
 	}
 	return map[string]string{"banner": banner, "description": description}

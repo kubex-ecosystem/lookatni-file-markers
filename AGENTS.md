@@ -1,37 +1,55 @@
-# Repository Guidelines
+# Kubex AGENTS.md (Universal)
 
-## Project Structure & Module Organization
-- `src/`: VS Code extension and CLI TypeScript (`commands/`, `scripts/`, `utils/`, `views/`).
-- `cmd/` + `internal/`: Go CLI entry (`cmd/main.go`) and packages (parser, transpiler, vscode integration).
-- `dist/`: build output for TS and docs; `bin/`: CLI shims; `resources/`: icons/assets.
-- `tests/`: HTML templates and samples; `docs/`, `docs-site/`, `support/`: MkDocs config and helper scripts.
+Este documento serve como guia universal para configuração dos **Agents** em todos os repositórios Kubex. Ele unifica padrões já estabelecidos em cada projeto, evitando divergências e garantindo consistência para automações, bots e contribuidores humanos.
 
-## Build, Test, and Development Commands
-- Build (TS + CLI): `npm run build` (esbuild + compile CLI). Watch: `npm run watch`.
-- Lint/Types: `npm run lint`, `npm run check-types`.
-- VS Code tests: `npm test` (runs `@vscode/test-*`).
-- Go tests: `make test` or `go test ./...`.
-- Go build/cross-compile: `make build` (uses `support/main.sh`). Dev build: `make build-dev`.
-- Install binary: `make install`; clean artifacts: `make clean`.
-- Docs: `make serve-docs` (local at `http://localhost:8081/docs`), `make build-docs`.
+## Contexto
 
-## Coding Style & Naming Conventions
-- TypeScript: strict mode (TS 5), ES2022 modules, Node16 resolution.
-- ESLint: `eslint.config.mjs` with `curly`, `eqeqeq`, `semi` warnings; `@typescript-eslint/naming-convention` for imports (camelCase/PascalCase).
-- Prefer 2-space indentation, camelCase for vars/functions, PascalCase for classes/types; file names kebab-case (`generate-markers.ts`).
-- Go: follow `gofmt`/`go vet`; package names lower_snake; exported identifiers use PascalCase.
+Os agentes (Claude, Codex, Copilot, etc.) leem este documento como referência de **estrutura, padrões e práticas vigentes** no ecossistema Kubex. O objetivo é reduzir erros de interpretação e facilitar a manutenção de múltiplos repositórios.
 
-## Testing Guidelines
-- Place TS tests under `src/test` and run with `npm test`.
-- Go tests: co-locate `_test.go` next to sources; run `go test ./...`.
-- Aim to cover new logic (parsers/transpilers). Include small fixtures under `tests/` when practical.
+## Project Standards (Current Reality)
 
-## Commit & Pull Request Guidelines
-- Use Conventional Commits: `feat:`, `fix:`, `docs:`, `refactor:`, `chore:`. Keep subject ≤72 chars.
-- PRs must include: purpose summary, linked issues (`Closes #123`), test evidence (logs/screenshots for VS Code UI), and any config changes (e.g., `package.json` contributes).
-- Ensure CI/lint pass: `npm run lint && npm run check-types && npm test` and `go test ./...`.
+- **Manifest.json**: por padrão em `internal/module/info/manifest.json`. Se movido, é necessário atualizar manualmente as referências.
+- **Wrappers de módulo**: `internal/module/module.go` é a estrutura principal; `internal/module/wrpr.go` contém wrappers auxiliares.
+- **cmd/**: `main.go` atua como entrypoint principal. `cmd/cli/` guarda os entrypoints para wrappers de comandos CLI.
+- **Envvars**: sempre com fallback para valores padrão, garantindo resiliência.
+- **Carregamento de configs**: não ocorre no `main.go`; cada comando em `cmd/cli/` carrega apenas o necessário.
+- **READMEs**: todos os projetos têm `README.md` em inglês e opcional `docs/README.pt-BR.md`, com link no README em inglês.
+- **Makefile e support/**: genéricos, reagem às chaves definidas no `manifest.json`.
+- **Mocks**: sempre centralizados em módulos específicos, nunca hardcoded em lógicas reais.
+- **Logger universal (logz)**: todos os projetos usam o wrapper padrão em `internal/module/logger`. Recomenda-se importar com alias para consistência:
 
-## Security & Configuration Tips
-- Node >= 16 required; Go toolchain required for `make build`.
-- VS Code workspace trust: extension supports limited untrusted mode; avoid unsafe FS operations.
-- Configurable settings live in `package.json` (`lookatni.*`); prefer defaults and document changes in PRs.
+  ```go
+  import (
+      gl "github.com/kubex-ecosystem/analyzer/internal/module/logger"
+  )
+  ```
+
+- **Wrapper RegX**: todo módulo possui `internal/module/wrpr.go`, que contém exclusivamente o wrapper `func RegX() *[NOME_DO_MODULO]`. Isso padroniza o acesso ao módulo e mantém o `module.go` livre para customizações específicas sem risco de alterar o wrapper global.
+
+- **Internal como núcleo**: toda lógica central do projeto, ou qualquer parte que trate de algo sensível, crítico ou de complexidade média‑alta/alta, deve ficar em `internal/`.
+  - Se essa lógica precisar ser exposta para outro módulo ou uso externo, deve ser feita via **interfaces**, com construtores que permitam a instanciação dessas interfaces.
+  - A exportação deve ocorrer preferencialmente em `api/` ou `factory/`. Somente em casos específicos (como CLI ou domínios não ligados ao `internal/`) a exportação poderá estar fora desses packages.
+
+- **Interface universal dos módulos**: o arquivo `internal/module/module.go` implementa a interface comum de **todos os módulos Kubex**. Cada módulo segue esse padrão, com métodos como `Alias()`, `ShortDescription()`, `LongDescription()`, `Usage()`, `Examples()`, `Active()`, `Module()`, `Execute()` e `Command()`. Essa estrutura garante consistência entre módulos e integração fluida com Cobra para CLI.
+
+  Exemplo simplificado:
+
+  ```go
+  type Analyzer struct {
+      parentCmdName string
+      hideBanner   bool
+  }
+
+  func (m *Analyzer) Alias() string           { return "" }
+  func (m *Analyzer) ShortDescription() string { return "AI tools help in the editor, but they stop antes do PR, lacking governance." }
+  func (m *Analyzer) LongDescription() string  { return `Analyzer: An AI-powered tool...` }
+  func (m *Analyzer) Usage() string            { return "Analyzer [command] [args]" }
+  func (m *Analyzer) Active() bool             { return true }
+  func (m *Analyzer) Module() string           { return "Analyzer" }
+  func (m *Analyzer) Execute() error           { return m.Command().Execute() }
+  // ... demais métodos garantindo padronização
+  ```
+
+- **Banners**: todos os banners estão em `internal/module/info/application.go`, junto com o método auxiliar que cuida da lógica de impressão. Eles não ficam em `module/` porque também são usados pelos comandos em `cmd/cli/`. Se estivessem em `main.go`, criariam dependência cíclica, por isso foram isolados nesse arquivo específico.
+
+- **CLI design customizado**: todo design customizado do CLI (cores, layout e estilos de exibição) está centralizado em `internal/module/usage.go`. Esse arquivo define a aparência dos comandos e mensagens, mantendo o padrão visual consistente entre os módulos.

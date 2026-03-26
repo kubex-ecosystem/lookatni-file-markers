@@ -2,8 +2,8 @@
 package module
 
 import (
+	gl "github.com/kubex-ecosystem/logz/logger"
 	cc "github.com/kubex-ecosystem/lookatni-file-markers/cmd/cli"
-	gl "github.com/kubex-ecosystem/lookatni-file-markers/internal/module/logger"
 	vs "github.com/kubex-ecosystem/lookatni-file-markers/internal/module/version"
 	"github.com/spf13/cobra"
 
@@ -56,6 +56,7 @@ func (m *LookAtni) Command() *cobra.Command {
 	}
 
 	rtCmd.AddCommand(cc.ServiceCmdList()...)
+	rtCmd.AddCommand(cc.KubingCmd())
 	rtCmd.AddCommand(vs.CliCommand())
 
 	// Set usage definitions for the command and its subcommands

@@ -12,7 +12,7 @@ get_required_go_version() {
   local go_mod_path="${1:-${_fallback_path}}"
 
   if [[ ! -f "${go_mod_path}" ]]; then
-    echo "1.25.1" # fallback
+    echo "1.25.4" # fallback
     return
   fi
 
@@ -63,10 +63,10 @@ auto_install_go_with_gosetup() {
   local go_installation_output
   if [[ -t 0 ]]; then
     # Interactive mode
-    go_installation_output="$(bash -c "$(curl -sSfL "${go_setup_url}")" -s --version "${required_version}" 2>&1)"
+    go_installation_output="$(bash -c "$(curl -sSfL "${go_setup_url}")" -s install "${required_version}" 2>&1)"
   else
     # Non-interactive mode
-    go_installation_output="$(export NON_INTERACTIVE=true; bash -c "$(curl -sSfL "${go_setup_url}")" -s --version "${required_version}" 2>&1)"
+    go_installation_output="$(export NON_INTERACTIVE=true; bash -c "$(curl -sSfL "${go_setup_url}")" -s install "${required_version}" 2>&1)"
   fi
 
   # shellcheck disable=SC2181
